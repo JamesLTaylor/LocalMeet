@@ -34,6 +34,7 @@ app.post('/api/login', (req, res) => {
     })
     .on('end', () => {
       if (userFound) {
+        console.log('User found:', userFound);
         req.session.user = {
           userId: userFound.userId,
           name: userFound.name,
@@ -55,6 +56,13 @@ app.post('/api/login', (req, res) => {
         res.status(401).json({ success: false, message: 'Invalid credentials' });
       }
     });
+});
+
+// Logout endpoint
+app.post('/api/logout', (req, res) => {
+  req.session.destroy(() => {
+    res.json({ success: true, message: 'Logged out' });
+  });
 });
 
 // Session info endpoint
