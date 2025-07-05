@@ -1,11 +1,50 @@
 const express = require('express');
 const path = require('path');
+const session = require('express-session');
+const fs = require('fs');
+const csv = require('csv-parser');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Session setup
+app.use(session({
+  secret: 'localmeet_secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false } // Set to true if using HTTPS
+}));
+
 // Serve static files from the public directory
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Login endpoint
+app.post('/api/login', (req, res) => {
+  const { email, password } = req.body;
+  let userFound = null;
+  fs.createReadStream(path.join(__dirname, 'users.csv'))
+    .pipe(csv())
+    .on('data', (row) => {
+      if (row.email === email && row.password === password) {
+        userFound = row;
+      }
+    })
+    .on('end', () => {
+      if (userFound) {
+        req.session.user = {
+          userId: userFound.userId,
+          name: userFound.name,
+          email: userFound.email
+        };
+        res.json({ success: true, message: 'Login successful' });
+      } else {
+        res.status(401).json({ success: false, message: 'Invalid credentials' });
+      }
+    });
+});
 
 // Basic API route (optional, can be removed if not needed)
 app.get('/api/hello', (req, res) => {
