@@ -17,3 +17,50 @@ button {
   margin-top: 1rem;
   color: #008000;
 }
+.top-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.menu-btn {
+  position: absolute;
+  right: 0;
+  top: 0;
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+}
+.menu-dropdown {
+  position: absolute;
+  right: 0;
+  top: 2.5rem;
+  background: #fff;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-radius: 4px;
+  min-width: 120px;
+  z-index: 100;
+}
+.menu-dropdown ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.menu-dropdown li {
+  border-bottom: 1px solid #eee;
+}
+.menu-dropdown li:last-child {
+  border-bottom: none;
+}
+.menu-dropdown a {
+  display: block;
+  padding: 0.75rem 1rem;
+  color: #222;
+  text-decoration: none;
+}
+.menu-dropdown a:hover {
+  background: #f0f0f0;
+}

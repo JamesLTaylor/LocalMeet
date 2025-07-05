@@ -7,10 +7,32 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Welcome to LocalMeet</h1>
+  <div class="top-bar">
+    <h1>Welcome to LocalMeet</h1>
+    <button id="menuBtn" class="menu-btn">☰</button>
+    <div id="menu" class="menu-dropdown" style="display:none;">
+      <ul>
+        <li><a href="#">Login</a></li>
+        <li><a href="#">Sign Up</a></li>
+        <li><a href="#">Profile</a></li>
+      </ul>
+    </div>
+  </div>
   <p>This is a minimal Node.js website with Express backend and static frontend.</p>
   <button id="helloBtn">Say Hello (API)</button>
   <div id="apiResponse"></div>
   <script src="main.js"></script>
+  <script>
+    const menuBtn = document.getElementById('menuBtn');
+    const menu = document.getElementById('menu');
+    menuBtn.addEventListener('click', () => {
+      menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+    });
+    document.addEventListener('click', (e) => {
+      if (!menu.contains(e.target) && e.target !== menuBtn) {
+        menu.style.display = 'none';
+      }
+    });
+  </script>
 </body>
 </html>
