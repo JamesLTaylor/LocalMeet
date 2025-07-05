@@ -1,28 +1,17 @@
-# LocalMeet
+# East Herts Local Meet
 
-A minimal website project with a Node.js backend (Express) and a static frontend.
+LocalMeet is a human first community building site. Helping people meet each other, spend time doing what they enjoy and flourishing as human beings.
 
-## Features
-- Node.js backend using Express
-- Serves static files from `public/`
-- Minimal frontend (HTML/CSS/JS)
+It is only for the East Herts area and exists only to support that area. It will never expand and never try to become a business. People are free to make something similar for their own local areas.
 
-## Getting Started
+Event organizers can charge for events in which case it is vital that they make it clear.
 
-1. Install dependencies:
-   ```sh
-   npm install
-   ```
-2. Start the server:
-   ```sh
-   npm start
-   ```
-3. Open your browser at [http://localhost:3000](http://localhost:3000)
+The mission is to:
 
-## Project Structure
-- `server.js` — Main Node.js backend (Express)
-- `public/` — Static frontend files (HTML, CSS, JS)
+ * Facilitate wholesome community events and meetups
+ * Never charge for anything
+ * Never show ads
+ * Have no commercial interests  
+ * Not offer freemium gimmicks 
+ * Not platform sleazy money making meetups
 
----
-
-Replace this README as you build your project!
