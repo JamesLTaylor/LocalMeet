@@ -76,15 +76,18 @@ Can add/remove Moderators
   * Title
   * Location
   * Member only?
+  * External register/tickets? Link/email to tickets
+  * LocalMeet handle register
   * Group tags e.g. Everyone; older people; parents&kids
-  * Category tags e.g. 
+  * Category tags e.g. Gaming, Walking, Talking, Sport, Volunteering
   * Description
   * Contact person or organization
   * Contact details
   * Direct contact or via website contact
     * via website will make it easy for the organizer to remove themself
-  * Cost
-  * Users who want to go (private)
+  * Cost 
+  * Users who registered - will receive announcements and organizer will be able to contact them
+  * Users who are interested - will receive any announcements
 
 ## Group tags
  
@@ -98,12 +101,14 @@ Can add/remove Moderators
 ## Users
  * UserID
  * Name
+ * email address
  * Date joined
- * Location
+ * Location 
  * Search group tags
  * Search category tags
  * Days&times of interest (e.g. Only weekends and evenings)
  * Events reviewed
  * Events registered interest
+ * Events signed up for
  * Events attended
  
