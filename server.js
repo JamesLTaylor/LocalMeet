@@ -65,6 +65,7 @@ app.post('/api/logout', (req, res) => {
   });
 });
 
+// todo: implement an endpoint to just the user name.
 // Session info endpoint
 app.get('/api/session', (req, res) => {
   if (req.session && req.session.user) {

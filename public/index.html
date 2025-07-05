@@ -16,6 +16,7 @@
       <ul>
         <li><a href="#">Login</a></li>
         <li><a href="#">Sign Up</a></li>
+        <li id="logoutMenuItem" style="display:none;"><a href="#" id="logoutMenuLink">Logout</a></li>
       </ul>
     </div>
   </div>
@@ -32,7 +33,7 @@
         <input type="email" id="loginEmail" name="email" required><br>
         <label for="loginPassword">Password:</label>
         <input type="password" id="loginPassword" name="password" required><br>
-        <button type="submit">Login</button>
+        <button type="submit" id="loginBtn">Login</button>
       </form>
     </div>
   </div>
@@ -61,36 +62,36 @@
     };
     window.onclick = function(event) {
       if (event.target == document.getElementById('loginModal')) {
-        document.getElementById('loginModal').style.display = 'none';
+        document.getElementById('loginBtn').style.display = 'none';
       }
     };
 
-    function setUserName(name) {
+    async function setUserName() {
       const userNameDisplay = document.getElementById('userNameDisplay');
-      const logoutBtn = document.getElementById('logoutBtn');
-      if (name) {
-        userNameDisplay.textContent = name;
+      const logoutMenuItem = document.getElementById('logoutMenuItem');
+      const res = await fetch('/api/session');
+      const data = await res.json();
+      if (data.user && data.user.name) {
+        userNameDisplay.textContent = data.user.name;
         userNameDisplay.style.display = 'inline-block';
-        logoutBtn.style.display = 'inline-block';
+        logoutMenuItem.style.display = 'block';
       } else {
         userNameDisplay.textContent = '';
         userNameDisplay.style.display = 'none';
-        logoutBtn.style.display = 'none';
+        logoutMenuItem.style.display = 'none';
       }
     }
-    // Check session on load
-    fetch('/api/session')
-      .then(res => res.json())
-      .then(data => {
-        if (data.user && data.user.name) setUserName(data.user.name);
-      });
+    // Set user name on page load
+    setUserName();
     // Listen for login success from main.js
-    window.addEventListener('user-logged-in', e => {
-      setUserName(e.detail.name);
+    window.addEventListener('user-logged-in', () => {
+      setUserName();
     });
-    document.getElementById('logoutBtn').onclick = async function() {
+    document.getElementById('logoutMenuLink').onclick = async function(e) {
+      e.preventDefault();
       await fetch('/api/logout', { method: 'POST' });
-      setUserName(null);
+      setUserName();
+      menu.style.display = 'none';
     };
   </script>
 </body>

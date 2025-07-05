@@ -19,7 +19,6 @@ if (loginForm) {
       });
       const data = await res.json();
       if (data.success) {
-        alert('Login successful!');
         document.getElementById('loginModal').style.display = 'none';
         // Dispatch event to update user name in top bar
         window.dispatchEvent(new CustomEvent('user-logged-in', { detail: { name: email } }));
