@@ -98,10 +98,12 @@ Can add/remove Moderators
  * Name
  * Description 
 
-## Users
+## User
+
  * UserID
  * Name
  * email address
+ * password
  * Date joined
  * Location 
  * Search group tags
