@@ -14,13 +14,27 @@
       <ul>
         <li><a href="#">Login</a></li>
         <li><a href="#">Sign Up</a></li>
-        <li><a href="#">Profile</a></li>
       </ul>
     </div>
   </div>
   <p>This is a minimal Node.js website with Express backend and static frontend.</p>
   <button id="helloBtn">Say Hello (API)</button>
   <div id="apiResponse"></div>
+
+  <div id="loginModal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span class="close" id="closeLogin">&times;</span>
+      <h2>Login</h2>
+      <form id="loginForm">
+        <label for="loginEmail">Email:</label>
+        <input type="email" id="loginEmail" name="email" required><br>
+        <label for="loginPassword">Password:</label>
+        <input type="password" id="loginPassword" name="password" required><br>
+        <button type="submit">Login</button>
+      </form>
+    </div>
+  </div>
+
   <script src="main.js"></script>
   <script>
     const menuBtn = document.getElementById('menuBtn');
@@ -33,6 +47,21 @@
         menu.style.display = 'none';
       }
     });
+    document.querySelector('#menu a').addEventListener('click', function(e) {
+      if (e.target.textContent === 'Login') {
+        e.preventDefault();
+        document.getElementById('loginModal').style.display = 'block';
+        menu.style.display = 'none';
+      }
+    });
+    document.getElementById('closeLogin').onclick = function() {
+      document.getElementById('loginModal').style.display = 'none';
+    };
+    window.onclick = function(event) {
+      if (event.target == document.getElementById('loginModal')) {
+        document.getElementById('loginModal').style.display = 'none';
+      }
+    };
   </script>
 </body>
 </html>
