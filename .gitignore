@@ -40,3 +40,4 @@ coverage/
 
 # VS Code settings
 .vscode/
+!.vscode/launch.json
