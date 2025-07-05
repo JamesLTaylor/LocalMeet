@@ -1,5 +1,5 @@
 const { expect } = require('chai');
-const { User, Location } = require('../User');
+const { User, Location } = require('../model/User');
 
 describe('User', () => {
   it('should create a user with name, location, and preferred tags', () => {
