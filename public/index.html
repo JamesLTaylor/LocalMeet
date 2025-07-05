@@ -9,6 +9,7 @@
 <body>
   <div class="top-bar">
     <h1>Welcome to LocalMeet</h1>
+    <span id="userNameDisplay" class="user-name" style="margin-left:auto;margin-right:1rem;display:none;"></span>
     <button id="menuBtn" class="menu-btn">☰</button>
     <div id="menu" class="menu-dropdown" style="display:none;">
       <ul>
@@ -62,6 +63,27 @@
         document.getElementById('loginModal').style.display = 'none';
       }
     };
+
+    function setUserName(name) {
+      const userNameDisplay = document.getElementById('userNameDisplay');
+      if (name) {
+        userNameDisplay.textContent = name;
+        userNameDisplay.style.display = 'inline-block';
+      } else {
+        userNameDisplay.textContent = '';
+        userNameDisplay.style.display = 'none';
+      }
+    }
+    // Check session on load
+    fetch('/api/session')
+      .then(res => res.json())
+      .then(data => {
+        if (data.user && data.user.name) setUserName(data.user.name);
+      });
+    // Listen for login success from main.js
+    window.addEventListener('user-logged-in', e => {
+      setUserName(e.detail.name);
+    });
   </script>
 </body>
 </html>

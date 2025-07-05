@@ -21,6 +21,8 @@ if (loginForm) {
       if (data.success) {
         alert('Login successful!');
         document.getElementById('loginModal').style.display = 'none';
+        // Dispatch event to update user name in top bar
+        window.dispatchEvent(new CustomEvent('user-logged-in', { detail: { name: email } }));
       } else {
         alert(data.message || 'Login failed');
       }

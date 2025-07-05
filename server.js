@@ -37,13 +37,33 @@ app.post('/api/login', (req, res) => {
         req.session.user = {
           userId: userFound.userId,
           name: userFound.name,
-          email: userFound.email
+          email: userFound.email,
+          salt: userFound.salt,
+          dateJoined: userFound.dateJoined,
+          latitude: userFound.latitude,
+          longitude: userFound.longitude,
+          searchGroupTags: userFound.searchGroupTags,
+          searchCategoryTags: userFound.searchCategoryTags,
+          daysTimesOfInterest: userFound.daysTimesOfInterest,
+          eventsReviewed: userFound.eventsReviewed,
+          eventsRegisteredInterest: userFound.eventsRegisteredInterest,
+          eventsSignedUpFor: userFound.eventsSignedUpFor,
+          eventsAttended: userFound.eventsAttended
         };
         res.json({ success: true, message: 'Login successful' });
       } else {
         res.status(401).json({ success: false, message: 'Invalid credentials' });
       }
     });
+});
+
+// Session info endpoint
+app.get('/api/session', (req, res) => {
+  if (req.session && req.session.user) {
+    res.json({ user: req.session.user });
+  } else {
+    res.json({ user: null });
+  }
 });
 
 // Basic API route (optional, can be removed if not needed)
