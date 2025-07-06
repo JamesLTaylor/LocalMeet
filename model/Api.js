@@ -77,11 +77,12 @@ class Api {
    */
   getUserByEmail(email, password) {
     return new Promise((resolve, reject) => {
+      const emailLower = email.toLowerCase();
       fs.createReadStream(path.join(this.csvDir, 'users.csv'))
         .pipe(csv())
         .on('data', (row) => {
           console.log('Checking user:', row.email); // Debug log
-          if (row.email === email && row.password === password) {
+          if (row.email && row.email === emailLower && row.password === password) {
             // Convert CSV row to User instance
             const user = new User({
               userId: row.userId,

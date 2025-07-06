@@ -22,16 +22,25 @@ button {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.5rem;
+}
+.top-bar h1 {
+  margin: 0;
+  flex: 1 1 auto;
+  text-align: left;
+}
+.user-name {
+  margin: 0;
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  order: 2;
 }
 .menu-btn {
-  position: absolute;
-  right: 0;
-  top: 0;
-  font-size: 1.5rem;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.5rem 1rem;
+  position: relative;
+  z-index: 2;
+  order: 3;
 }
 .menu-dropdown {
   position: absolute;
