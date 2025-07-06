@@ -114,6 +114,8 @@ async function populateCategoryFilter() {
     const res = await fetch('/api/category-tags');
     if (res.ok) {
       const tags = await res.json();
+      // Remove all options except the first (All Categories)
+      select.innerHTML = '';
       for (const tag of tags) {
         const option = document.createElement('option');
         option.value = tag.name;
@@ -121,6 +123,18 @@ async function populateCategoryFilter() {
         option.title = tag.description || tag.name;
         select.appendChild(option);
       }
+    }
+    // Initialize Tom Select (multi-select, search enabled)
+    if (window.TomSelect) {
+      if (select.tomselect) select.tomselect.destroy();
+      new TomSelect(select, {
+        plugins: ['remove_button'],
+        maxItems: null,
+        placeholder: 'Select categories...',
+        searchField: ['text'],
+        closeAfterSelect: false,
+        allowEmptyOption: true
+      });
     }
   } catch {}
 }

@@ -240,3 +240,12 @@ button {
   font-size: 1.2rem;
   color: #0078d7;
 }
+.ts-dropdown, .ts-dropdown .dropdown-content, .ts-dropdown .ts-dropdown-content, .ts-dropdown .ts-dropdown-content .ts-dropdown-option {
+  background: #fff !important;
+  opacity: 1 !important;
+}
+.ts-dropdown {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  border: 1px solid #ccc;
+  z-index: 1000;
+}
