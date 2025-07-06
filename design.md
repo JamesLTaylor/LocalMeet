@@ -90,11 +90,12 @@ Can add/remove Moderators
   * Users who are interested - will receive any announcements
 
 ## Group tags
- 
+
  * Name
  * Description
 
 ## Category tags
+
  * Name
  * Description 
 

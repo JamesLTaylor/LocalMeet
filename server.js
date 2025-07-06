@@ -70,7 +70,7 @@ app.get('/api/events', async (req, res) => {
       location = { latitude: parseFloat(lat), longitude: parseFloat(lng) };
     }
     const events = await api.getEvents({
-      startDate: startDate || new Date(Date.now() - 7*24*60*60*1000), // default: 1 week ago
+      startDate: startDate || new Date(Date.now()), // default: today`
       endDate: endDate || new Date(Date.now() + 60*24*60*60*1000),    // default: 2 months ahead
       location,
       distance: distance ? parseFloat(distance) : undefined

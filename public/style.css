@@ -202,3 +202,25 @@ button {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.event-list-ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.event-list-item {
+  background: #f7f7f7;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.event-list-item:hover {
+  background: #e6f2ff;
+}
+#event-list h2 {
+  margin-top: 0;
+  font-size: 1.2rem;
+  color: #0078d7;
+}
