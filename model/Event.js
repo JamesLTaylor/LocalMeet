@@ -4,6 +4,7 @@ class Event {
    * @param {string} options.eventId
    * @param {Date} options.date
    * @param {string} options.title
+   * @param {string} options.locationDescription // Description of the location
    * @param {string} options.location
    * @param {boolean} options.memberOnly
    * @param {string} [options.externalRegister] // Link/email to tickets
@@ -17,11 +18,15 @@ class Event {
    * @param {number} [options.cost]
    * @param {string[]} [options.registeredUsers]
    * @param {string[]} [options.interestedUsers]
+   * @param {number} [options.expectedAttendees] // Expected number of attendees
+   * @param {boolean} [options.isCancelled] // Event is cancelled
+   * @param {boolean} [options.isDeleted] // Event is deleted
    */
   constructor({
     eventId,
     date,
     title,
+    locationDescription = '',
     location,
     memberOnly = false,
     externalRegister = '',
@@ -34,11 +39,15 @@ class Event {
     directContact = false,
     cost = 0,
     registeredUsers = [],
-    interestedUsers = []
+    interestedUsers = [],
+    expectedAttendees = 0,
+    isCancelled = false,
+    isDeleted = false
   }) {
     this.eventId = eventId;
     this.date = date;
     this.title = title;
+    this.locationDescription = locationDescription;
     this.location = location;
     this.memberOnly = memberOnly;
     this.externalRegister = externalRegister;
@@ -52,6 +61,9 @@ class Event {
     this.cost = cost;
     this.registeredUsers = registeredUsers;
     this.interestedUsers = interestedUsers;
+    this.expectedAttendees = expectedAttendees;
+    this.isCancelled = isCancelled;
+    this.isDeleted = isDeleted;
   }
 }
 
