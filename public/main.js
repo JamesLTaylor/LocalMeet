@@ -109,17 +109,59 @@ function renderEventList(events) {
   listContainer.prepend(eventList);
 }
 
+// Fetch category tags and populate the filter dropdown
+async function populateCategoryFilter() {
+  const select = document.getElementById('categoryFilter');
+  if (!select) return;
+  try {
+    const res = await fetch('/api/category-tags');
+    if (res.ok) {
+      const tags = await res.json();
+      for (const tag of tags) {
+        const option = document.createElement('option');
+        option.value = tag.name;
+        option.textContent = tag.name;
+        option.title = tag.description || tag.name;
+        select.appendChild(option);
+      }
+    }
+  } catch {}
+}
+
+// Filter events by selected category
+function filterEventsByCategory(events, selectedCategory) {
+  if (!selectedCategory) return events;
+  return events.filter(event => {
+    if (!event.categoryTags) return false;
+    const tags = Array.isArray(event.categoryTags) ? event.categoryTags : String(event.categoryTags).split(';');
+    return tags.includes(selectedCategory);
+  });
+}
+
+// Update event list when filter changes
+function setupCategoryFilter(events) {
+  const select = document.getElementById('categoryFilter');
+  if (!select) return;
+  select.addEventListener('change', () => {
+    const selected = select.value;
+    renderEventList(filterEventsByCategory(events, selected));
+  });
+}
+
+// Patch fetchAndRenderEventList to support filtering
 async function fetchAndRenderEventList() {
   try {
     const res = await fetch('/api/events');
     if (res.ok) {
       const events = await res.json();
       renderEventList(events);
+      setupCategoryFilter(events);
     }
   } catch {}
 }
 
 fetchAndRenderEventList();
+populateCategoryFilter();
 
 // Listen for calendar day clicks
 window.addEventListener('calendar-day-click', (e) => {
