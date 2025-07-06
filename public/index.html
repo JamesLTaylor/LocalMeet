@@ -69,16 +69,22 @@
     async function setUserName() {
       const userNameDisplay = document.getElementById('userNameDisplay');
       const logoutMenuItem = document.getElementById('logoutMenuItem');
+      const loginMenuItem = document.querySelector('#menu ul li:nth-child(1)');
+      const signupMenuItem = document.querySelector('#menu ul li:nth-child(2)');
       const res = await fetch('/api/session');
       const data = await res.json();
       if (data.user && data.user.name) {
         userNameDisplay.textContent = data.user.name;
         userNameDisplay.style.display = 'inline-block';
         logoutMenuItem.style.display = 'block';
+        loginMenuItem.style.display = 'none';
+        signupMenuItem.style.display = 'none';
       } else {
         userNameDisplay.textContent = '';
         userNameDisplay.style.display = 'none';
         logoutMenuItem.style.display = 'none';
+        loginMenuItem.style.display = 'block';
+        signupMenuItem.style.display = 'block';
       }
     }
     // Set user name on page load
