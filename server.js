@@ -61,10 +61,6 @@ app.get('/api/session', (req, res) => {
   }
 });
 
-// Basic API route (optional, can be removed if not needed)
-app.get('/api/hello', (req, res) => {
-  res.json({ message: 'Hello from the backend!' });
-});
 
 // Fallback to index.html for all other routes (SPA support)
 app.get('*', (req, res) => {
