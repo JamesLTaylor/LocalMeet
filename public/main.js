@@ -1,6 +1,15 @@
-document.addEventListener('DOMContentLoaded', function() {
+/*
+ * main.js - LocalMeet frontend logic
+ *
+ * All functions are grouped together for maintainability.
+ * DOMContentLoaded and event listeners are at the bottom.
+ */
+
+// --- DOMContentLoaded and UI setup functions ---
+function setupMenuHandlers() {
   const menuBtn = document.getElementById('menuBtn');
   const menu = document.getElementById('menu');
+  const loginMenuItem = document.getElementById('loginMenuItem');
   menuBtn.addEventListener('click', () => {
     menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
   });
@@ -9,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
       menu.style.display = 'none';
     }
   });
-  document.querySelector('#menu a').addEventListener('click', function(e) {
+  loginMenuItem.querySelector('a').addEventListener('click', function(e) {
     if (e.target.textContent === 'Login') {
       e.preventDefault();
       document.getElementById('loginModal').style.display = 'block';
@@ -24,72 +33,69 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('loginBtn').style.display = 'none';
     }
   };
+}
 
-  async function setUserName() {
-    const userNameDisplay = document.getElementById('userNameDisplay');
-    const logoutMenuItem = document.getElementById('logoutMenuItem');
-    const loginMenuItem = document.querySelector('#menu ul li:nth-child(1)');
-    const signupMenuItem = document.querySelector('#menu ul li:nth-child(2)');
-    const res = await fetch('/api/session');
-    const data = await res.json();
-    if (data.user && data.user.name) {
-      userNameDisplay.textContent = data.user.name;
-      userNameDisplay.style.display = 'inline-block';
-      logoutMenuItem.style.display = 'block';
-      loginMenuItem.style.display = 'none';
-      signupMenuItem.style.display = 'none';
-    } else {
-      userNameDisplay.textContent = '';
-      userNameDisplay.style.display = 'none';
-      logoutMenuItem.style.display = 'none';
-      loginMenuItem.style.display = 'block';
-      signupMenuItem.style.display = 'block';
-    }
+async function setUserName() {
+  const userNameDisplay = document.getElementById('userNameDisplay');
+  const logoutMenuItem = document.getElementById('logoutMenuItem');
+  const loginMenuItem = document.getElementById('loginMenuItem');
+  const signupMenuItem = document.getElementById('signupMenuItem');
+  const res = await fetch('/api/session');
+  const data = await res.json();
+  if (data.user && data.user.name) {
+    userNameDisplay.textContent = data.user.name;
+    userNameDisplay.style.display = 'inline-block';
+    logoutMenuItem.style.display = 'block';
+    loginMenuItem.style.display = 'none';
+    signupMenuItem.style.display = 'none';
+  } else {
+    userNameDisplay.textContent = '';
+    userNameDisplay.style.display = 'none';
+    logoutMenuItem.style.display = 'none';
+    loginMenuItem.style.display = 'block';
+    signupMenuItem.style.display = 'block';
   }
-  setUserName();
-  window.addEventListener('user-logged-in', () => {
-    setUserName();
-  });
+}
+
+function setupLogoutHandler() {
+  const menu = document.getElementById('menu');
   document.getElementById('logoutMenuLink').onclick = async function(e) {
     e.preventDefault();
     await fetch('/api/logout', { method: 'POST' });
     setUserName();
     menu.style.display = 'none';
   };
-});
-
-// Login form handler
-const loginForm = document.getElementById('loginForm');
-if (loginForm) {
-  loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
-    try {
-      const res = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
-      const data = await res.json();
-      if (data.success) {
-        document.getElementById('loginModal').style.display = 'none';
-        // Dispatch event to update user name in top bar
-        window.dispatchEvent(new CustomEvent('user-logged-in', { detail: { name: email } }));
-      } else {
-        alert(data.message || 'Login failed');
-      }
-    } catch (err) {
-      alert('Error logging in');
-    }
-  });
 }
 
-// FullCalendar integration
-// Assumes FullCalendar JS and CSS are loaded in index.html
+function setupLoginFormHandler() {
+  const loginForm = document.getElementById('loginForm');
+  if (loginForm) {
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('loginModal').style.display = 'none';
+          window.dispatchEvent(new CustomEvent('user-logged-in', { detail: { name: email } }));
+        } else {
+          alert(data.message || 'Login failed');
+        }
+      } catch (err) {
+        alert('Error logging in');
+      }
+    });
+  }
+}
 
-document.addEventListener('DOMContentLoaded', async function() {
-  const calendarEl = document.getElementById('calendar');
+// --- Calendar and Event List functions ---
+async function fetchCalendarEvents() {
   let events = [];
   try {
     const res = await fetch('/api/events');
@@ -103,13 +109,17 @@ document.addEventListener('DOMContentLoaded', async function() {
       }));
     }
   } catch {}
+  return events;
+}
+
+function setupFullCalendar(events) {
+  const calendarEl = document.getElementById('calendar');
   const calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: 'dayGridMonth',
     height: 'auto',
     events,
     selectable: true,
     select: function(info) {
-      // info.startStr and info.endStr (exclusive)
       window.dispatchEvent(new CustomEvent('calendar-range-select', {
         detail: {
           start: info.startStr,
@@ -126,7 +136,6 @@ document.addEventListener('DOMContentLoaded', async function() {
       }));
     },
     dateClick: function(info) {
-      // Find all events for this date
       const dayEvents = events.filter(e => e.start.split('T')[0] === info.dateStr);
       window.dispatchEvent(new CustomEvent('calendar-day-click', {
         detail: {
@@ -137,7 +146,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
   });
   calendar.render();
-});
+}
 
 function renderEventList(events) {
   const listContainer = document.getElementById('event-list');
@@ -166,7 +175,7 @@ function renderEventList(events) {
   listContainer.appendChild(eventList);
 }
 
-// Fetch category tags and populate the filter dropdown
+// --- Category Filter functions ---
 async function populateCategoryFilter() {
   const select = document.getElementById('categoryFilter');
   if (!select) return;
@@ -174,7 +183,6 @@ async function populateCategoryFilter() {
     const res = await fetch('/api/category-tags');
     if (res.ok) {
       const tags = await res.json();
-      // Remove all options except the first (All Categories)
       select.innerHTML = '';
       for (const tag of tags) {
         const option = document.createElement('option');
@@ -184,7 +192,6 @@ async function populateCategoryFilter() {
         select.appendChild(option);
       }
     }
-    // Initialize Tom Select (multi-select, search enabled)
     if (window.TomSelect) {
       if (select.tomselect) select.tomselect.destroy();
       new TomSelect(select, {
@@ -199,7 +206,6 @@ async function populateCategoryFilter() {
   } catch {}
 }
 
-// Filter events by selected category
 function filterEventsByCategory(events, selectedCategory) {
   if (!selectedCategory) return events;
   return events.filter(event => {
@@ -209,7 +215,6 @@ function filterEventsByCategory(events, selectedCategory) {
   });
 }
 
-// Update event list when filter changes
 function setupCategoryFilter(events) {
   const select = document.getElementById('categoryFilter');
   if (!select) return;
@@ -219,7 +224,6 @@ function setupCategoryFilter(events) {
   });
 }
 
-// Patch fetchAndRenderEventList to support filtering
 async function fetchAndRenderEventList() {
   try {
     const res = await fetch('/api/events');
@@ -231,8 +235,25 @@ async function fetchAndRenderEventList() {
   } catch {}
 }
 
-fetchAndRenderEventList();
-populateCategoryFilter();
+// --- Event listeners and initialization ---
+document.addEventListener('DOMContentLoaded', async function() {
+  setupMenuHandlers();
+  setUserName();
+  setupLogoutHandler();
+  setupLoginFormHandler();
+
+  window.addEventListener('user-logged-in', () => {
+    setUserName();
+  });
+
+  // Calendar
+  const calendarEvents = await fetchCalendarEvents();
+  setupFullCalendar(calendarEvents);
+
+  // Event list and category filter
+  fetchAndRenderEventList();
+  populateCategoryFilter();
+});
 
 // Listen for calendar day clicks
 window.addEventListener('calendar-day-click', (e) => {
