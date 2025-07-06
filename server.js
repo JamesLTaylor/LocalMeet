@@ -82,6 +82,17 @@ app.get('/api/events', async (req, res) => {
   }
 });
 
+// Category tags endpoint
+app.get('/api/category-tags', async (req, res) => {
+  try {
+    const tags = await api.getCategoryTags();
+    res.json(tags);
+  } catch (err) {
+    console.error('Error fetching category tags:', err);
+    res.status(500).json({ success: false, message: 'Error fetching category tags' });
+  }
+});
+
 // Fallback to index.html for all other routes (SPA support)
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));

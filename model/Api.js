@@ -207,6 +207,29 @@ class Api {
         .on('error', reject);
     });
   }
+
+  /**
+   * Get a list of CategoryTags from categoryTags.csv
+   * @returns {Promise<CategoryTag[]>}
+   */
+  async getCategoryTags() {
+    const CategoryTag = require('./CategoryTag');
+    const tags = [];
+    return new Promise((resolve, reject) => {
+      fs.createReadStream(path.join(this.csvDir, 'categoryTags.csv'))
+        .pipe(csv())
+        .on('data', (row) => {
+          if (row.name) {
+            tags.push(new CategoryTag({
+              name: row.name,
+              description: row.description || ''
+            }));
+          }
+        })
+        .on('end', () => resolve(tags))
+        .on('error', reject);
+    });
+  }
 }
 
 module.exports = Api;
