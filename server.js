@@ -3,6 +3,7 @@ const path = require('path');
 const session = require('express-session');
 const fs = require('fs');
 const csv = require('csv-parser');
+const Api = require('./model/Api');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -21,40 +22,25 @@ app.use(session({
 // Serve static files from the public directory
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Create an instance of the API class on app startup
+const api = new Api({ csvDir: __dirname+"/model/TestDB" });
+// in future connect to MySQL
+
 // Login endpoint
 app.post('/api/login', (req, res) => {
   const { email, password } = req.body;
-  let userFound = null;
-  fs.createReadStream(path.join(__dirname, 'users.csv'))
-    .pipe(csv())
-    .on('data', (row) => {
-      if (row.email === email && row.password === password) {
-        userFound = row;
-      }
-    })
-    .on('end', () => {
-      if (userFound) {
-        console.log('User found:', userFound);
-        req.session.user = {
-          userId: userFound.userId,
-          name: userFound.name,
-          email: userFound.email,
-          salt: userFound.salt,
-          dateJoined: userFound.dateJoined,
-          latitude: userFound.latitude,
-          longitude: userFound.longitude,
-          searchGroupTags: userFound.searchGroupTags,
-          searchCategoryTags: userFound.searchCategoryTags,
-          daysTimesOfInterest: userFound.daysTimesOfInterest,
-          eventsReviewed: userFound.eventsReviewed,
-          eventsRegisteredInterest: userFound.eventsRegisteredInterest,
-          eventsSignedUpFor: userFound.eventsSignedUpFor,
-          eventsAttended: userFound.eventsAttended
-        };
+  api.getUserByEmail(email, password)
+    .then(user => {
+      if (user) {
+        req.session.user = user;
         res.json({ success: true, message: 'Login successful' });
       } else {
         res.status(401).json({ success: false, message: 'Invalid credentials' });
       }
+    })
+    .catch(err => {
+      console.error('Error during login:', err);
+      res.status(500).json({ success: false, message: 'Internal server error' });
     });
 });
 
