@@ -87,40 +87,44 @@ class Api {
           if (row.email && row.email === emailLower) {
             // Pause the stream while we verify
             stream.pause();
+            console.log('Checking user:', row.email);
+            // argon2.hash(password + row.salt)
+            // .then((hash) => {
+            //   console.log(hash);})
             argon2.verify(row.password, password + row.salt)
               .then((match) => {
                 if (match && !resolved) {
                   resolved = true;
-                  const user = new User({
-                    userId: row.userId,
-                    name: row.name,
-                    email: row.email,
-                    salt: row.salt,
-                    password: row.password,
-                    dateJoined: row.dateJoined,
-                    location: new Location(Number(row.latitude), Number(row.longitude)),
-                    searchGroupTags: row.searchGroupTags ? row.searchGroupTags.split(';') : [],
-                    searchCategoryTags: row.searchCategoryTags ? row.searchCategoryTags.split(';') : [],
-                    daysTimesOfInterest: row.daysTimesOfInterest ? row.daysTimesOfInterest.split(';') : [],
-                    eventsReviewed: row.eventsReviewed ? row.eventsReviewed.split(';') : [],
-                    eventsRegisteredInterest: row.eventsRegisteredInterest ? row.eventsRegisteredInterest.split(';') : [],
-                    eventsSignedUpFor: row.eventsSignedUpFor ? row.eventsSignedUpFor.split(';') : [],
-                    eventsAttended: row.eventsAttended ? row.eventsAttended.split(';') : [],
-                    userType: row.userType
-                  });
-                  resolve(user);
-                  stream.destroy();
-                } else {
-                  stream.resume();
-                }
-              })
-              .catch(err => {
-                if (!resolved) {
-                  resolved = true;
-                  reject(err);
-                  stream.destroy();
-                }
-              });
+                const user = new User({
+                  userId: row.userId,
+                  name: row.name,
+                  email: row.email,
+                  salt: row.salt,
+                  password: row.password,
+                  dateJoined: row.dateJoined,
+                  location: new Location(Number(row.latitude), Number(row.longitude)),
+                  searchGroupTags: row.searchGroupTags ? row.searchGroupTags.split(';') : [],
+                  searchCategoryTags: row.searchCategoryTags ? row.searchCategoryTags.split(';') : [],
+                  daysTimesOfInterest: row.daysTimesOfInterest ? row.daysTimesOfInterest.split(';') : [],
+                  eventsReviewed: row.eventsReviewed ? row.eventsReviewed.split(';') : [],
+                  eventsRegisteredInterest: row.eventsRegisteredInterest ? row.eventsRegisteredInterest.split(';') : [],
+                  eventsSignedUpFor: row.eventsSignedUpFor ? row.eventsSignedUpFor.split(';') : [],
+                  eventsAttended: row.eventsAttended ? row.eventsAttended.split(';') : [],
+                  userType: row.userType
+                });
+                resolve(user);
+                stream.destroy();
+              } else {
+                stream.resume();
+              }
+            })
+            .catch(err => {
+              if (!resolved) {
+                resolved = true;
+                reject(err);
+                stream.destroy();
+              }
+            });
           }
         })
         .on('end', () => {

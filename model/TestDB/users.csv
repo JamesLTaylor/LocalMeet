@@ -1,3 +1,3 @@
 userId,name,email,salt,password,dateJoined,latitude,longitude,searchGroupTags,searchCategoryTags,daysTimesOfInterest,eventsReviewed,eventsRegisteredInterest,eventsSignedUpFor,eventsAttended,type
 1,James Taylor,james@cogn.co.za,tnjN4O3v,"$argon2id$v=19$m=65536,t=3,p=4$av6sextGKUEo3DI7Xts6dg$sx/koLLfnheFASJi9aVPxaSHI70kXbT8NrO6cnesvOY",2025-07-05,51.5074,-0.1278,"group1;group2","cat1;cat2","weekends;evenings","event1;event2","event3","event4","event5",admin
-2,John,john@cogn.co.za,kKIUNBly,pass,2025-07-05,51.5074,-0.1278,"group1;group2","cat1;cat2","weekends;evenings","event1;event2","event3","event4","event5",member
+2,John,john@cogn.co.za,kKIUNBly,"$argon2id$v=19$m=65536,t=3,p=4$Pxrw0W6kbEuHvfR87JJamQ$sQb+qMjD2Edg87NAC5w+JwPKmdNfnQWiMzpxLwQDTa8",2025-07-05,51.5074,-0.1278,"group1;group2","cat1;cat2","weekends;evenings","event1;event2","event3","event4","event5",member
