@@ -1,3 +1,63 @@
+document.addEventListener('DOMContentLoaded', function() {
+  const menuBtn = document.getElementById('menuBtn');
+  const menu = document.getElementById('menu');
+  menuBtn.addEventListener('click', () => {
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+  });
+  document.addEventListener('click', (e) => {
+    if (!menu.contains(e.target) && e.target !== menuBtn) {
+      menu.style.display = 'none';
+    }
+  });
+  document.querySelector('#menu a').addEventListener('click', function(e) {
+    if (e.target.textContent === 'Login') {
+      e.preventDefault();
+      document.getElementById('loginModal').style.display = 'block';
+      menu.style.display = 'none';
+    }
+  });
+  document.getElementById('closeLogin').onclick = function() {
+    document.getElementById('loginModal').style.display = 'none';
+  };
+  window.onclick = function(event) {
+    if (event.target == document.getElementById('loginModal')) {
+      document.getElementById('loginBtn').style.display = 'none';
+    }
+  };
+
+  async function setUserName() {
+    const userNameDisplay = document.getElementById('userNameDisplay');
+    const logoutMenuItem = document.getElementById('logoutMenuItem');
+    const loginMenuItem = document.querySelector('#menu ul li:nth-child(1)');
+    const signupMenuItem = document.querySelector('#menu ul li:nth-child(2)');
+    const res = await fetch('/api/session');
+    const data = await res.json();
+    if (data.user && data.user.name) {
+      userNameDisplay.textContent = data.user.name;
+      userNameDisplay.style.display = 'inline-block';
+      logoutMenuItem.style.display = 'block';
+      loginMenuItem.style.display = 'none';
+      signupMenuItem.style.display = 'none';
+    } else {
+      userNameDisplay.textContent = '';
+      userNameDisplay.style.display = 'none';
+      logoutMenuItem.style.display = 'none';
+      loginMenuItem.style.display = 'block';
+      signupMenuItem.style.display = 'block';
+    }
+  }
+  setUserName();
+  window.addEventListener('user-logged-in', () => {
+    setUserName();
+  });
+  document.getElementById('logoutMenuLink').onclick = async function(e) {
+    e.preventDefault();
+    await fetch('/api/logout', { method: 'POST' });
+    setUserName();
+    menu.style.display = 'none';
+  };
+});
+
 // Login form handler
 const loginForm = document.getElementById('loginForm');
 if (loginForm) {
