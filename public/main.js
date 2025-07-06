@@ -47,6 +47,16 @@ document.addEventListener('DOMContentLoaded', async function() {
     initialView: 'dayGridMonth',
     height: 'auto',
     events,
+    selectable: true,
+    select: function(info) {
+      // info.startStr and info.endStr (exclusive)
+      window.dispatchEvent(new CustomEvent('calendar-range-select', {
+        detail: {
+          start: info.startStr,
+          end: info.endStr
+        }
+      }));
+    },
     eventClick: function(info) {
       window.dispatchEvent(new CustomEvent('calendar-day-click', {
         detail: {
@@ -74,4 +84,11 @@ window.addEventListener('calendar-day-click', (e) => {
   // e.detail.date, e.detail.events
   // You can update the UI to show event details for the selected day
   console.log('Clicked day:', e.detail.date, e.detail.events);
+});
+
+// Listen for calendar range selection
+window.addEventListener('calendar-range-select', (e) => {
+  // e.detail.start, e.detail.end
+  // You can update the UI to show the selected range
+  console.log('Selected range:', e.detail.start, 'to', e.detail.end);
 });
