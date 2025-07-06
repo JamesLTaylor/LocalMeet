@@ -61,6 +61,26 @@ app.get('/api/session', (req, res) => {
   }
 });
 
+// Events endpoint with filtering by date and location
+app.get('/api/events', async (req, res) => {
+  try {
+    const { startDate, endDate, lat, lng, distance } = req.query;
+    let location = undefined;
+    if (lat && lng) {
+      location = { latitude: parseFloat(lat), longitude: parseFloat(lng) };
+    }
+    const events = await api.getEvents({
+      startDate: startDate || new Date(Date.now() - 7*24*60*60*1000), // default: 1 week ago
+      endDate: endDate || new Date(Date.now() + 60*24*60*60*1000),    // default: 2 months ahead
+      location,
+      distance: distance ? parseFloat(distance) : undefined
+    });
+    res.json(events);
+  } catch (err) {
+    console.error('Error fetching events:', err);
+    res.status(500).json({ success: false, message: 'Error fetching events' });
+  }
+});
 
 // Fallback to index.html for all other routes (SPA support)
 app.get('*', (req, res) => {

@@ -135,6 +135,78 @@ class Api {
         });
     });
   }
+
+  /**
+   * Get a list of events filtered by date range and location.
+   * @param {Date|string} startDate - Start date (inclusive)
+   * @param {Date|string} endDate - End date (inclusive)
+   * @param {{ latitude: number, longitude: number }} [location] - Center location
+   * @param {number} [distance] - Max distance in kilometers
+   * @returns {Promise<Event[]>}
+   */
+  async getEvents({ startDate, endDate, location, distance }) {
+    const Event = require('./Event');
+    const events = [];
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    function haversine(lat1, lon1, lat2, lon2) {
+      const R = 6371; // km
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
+    }
+    return new Promise((resolve, reject) => {
+      fs.createReadStream(path.join(this.csvDir, 'event.csv'))
+        .pipe(csv())
+        .on('data', (row) => {
+          try {
+            const eventDate = new Date(row.date);
+            if (eventDate >= start && eventDate <= end) {
+              let include = true;
+              if (location && distance && row.latitude && row.longitude) {
+                const d = haversine(
+                  Number(row.latitude), Number(row.longitude),
+                  location.latitude, location.longitude
+                );
+                if (d > distance) include = false;
+              }
+              if (include) {
+                events.push(new Event({
+                  eventId: row.eventId,
+                  date: row.date,
+                  title: row.title,
+                  locationDescription: row.locationDescription,
+                  location: row.location,
+                  memberOnly: row.memberOnly === 'true' || row.memberOnly === true,
+                  externalRegister: row.externalRegister,
+                  localMeetRegister: row.localMeetRegister === 'true' || row.localMeetRegister === true,
+                  groupTags: row.groupTags ? row.groupTags.split(';') : [],
+                  categoryTags: row.categoryTags ? row.categoryTags.split(';') : [],
+                  description: row.description,
+                  contactPerson: row.contactPerson,
+                  contactDetails: row.contactDetails,
+                  directContact: row.directContact === 'true' || row.directContact === true,
+                  cost: Number(row.cost) || 0,
+                  registeredUsers: row.registeredUsers ? row.registeredUsers.split(';') : [],
+                  interestedUsers: row.interestedUsers ? row.interestedUsers.split(';') : [],
+                  expectedAttendees: Number(row.expectedAttendees) || 0,
+                  isCancelled: row.isCancelled === 'true' || row.isCancelled === true,
+                  isDeleted: row.isDeleted === 'true' || row.isDeleted === true
+                }));
+              }
+            }
+          } catch (err) {
+            // skip invalid row
+          }
+        })
+        .on('end', () => resolve(events))
+        .on('error', reject);
+    });
+  }
 }
 
 module.exports = Api;
