@@ -1,3 +1,11 @@
+const EventSize = Object.freeze({
+  TINY: '5-10',
+  SMALL: '10-20',
+  MEDIUM: '20-50',
+  LARGE: '50-100',
+  HUGE: '100+'
+});
+
 class Event {
   /**
    * @param {Object} options
@@ -18,9 +26,9 @@ class Event {
    * @param {number} [options.cost]
    * @param {string[]} [options.registeredUsers]
    * @param {string[]} [options.interestedUsers]
-   * @param {number} [options.expectedAttendees] // Expected number of attendees
    * @param {boolean} [options.isCancelled] // Event is cancelled
    * @param {boolean} [options.isDeleted] // Event is deleted
+   * @param {string} [options.size] // Event size, one of EventSize
    */
   constructor({
     eventId,
@@ -40,9 +48,9 @@ class Event {
     cost = 0,
     registeredUsers = [],
     interestedUsers = [],
-    expectedAttendees = 0,
     isCancelled = false,
-    isDeleted = false
+    isDeleted = false,
+    size = EventSize.SMALL
   }) {
     this.eventId = eventId;
     this.date = date;
@@ -61,10 +69,11 @@ class Event {
     this.cost = cost;
     this.registeredUsers = registeredUsers;
     this.interestedUsers = interestedUsers;
-    this.expectedAttendees = expectedAttendees;
     this.isCancelled = isCancelled;
     this.isDeleted = isDeleted;
+    this.size = size;
   }
 }
 
 module.exports = Event;
+module.exports.EventSize = EventSize;

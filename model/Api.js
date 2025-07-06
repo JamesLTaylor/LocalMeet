@@ -160,7 +160,7 @@ class Api {
       return R * c;
     }
     return new Promise((resolve, reject) => {
-      fs.createReadStream(path.join(this.csvDir, 'event.csv'))
+      fs.createReadStream(path.join(this.csvDir, 'events.csv'))
         .pipe(csv())
         .on('data', (row) => {
           try {
