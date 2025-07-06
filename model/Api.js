@@ -3,7 +3,8 @@
 const fs = require('fs');
 const path = require('path');
 const csv = require('csv-parser');
-const { User, Location } = require('./User');
+const argon2 = require('argon2');
+const { User, Location, UserType } = require('./User');
 
 class Api {
   /**
@@ -75,32 +76,46 @@ class Api {
    * @param {string} password
    * @returns {Promise<object|null>} Resolves with user object or null if not found
    */
-  getUserByEmail(email, password) {
+  async getUserByEmail(email, password) {
+    const emailLower = email.toLowerCase();
     return new Promise((resolve, reject) => {
-      const emailLower = email.toLowerCase();
       fs.createReadStream(path.join(this.csvDir, 'users.csv'))
         .pipe(csv())
-        .on('data', (row) => {
-          console.log('Checking user:', row.email); // Debug log
-          if (row.email && row.email === emailLower && row.password === password) {
-            // Convert CSV row to User instance
-            const user = new User({
-              userId: row.userId,
-              name: row.name,
-              email: row.email,
-              salt: row.salt,
-              password: row.password,
-              dateJoined: row.dateJoined,
-              location: new Location(Number(row.latitude), Number(row.longitude)),
-              searchGroupTags: row.searchGroupTags ? row.searchGroupTags.split(';') : [],
-              searchCategoryTags: row.searchCategoryTags ? row.searchCategoryTags.split(';') : [],
-              daysTimesOfInterest: row.daysTimesOfInterest ? row.daysTimesOfInterest.split(';') : [],
-              eventsReviewed: row.eventsReviewed ? row.eventsReviewed.split(';') : [],
-              eventsRegisteredInterest: row.eventsRegisteredInterest ? row.eventsRegisteredInterest.split(';') : [],
-              eventsSignedUpFor: row.eventsSignedUpFor ? row.eventsSignedUpFor.split(';') : [],
-              eventsAttended: row.eventsAttended ? row.eventsAttended.split(';') : []
-            });
-            resolve(user);
+        .on('data', async (row) => {
+          try {
+            console.log('Checking user:', row.email);
+            if (row.email && row.email === emailLower) {
+              // Use argon2 to verify password
+              const hash = await argon2.hash(password + row.salt)
+              console.log("hash:", hash);
+              console.log("row.password:", row.password);
+              console.log(row.password == hash);
+              const match = await argon2.verify(row.password, password + row.salt);
+              console.log("match:", match);
+              if (match) {
+                console.log('Matched user:', row.email);
+                const user = new User({
+                  userId: row.userId,
+                  name: row.name,
+                  email: row.email,
+                  salt: row.salt,
+                  password: row.password,
+                  dateJoined: row.dateJoined,
+                  location: new Location(Number(row.latitude), Number(row.longitude)),
+                  searchGroupTags: row.searchGroupTags ? row.searchGroupTags.split(';') : [],
+                  searchCategoryTags: row.searchCategoryTags ? row.searchCategoryTags.split(';') : [],
+                  daysTimesOfInterest: row.daysTimesOfInterest ? row.daysTimesOfInterest.split(';') : [],
+                  eventsReviewed: row.eventsReviewed ? row.eventsReviewed.split(';') : [],
+                  eventsRegisteredInterest: row.eventsRegisteredInterest ? row.eventsRegisteredInterest.split(';') : [],
+                  eventsSignedUpFor: row.eventsSignedUpFor ? row.eventsSignedUpFor.split(';') : [],
+                  eventsAttended: row.eventsAttended ? row.eventsAttended.split(';') : [],
+                  userType: row.userType
+                });
+                resolve(user);
+              }
+            }
+          } catch (err) {
+            reject(err);
           }
         })
         .on('end', () => {
