@@ -80,13 +80,10 @@ document.addEventListener('DOMContentLoaded', async function() {
 });
 
 function renderEventList(events) {
-  const listContainer = document.querySelector('.content-area');
+  const listContainer = document.getElementById('event-list');
   if (!listContainer) return;
-  // Remove previous event list if any
-  let oldList = document.getElementById('event-list');
-  if (oldList) oldList.remove();
+  listContainer.innerHTML = '';
   const eventList = document.createElement('div');
-  eventList.id = 'event-list';
   eventList.innerHTML = '<h2>Upcoming Events</h2>';
   if (!events || events.length === 0) {
     eventList.innerHTML += '<p>No events found.</p>';
@@ -106,7 +103,7 @@ function renderEventList(events) {
     }
     eventList.appendChild(ul);
   }
-  listContainer.prepend(eventList);
+  listContainer.appendChild(eventList);
 }
 
 // Fetch category tags and populate the filter dropdown
