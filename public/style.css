@@ -129,3 +129,76 @@ button {
 #loginForm button:hover {
   background: #005fa3;
 }
+.main-content {
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+.calendar-container {
+  flex: 0 0 32%;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  padding: 1rem;
+  min-width: 260px;
+  max-width: 340px;
+}
+#calendar {
+  width: 100%;
+}
+.content-area {
+  flex: 1 1 0;
+}
+/* Calendar styles */
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  background: #eaeaea;
+  border-radius: 4px;
+}
+.calendar-day, .calendar-weekday {
+  background: #f7f7f7;
+  min-height: 60px;
+  padding: 2px 4px;
+  border-radius: 2px;
+  font-size: 0.95rem;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.calendar-day.selected {
+  background: #cce6ff;
+}
+.calendar-day.has-event::after {
+  content: '';
+  display: block;
+  width: 8px;
+  height: 8px;
+  background: #0078d7;
+  border-radius: 50%;
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+}
+.calendar-weekday {
+  background: #e0e0e0;
+  font-weight: bold;
+  text-align: center;
+  cursor: default;
+}
+.calendar-day .calendar-info {
+  font-size: 0.7em;
+  color: #555;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LocalMeet</title>
   <link rel="stylesheet" href="style.css">
+  <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.css' rel='stylesheet' />
 </head>
 <body>
   <div class="top-bar">
@@ -19,7 +20,15 @@
       </ul>
     </div>
   </div>
-  <p>A community building site for people. No ads, no tracking, no algorithms.</p>
+  <div class="main-content">
+    <div class="calendar-container">
+      <div id="calendar"></div>
+    </div>
+    <div class="content-area">
+      <p>A community building site for people. No ads, no tracking, no algorithms.</p>
+      <!-- Other main content here -->
+    </div>
+  </div>
   <div id="loginModal" class="modal" style="display:none;">
     <div class="modal-content">
       <span class="close" id="closeLogin">&times;</span>
@@ -35,6 +44,8 @@
   </div>
 
   <script src="main.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
   <script>
     const menuBtn = document.getElementById('menuBtn');
     const menu = document.getElementById('menu');
