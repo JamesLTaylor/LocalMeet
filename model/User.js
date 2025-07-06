@@ -1,3 +1,10 @@
+const UserType = Object.freeze({
+  MEMBER: 'member',
+  ORGANIZER: 'organizer',
+  MODERATOR: 'moderator',
+  ADMIN: 'admin'
+});
+
 class Location {
   /**
    * @param {number} latitude
@@ -11,7 +18,13 @@ class Location {
 
 class User {
   /**
-   * @param {Object} options
+   * A user can be:
+   *  * a member
+   *  * an organizer
+   *  * a moderator
+   *  * an admin
+   *  
+   *  * @param {Object} options
    * @param {string} options.userId
    * @param {string} options.name
    * @param {string} options.email
@@ -26,6 +39,7 @@ class User {
    * @param {string[]} options.eventsRegisteredInterest
    * @param {string[]} options.eventsSignedUpFor
    * @param {string[]} options.eventsAttended
+   * @param {string} options.userType - One of 'member', 'organizer', 'moderator', 'admin'
    */
   constructor({
     userId,
@@ -41,7 +55,8 @@ class User {
     eventsReviewed = [],
     eventsRegisteredInterest = [],
     eventsSignedUpFor = [],
-    eventsAttended = []
+    eventsAttended = [],
+    userType = UserType.MEMBER
   }) {
     this.userId = userId;
     this.name = name;
@@ -57,7 +72,8 @@ class User {
     this.eventsRegisteredInterest = eventsRegisteredInterest;
     this.eventsSignedUpFor = eventsSignedUpFor;
     this.eventsAttended = eventsAttended;
+    this.userType = userType;
   }
 }
 
-module.exports = { User, Location };
+module.exports = { User, Location, UserType };

@@ -1,4 +1,3 @@
-userId,name,email,salt,password,dateJoined,latitude,longitude,searchGroupTags,searchCategoryTags,daysTimesOfInterest,eventsReviewed,eventsRegisteredInterest,eventsSignedUpFor,eventsAttended
-2,John,john@cogn.co.za,somesalt,pass,2025-07-05,51.5074,-0.1278,"group1;group2","cat1;cat2","weekends;evenings","event1;event2","event3","event4","event5"
-1,James Taylor,james@cogn.co.za,somesalt,password,2025-07-05,51.5074,-0.1278,"group1;group2","cat1;cat2","weekends;evenings","event1;event2","event3","event4","event5"
-
+userId,name,email,salt,password,dateJoined,latitude,longitude,searchGroupTags,searchCategoryTags,daysTimesOfInterest,eventsReviewed,eventsRegisteredInterest,eventsSignedUpFor,eventsAttended,type
+1,James Taylor,james@cogn.co.za,tnjN4O3v,password,2025-07-05,51.5074,-0.1278,"group1;group2","cat1;cat2","weekends;evenings","event1;event2","event3","event4","event5",admin
+2,John,john@cogn.co.za,kKIUNBly,pass,2025-07-05,51.5074,-0.1278,"group1;group2","cat1;cat2","weekends;evenings","event1;event2","event3","event4","event5",member
