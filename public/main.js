@@ -40,20 +40,31 @@ async function setUserName() {
   const logoutMenuItem = document.getElementById('logoutMenuItem');
   const loginMenuItem = document.getElementById('loginMenuItem');
   const signupMenuItem = document.getElementById('signupMenuItem');
-  const res = await fetch('/api/session');
+  const addEventMenuItem = document.getElementById('addEventMenuItem');
+  const res = await fetch('/api/userName');
   const data = await res.json();
-  if (data.user && data.user.name) {
-    userNameDisplay.textContent = data.user.name;
+  const name = data.name;
+  const typeRes = await fetch('/api/userType');
+  const typeData = await typeRes.json();
+  const userType = typeData.userType;
+  if (name && name !== null) {
+    userNameDisplay.textContent = name;
     userNameDisplay.style.display = 'inline-block';
     logoutMenuItem.style.display = 'block';
     loginMenuItem.style.display = 'none';
     signupMenuItem.style.display = 'none';
+    if (userType && String(userType).toUpperCase() === 'ADMIN') {
+      addEventMenuItem.style.display = 'block';
+    } else {
+      addEventMenuItem.style.display = 'none';
+    }
   } else {
     userNameDisplay.textContent = '';
     userNameDisplay.style.display = 'none';
     logoutMenuItem.style.display = 'none';
     loginMenuItem.style.display = 'block';
     signupMenuItem.style.display = 'block';
+    addEventMenuItem.style.display = 'none';
   }
 }
 
@@ -68,8 +79,10 @@ function setupLogoutHandler() {
 }
 
 function setupLoginFormHandler() {
+  console.log('Setting up login form handler');
   const loginForm = document.getElementById('loginForm');
   if (loginForm) {
+    console.log('Login form found, adding event listener');
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('loginEmail').value;
