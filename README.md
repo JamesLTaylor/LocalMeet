@@ -15,6 +15,4 @@ The mission is to:
  * Not offer freemium gimmicks 
  * Not platform sleazy money making meetups
 
-Organizers can let LocalMeet handle the attendees 
-
-if you would like, 
+Organizers can let LocalMeet handle the attendees, or they can use other websites, are charge at the door, or anything else they like.
