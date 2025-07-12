@@ -102,6 +102,20 @@ app.get('/api/category-tags', async (req, res) => {
   }
 });
 
+// Middleware to check if user is logged in
+function requireLogin(req, res, next) {
+  if (req.session && req.session.user) {
+    next();
+  } else {
+    res.redirect('/');
+  }
+}
+
+// Serve event form only to logged in users from private directory
+app.get('/eventForm', requireLogin, (req, res) => {
+  res.sendFile(path.join(__dirname, 'private', 'eventForm.html'));
+});
+
 // Fallback to index.html for all other routes (SPA support)
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));

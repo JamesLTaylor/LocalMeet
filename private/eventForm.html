@@ -3,62 +3,45 @@
 <head>
   <meta charset="UTF-8">
   <title>Create Event</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="/style.css">
 </head>
 <body>
   <h2>Create Event</h2>
   <form id="eventForm">
     <label for="eventId">Event ID:</label>
     <input type="text" id="eventId" name="eventId" required><br>
-
     <label for="date">Date & Time:</label>
     <input type="datetime-local" id="date" name="date" required><br>
-
     <label for="title">Title:</label>
     <input type="text" id="title" name="title" required><br>
-
     <label for="locationDescription">Location Description:</label>
     <input type="text" id="locationDescription" name="locationDescription"><br>
-
     <label for="location">Location (address):</label>
     <input type="text" id="location" name="location"><br>
-
     <label for="memberOnly">Member Only:</label>
     <input type="checkbox" id="memberOnly" name="memberOnly"><br>
-
     <label for="externalRegister">External Register Link/Email:</label>
     <input type="text" id="externalRegister" name="externalRegister"><br>
-
     <label for="localMeetRegister">LocalMeet Register:</label>
     <input type="checkbox" id="localMeetRegister" name="localMeetRegister"><br>
-
     <label for="groupTags">Group Tags (semicolon separated):</label>
     <input type="text" id="groupTags" name="groupTags"><br>
-
     <label for="categoryTags">Category Tags (semicolon separated):</label>
     <input type="text" id="categoryTags" name="categoryTags"><br>
-
     <label for="description">Description:</label>
     <textarea id="description" name="description"></textarea><br>
-
     <label for="contactPerson">Contact Person/Organization:</label>
     <input type="text" id="contactPerson" name="contactPerson"><br>
-
     <label for="contactDetails">Contact Details:</label>
     <input type="text" id="contactDetails" name="contactDetails"><br>
-
     <label for="directContact">Direct Contact:</label>
     <input type="checkbox" id="directContact" name="directContact"><br>
-
     <label for="cost">Cost:</label>
     <input type="number" id="cost" name="cost" min="0" step="any"><br>
-
     <label for="registeredUsers">Registered Users (semicolon separated):</label>
     <input type="text" id="registeredUsers" name="registeredUsers"><br>
-
     <label for="interestedUsers">Interested Users (semicolon separated):</label>
     <input type="text" id="interestedUsers" name="interestedUsers"><br>
-
     <label for="size">Event Size:</label>
     <select id="size" name="size">
       <option value="TINY">5-10</option>
@@ -67,7 +50,6 @@
       <option value="LARGE">50-100</option>
       <option value="HUGE">100+</option>
     </select><br>
-
     <button type="submit">Create Event</button>
   </form>
 </body>
