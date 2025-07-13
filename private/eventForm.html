@@ -29,11 +29,19 @@
       width: 100%;
       box-sizing: border-box;
     }
-    .event-form-table td:nth-child(2) {
+    .event-form-label {
+      text-align: right;
+    }
+    .event-form-input {
       text-align: left;
     }
-    .event-form-table tr:last-child td {
-      text-align: right;
+    input[type=checkbox] { width: auto }
+    .event-form-actions {
+      margin-top: 16px;
+      text-align: left;
+    }
+    .event-form-actions button:not(:first-child) {
+      margin-left: 8px;
     }
   </style>
 </head>
@@ -51,7 +59,23 @@
       </tr>
       <tr>
         <td class="event-form-label"><label for="date">Date</label></td>
-        <td class="event-form-input"><input type="date-local" id="date" name="date" required></td>
+        <td class="event-form-input"><input type="date" id="date" name="date" required></td>
+      </tr>
+      <tr>
+        <td class="event-form-label"><label for="startTime">Start Time</label></td>
+        <td class="event-form-input"><input type="time" id="startTime" name="startTime" required></td>
+      </tr>
+      <tr>
+        <td class="event-form-label"><label for="duration">Duration</label></td>
+        <td class="event-form-input">
+          <select id="duration" name="duration" required>
+            <option value="1h_or_less">1h or less</option>
+            <option value="1_to_2">1 to 2 hours</option>
+            <option value="2_to_3">2 to 3 hours</option>
+            <option value="3_to_4">3 to 4 hours</option>
+            <option value="more_than_4">more than 4h</option>
+          </select>
+        </td>
       </tr>
       <tr>
         <td class="event-form-label"><label for="locationDescription">Location Description:</label></td>
@@ -62,7 +86,7 @@
         <td class="event-form-input"><input type="text" id="location" name="location"></td>
       </tr>
       <tr>
-        <td class="event-form-label"><label for="memberOnly">Member Only:</label></td>
+        <td class="event-form-label"><label for="memberOnly">Regular attendance requires membership?</label></td>
         <td class="event-form-input"><input type="checkbox" id="memberOnly" name="memberOnly"></td>
       </tr>
       <tr>
@@ -70,15 +94,15 @@
         <td class="event-form-input"><input type="text" id="externalRegister" name="externalRegister"></td>
       </tr>
       <tr>
-        <td class="event-form-label"><label for="localMeetRegister">LocalMeet Register:</label></td>
+        <td class="event-form-label"><label for="localMeetRegister">Let users register via LocalMeet:</label></td>
         <td class="event-form-input"><input type="checkbox" id="localMeetRegister" name="localMeetRegister"></td>
       </tr>
       <tr>
-        <td class="event-form-label"><label for="groupTags">Group Tags:</label></td>
+        <td class="event-form-label"><label for="groupTags">Who is this for?</label></td>
         <td class="event-form-input"><input type="text" id="groupTags" name="groupTags"></td>
       </tr>
       <tr>
-        <td class="event-form-label"><label for="categoryTags">Category Tags:</label></td>
+        <td class="event-form-label"><label for="categoryTags">What type of event is it?</label></td>
         <td class="event-form-input"><input type="text" id="categoryTags" name="categoryTags"></td>
       </tr>
       <tr>
@@ -90,7 +114,7 @@
         <td class="event-form-input"><input type="text" id="contactDetails" name="contactDetails"></td>
       </tr>
       <tr>
-        <td class="event-form-label"><label for="directContact">Direct Contact:</label></td>
+        <td class="event-form-label"><label for="directContact">Let others see contact details:</label></td>
         <td class="event-form-input"><input type="checkbox" id="directContact" name="directContact"></td>
       </tr>
       <tr>
@@ -109,11 +133,12 @@
           </select>
         </td>
       </tr>
-      <tr>
-        <td></td>
-        <td><button type="submit">Create Event</button></td>
-      </tr>
     </table>
+    <div class="event-form-actions">
+      <button type="submit">Save Event</button>
+      <button type="button" id="btnSaveCreateAnother">Save Event &amp; Create Another</button>
+      <button type="button" id="btnCancel">Cancel</button>
+    </div>
   </form>
 </body>
 </html>
