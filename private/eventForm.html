@@ -78,11 +78,11 @@
         </td>
       </tr>
       <tr>
-        <td class="event-form-label"><label for="locationDescription">Location Description:</label></td>
+        <td class="event-form-label"><label for="locationDescription">Location (address/description):</label></td>
         <td class="event-form-input"><input type="text" id="locationDescription" name="locationDescription"></td>
       </tr>
       <tr>
-        <td class="event-form-label"><label for="location">Location (address):</label></td>
+        <td class="event-form-label"><label for="location">Location (postcode):</label></td>
         <td class="event-form-input"><input type="text" id="location" name="location"></td>
       </tr>
       <tr>
@@ -90,8 +90,10 @@
         <td class="event-form-input"><input type="checkbox" id="memberOnly" name="memberOnly"></td>
       </tr>
       <tr>
-        <td class="event-form-label"><label for="externalRegister">External Register Link/Email:</label></td>
-        <td class="event-form-input"><input type="text" id="externalRegister" name="externalRegister"></td>
+        <td class="event-form-label"><label for="externalRegister">Link/email to register:</label></td>
+        <td class="event-form-input">
+          <input type="text" id="externalRegister" name="externalRegister" title="Leave blank if there is no registration required">
+        </td>
       </tr>
       <tr>
         <td class="event-form-label"><label for="localMeetRegister">Let users register via LocalMeet:</label></td>
@@ -114,19 +116,30 @@
         <td class="event-form-input"><input type="text" id="contactDetails" name="contactDetails"></td>
       </tr>
       <tr>
-        <td class="event-form-label"><label for="directContact">Let others see contact details:</label></td>
-        <td class="event-form-input"><input type="checkbox" id="directContact" name="directContact"></td>
+        <td class="event-form-label"><label for="contactVisibility">Contact visibility:</label></td>
+        <td class="event-form-input">
+          <select id="contactVisibility" name="contactVisibility" title="Who can see the contact details?&#013LocalMeetDirect=users can message you but will not see your email until you reply.&#013LoggedIn=logged in users can see your email address.&#013Public=everyone can see your email address.">
+            <option value="NOBODY" selected="selected">Nobody</option>
+            <option value="LOCAL_MEET_DIRECT">LocalMeetDirect</option>
+            <option value="LOGGED_IN">LoggedIn</option>
+            <option value="PUBLIC">Everyone</option>
+          </select>
+        </td>
       </tr>
       <tr>
-        <td class="event-form-label"><label for="cost">Cost:</label></td>
-        <td class="event-form-input"><input type="number" id="cost" name="cost" min="0" step="any"></td>
+        <td class="event-form-label"><label for="cost">Cost (introductory):</label></td>
+        <td class="event-form-input"><input type="number" id="cost" name="cost" min="0" step="1"></td>
+      </tr>
+      <tr>
+        <td class="event-form-label"><label for="cost">Cost (regular):</label></td>
+        <td class="event-form-input"><input type="number" id="cost" name="cost" min="0" step="1"></td>
       </tr>
       <tr>
         <td class="event-form-label"><label for="size">Expected event Size:</label></td>
         <td class="event-form-input">
           <select id="size" name="size">
             <option value="TINY">5-10</option>
-            <option value="SMALL">10-20</option>
+            <option value="SMALL" selected="selected">10-20</option>
             <option value="MEDIUM">20-50</option>
             <option value="LARGE">50-100</option>
             <option value="HUGE">100+</option>
