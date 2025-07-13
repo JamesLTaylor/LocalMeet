@@ -111,6 +111,45 @@ class Event {
     this.isCancelled = isCancelled;
     this.isDeleted = isDeleted;
   }
+
+  /**
+   * Create an Event from a plain object/dictionary
+   * @param {Object} dict
+   * @returns {Event}
+   */
+  static fromDict(dict) {
+    return new Event({
+      eventId: dict.eventId,
+      title: dict.title,
+      description: dict.description,
+      date: dict.date ? new Date(dict.date) : undefined,
+      duration: dict.duration || Duration.ONE_HOUR_OR_LESS,
+      locationAddress: dict.locationAddress || '',
+      locationPostcode: dict.locationPostcode || '',
+      location: dict.location && typeof dict.location === 'string' && dict.location.includes(',')
+        ? new Location(...dict.location.split(',').map(Number))
+        : dict.location,
+      memberOnly: dict.memberOnly === 'true' || dict.memberOnly === true,
+      externalRegister: dict.externalRegister || '',
+      localMeetRegister: dict.localMeetRegister === 'true' || dict.localMeetRegister === true,
+      groupTags: Array.isArray(dict.groupTags) ? dict.groupTags : (dict.groupTags ? String(dict.groupTags).split(';') : []),
+      categoryTags: Array.isArray(dict.categoryTags) ? dict.categoryTags : (dict.categoryTags ? String(dict.categoryTags).split(';') : []),
+      contactPerson: dict.contactPerson || '',
+      contactDetails: dict.contactDetails || '',
+      contactVisibility: dict.contactVisibility || ContactVisibility.NOBODY,
+      costIntroductory: Number(dict.costIntroductory) || 0,
+      costRegular: Number(dict.costRegular) || 0,
+      size: dict.size || EventSize.SMALL,
+      directContact: dict.directContact === 'true' || dict.directContact === true,
+      addedBy: dict.addedBy || null,
+      addedAt: dict.addedAt ? new Date(dict.addedAt) : null,
+      lastEdited: dict.lastEdited ? new Date(dict.lastEdited) : null,
+      registeredUsers: Array.isArray(dict.registeredUsers) ? dict.registeredUsers : (dict.registeredUsers ? String(dict.registeredUsers).split(';') : []),
+      interestedUsers: Array.isArray(dict.interestedUsers) ? dict.interestedUsers : (dict.interestedUsers ? String(dict.interestedUsers).split(';') : []),
+      isCancelled: dict.isCancelled === 'true' || dict.isCancelled === true,
+      isDeleted: dict.isDeleted === 'true' || dict.isDeleted === true
+    });
+  }
 }
 
 module.exports = Event;

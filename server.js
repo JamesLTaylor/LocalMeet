@@ -108,10 +108,13 @@ app.post('/api/createEvent', requireLogin, async (req, res) => {
     return res.status(403).json({ success: false, message: 'Forbidden: Admins only' });
   }
   try {
-    
     const eventData = { ...req.body };
     eventData.addedBy = req.session.user.userId; // Set the user who added
-    const event = await api.createEvent(eventData);
+    eventData.eventId = Date.now(); // Simple unique ID based on timestamp
+    eventData.addedAt = Date.now(); // Set the time when the event was added
+    eventData.lastEdited = Date.now(); // Set the time when the event was last edited
+    // use static method in Event.js to create an Event instance
+    const event = Event.fromDict(eventData);
     res.json({ success: true, event });
   } catch (err) {
     console.error('Error creating event:', err);
