@@ -15,6 +15,14 @@ const ContactVisibility = Object.freeze({
   PUBLIC: 'PUBLIC'
 });
 
+const Duration = Object.freeze({
+  ONE_HOUR_OR_LESS: '1h_or_less',
+  ONE_TO_TWO: '1_to_2',
+  TWO_TO_THREE: '2_to_3',
+  THREE_TO_FOUR: '3_to_4',
+  MORE_THAN_FOUR: 'more_than_4'
+});
+
 class Event {
   /**
    * @param {Object} options
@@ -22,8 +30,7 @@ class Event {
    * @param {string} options.title
    * @param {string} [options.description]
    * @param {Date} options.date
-   * @param {string|null} [options.startTime]
-   * @param {string} [options.duration] // e.g. '1h_or_less', '1_to_2', etc.
+   * @param {string} [options.duration] // One of Duration
    * @param {string} [options.locationAddress]
    * @param {string} [options.locationPostcode]
    * @param {Location} options.location // Location object
@@ -52,8 +59,7 @@ class Event {
     title,
     description = '',
     date,
-    startTime = null,
-    duration = '1h_or_less',
+    duration = Duration.ONE_HOUR_OR_LESS,
     locationAddress = '',
     locationPostcode = '',
     location,
@@ -81,7 +87,6 @@ class Event {
     this.title = title;
     this.description = description;
     this.date = date;
-    this.startTime = startTime;
     this.duration = duration;
     this.locationAddress = locationAddress;
     this.locationPostcode = locationPostcode;
@@ -105,10 +110,10 @@ class Event {
     this.interestedUsers = interestedUsers;
     this.isCancelled = isCancelled;
     this.isDeleted = isDeleted;
-    // System fields
   }
 }
 
 module.exports = Event;
 module.exports.EventSize = EventSize;
 module.exports.ContactVisibility = ContactVisibility;
+module.exports.Duration = Duration;
