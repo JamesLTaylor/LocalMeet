@@ -5,6 +5,7 @@ const path = require('path');
 const csv = require('csv-parser');
 const argon2 = require('argon2');
 const { User, Location, UserType } = require('./User');
+const Event = require('./Event');
 
 class Api {
   /**
@@ -233,13 +234,10 @@ class Api {
 
   /**
    * Create an event from a dictionary and write it to events.csv
-   * @param {Object} eventData - Dictionary of event fields
+   * @param {Event} eventData - Dictionary of event fields
    * @returns {Promise<Event>} - Resolves with the created Event instance
    */
-  async createEvent(eventData) {
-    const Event = require('./Event');
-    // Create Event instance
-    const event = new Event(eventData);
+  async saveEvent(event) {
     // Prepare CSV row
     const row = {
       eventId: event.eventId,

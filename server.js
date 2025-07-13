@@ -4,6 +4,7 @@ const session = require('express-session');
 const fs = require('fs');
 const csv = require('csv-parser');
 const Api = require('./model/Api');
+const Event = require('./model/Event');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -113,8 +114,9 @@ app.post('/api/createEvent', requireLogin, async (req, res) => {
     eventData.eventId = Date.now(); // Simple unique ID based on timestamp
     eventData.addedAt = Date.now(); // Set the time when the event was added
     eventData.lastEdited = Date.now(); // Set the time when the event was last edited
-    // use static method in Event.js to create an Event instance
     const event = Event.fromDict(eventData);
+    // Save the event using the API
+    await api.saveEvent(event);
     res.json({ success: true, event });
   } catch (err) {
     console.error('Error creating event:', err);
