@@ -10,6 +10,7 @@ class Event {
   /**
    * @param {Object} options
    * @param {string} options.eventId
+   * @param {string} [options.addedBy] // UserId of the user who added this event
    * @param {Date} options.date
    * @param {string} options.title
    * @param {string} options.locationDescription // Description of the location
@@ -32,6 +33,7 @@ class Event {
    */
   constructor({
     eventId,
+    addedBy = null,
     date,
     title,
     locationDescription = '',
@@ -53,6 +55,7 @@ class Event {
     size = EventSize.SMALL
   }) {
     this.eventId = eventId;
+    this.addedBy = addedBy;
     this.date = date;
     this.title = title;
     this.locationDescription = locationDescription;

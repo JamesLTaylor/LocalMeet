@@ -102,6 +102,35 @@ app.get('/api/category-tags', async (req, res) => {
   }
 });
 
+// Endpoint to create a new event (admin only)
+app.post('/api/createEvent', requireLogin, async (req, res) => {
+  if (!req.session.user || String(req.session.user.userType).toUpperCase() !== 'ADMIN') {
+    return res.status(403).json({ success: false, message: 'Forbidden: Admins only' });
+  }
+  try {
+    
+    const eventData = { ...req.body };
+    eventData.addedBy = req.session.user.userId; // Set the user who added
+    const event = await api.createEvent(eventData);
+    res.json({ success: true, event });
+  } catch (err) {
+    console.error('Error creating event:', err);
+    res.status(500).json({ success: false, message: 'Error creating event' });
+  }
+});
+
+// Endpoint to get the most recent event added by the current user
+app.get('/api/my-most-recent-event', requireLogin, async (req, res) => {
+  try {
+    const userId = req.session.user.userId;
+    const event = await api.getMostRecentEventByUser(userId);
+    res.json({ success: true, event });
+  } catch (err) {
+    console.error('Error fetching most recent event:', err);
+    res.status(500).json({ success: false, message: 'Error fetching most recent event' });
+  }
+});
+
 // Middleware to check if user is logged in
 function requireLogin(req, res, next) {
   if (req.session && req.session.user) {

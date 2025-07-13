@@ -135,10 +135,65 @@
       </tr>
     </table>
     <div class="event-form-actions">
-      <button type="submit">Save Event</button>
+      <button type="button" id="btnSaveEvent">Save Event</button>
       <button type="button" id="btnSaveCreateAnother">Save Event &amp; Create Another</button>
       <button type="button" id="btnCancel">Cancel</button>
     </div>
   </form>
+  <script>
+    async function populateFormWithRecentEvent() {
+      try {
+        const res = await fetch('/api/my-most-recent-event');
+        const result = await res.json();
+        if (result.success && result.event) {
+          const event = result.event;
+          for (const key in event) {
+            const el = document.getElementById(key);
+            if (!el) continue;
+            if (el.type === 'checkbox') {
+              el.checked = event[key] === true || event[key] === 'true';
+            } else {
+              el.value = event[key] || '';
+            }
+          }
+        }
+      } catch (err) {
+        // Optionally handle error
+      }
+    }
+    document.addEventListener('DOMContentLoaded', populateFormWithRecentEvent);
+
+    document.getElementById('btnSaveEvent').addEventListener('click', async function(e) {
+      e.preventDefault();
+      const form = document.getElementById('eventForm');
+      const formData = new FormData(form);
+      const data = {};
+      formData.forEach((value, key) => {
+        // Convert checkboxes to boolean
+        if (form.elements[key] && form.elements[key].type === 'checkbox') {
+          data[key] = form.elements[key].checked;
+        } else {
+          data[key] = value;
+        }
+      });
+      // POST to backend
+      try {
+        const res = await fetch('/api/createEvent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        if (result.success) {
+          alert('Event saved successfully!');
+          // Optionally redirect or reset form
+        } else {
+          alert(result.message || 'Error saving event');
+        }
+      } catch (err) {
+        alert('Error saving event');
+      }
+    });
+  </script>
 </body>
 </html>

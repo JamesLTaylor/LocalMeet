@@ -230,6 +230,91 @@ class Api {
         .on('error', reject);
     });
   }
+
+  /**
+   * Create an event from a dictionary and write it to events.csv
+   * @param {Object} eventData - Dictionary of event fields
+   * @returns {Promise<Event>} - Resolves with the created Event instance
+   */
+  async createEvent(eventData) {
+    const Event = require('./Event');
+    // Create Event instance
+    const event = new Event(eventData);
+    // Prepare CSV row
+    const row = {
+      eventId: event.eventId,
+      date: event.date,
+      title: event.title,
+      locationDescription: event.locationDescription,
+      location: event.location,
+      memberOnly: event.memberOnly,
+      externalRegister: event.externalRegister,
+      localMeetRegister: event.localMeetRegister,
+      groupTags: Array.isArray(event.groupTags) ? event.groupTags.join(';') : event.groupTags,
+      categoryTags: Array.isArray(event.categoryTags) ? event.categoryTags.join(';') : event.categoryTags,
+      description: event.description,
+      contactPerson: event.contactPerson,
+      contactDetails: event.contactDetails,
+      directContact: event.directContact,
+      cost: event.cost,
+      registeredUsers: Array.isArray(event.registeredUsers) ? event.registeredUsers.join(';') : event.registeredUsers,
+      interestedUsers: Array.isArray(event.interestedUsers) ? event.interestedUsers.join(';') : event.interestedUsers,
+      isCancelled: event.isCancelled,
+      isDeleted: event.isDeleted,
+      size: event.size
+    };
+    // Write to CSV
+    return new Promise((resolve, reject) => {
+      const filePath = path.join(this.csvDir, 'events.csv');
+      const headers = Object.keys(row);
+      // Check if file exists and if header is present
+      fs.stat(filePath, (err, stats) => {
+        const writeRow = () => {
+          const line = headers.map(h => (row[h] !== undefined ? row[h] : '')).join(',') + '\n';
+          fs.appendFile(filePath, line, (err) => {
+            if (err) return reject(err);
+            resolve(event);
+          });
+        };
+        if (err || !stats || stats.size === 0) {
+          // Write header first
+          fs.appendFile(filePath, headers.join(',') + '\n', (err) => {
+            if (err) return reject(err);
+            writeRow();
+          });
+        } else {
+          writeRow();
+        }
+      });
+    });
+  }
+
+  /**
+   * Get the most recent event added by a user
+   * @param {string} userId - The userId of the user
+   * @returns {Promise<Event|null>} - Resolves with the most recent Event or null
+   */
+  async getMostRecentEventByUser(userId) {
+    const Event = require('./Event');
+    return new Promise((resolve, reject) => {
+      const filePath = path.join(this.csvDir, 'events.csv');
+      const events = [];
+      fs.createReadStream(filePath)
+        .pipe(csv())
+        .on('data', (row) => {
+          if (row.addedBy && row.addedBy === userId) {
+            events.push(new Event(row));
+          }
+        })
+        .on('end', () => {
+          if (events.length === 0) return resolve(null);
+          // Sort by eventId descending
+          events.sort((a, b) => new Date(b.eventId) - new Date(a.eventId));
+          resolve(events[0]);
+        })
+        .on('error', reject);
+    });
+  }
 }
 
 module.exports = Api;
