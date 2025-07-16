@@ -40,6 +40,7 @@ class User {
    * @param {string[]} options.eventsSignedUpFor
    * @param {string[]} options.eventsAttended
    * @param {string} options.userType - One of 'member', 'organizer', 'moderator', 'admin'
+   * @param {string[]} options.eventFilesCreatedOrEdited - List of event JSON filenames the user has created or edited
    */
   constructor({
     userId,
@@ -56,7 +57,8 @@ class User {
     eventsRegisteredInterest = [],
     eventsSignedUpFor = [],
     eventsAttended = [],
-    userType = UserType.MEMBER
+    userType = UserType.MEMBER,
+    eventFilesCreatedOrEdited = []
   }) {
     this.userId = userId;
     this.name = name;
@@ -73,6 +75,7 @@ class User {
     this.eventsSignedUpFor = eventsSignedUpFor;
     this.eventsAttended = eventsAttended;
     this.userType = userType;
+    this.eventFilesCreatedOrEdited = eventFilesCreatedOrEdited;
   }
 }
 

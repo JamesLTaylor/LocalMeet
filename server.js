@@ -117,9 +117,6 @@ app.post('/api/createEvent', requireLogin, async (req, res) => {
     if (!event.date) {
       return res.status(400).json({ success: false, message: 'The event date must be set before it can be saved.' });
     }
-    // Save the event using the API
-    await api.saveEvent(event);
-
     // Save event as JSON in /data/{year}/{month}/
     const eventDate = new Date(event.date);
     const year = eventDate.getFullYear();
