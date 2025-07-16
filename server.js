@@ -110,9 +110,7 @@ app.post('/api/createEvent', requireLogin, async (req, res) => {
   }
   try {
     const eventData = { ...req.body };
-    eventData.addedBy = req.session.user.userId; // Set the user who added
-    eventData.eventId = Date.now(); // Simple unique ID based on timestamp
-    eventData.addedAt = Date.now(); // Set the time when the event was added
+    eventData.addedBy = req.session.user.userId; // Set the user who added    
     eventData.lastEdited = Date.now(); // Set the time when the event was last edited
     const event = Event.fromDict(eventData);
     // Check if event.date is set

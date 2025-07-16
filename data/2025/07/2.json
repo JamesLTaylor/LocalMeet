@@ -1,0 +1,33 @@
+{
+  "eventId": "2",
+  "title": "Board Games Night",
+  "description": "A fun night of board games for all skill levels.",
+  "date": "2025-07-21T00:00:00.000Z",
+  "duration": "1h_or_less",
+  "locationAddress": "",
+  "locationPostcode": "SG12 8HU",
+  "memberOnly": false,
+  "externalRegister": "",
+  "localMeetRegister": true,
+  "groupTags": [
+    "Everyone",
+    "Adults"
+  ],
+  "categoryTags": [
+    "Gaming",
+    "Social"
+  ],
+  "contactPerson": "https://www.easthertsgamers.co.uk/",
+  "contactDetails": "jane@example.com",
+  "contactVisibility": "NOBODY",
+  "costIntroductory": 1,
+  "costRegular": 5,
+  "size": "10-20",
+  "addedBy": "1",
+  "addedAt": null,
+  "lastEdited": "2025-07-16T20:03:18.462Z",
+  "registeredUsers": [],
+  "interestedUsers": [],
+  "isCancelled": false,
+  "isDeleted": false
+}
