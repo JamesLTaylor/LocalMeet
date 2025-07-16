@@ -1,0 +1,34 @@
+{
+  "eventId": 1752695627432,
+  "title": "Board Games Night",
+  "description": "A fun night of board games for all skill levels.",
+  "date": "2025-07-21T00:00:00.000Z",
+  "duration": "1h_or_less",
+  "locationAddress": "",
+  "locationPostcode": "",
+  "location": "",
+  "memberOnly": false,
+  "externalRegister": "",
+  "localMeetRegister": true,
+  "groupTags": [
+    "Everyone",
+    "Adults"
+  ],
+  "categoryTags": [
+    "Gaming",
+    "Social"
+  ],
+  "contactPerson": "https://www.easthertsgamers.co.uk/",
+  "contactDetails": "jane@example.com",
+  "contactVisibility": "NOBODY",
+  "costIntroductory": 0,
+  "costRegular": 0,
+  "size": "10-20",
+  "addedBy": "1",
+  "addedAt": "2025-07-16T19:53:47.432Z",
+  "lastEdited": "2025-07-16T19:53:47.432Z",
+  "registeredUsers": [],
+  "interestedUsers": [],
+  "isCancelled": false,
+  "isDeleted": false
+}

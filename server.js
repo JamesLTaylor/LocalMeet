@@ -115,8 +115,22 @@ app.post('/api/createEvent', requireLogin, async (req, res) => {
     eventData.addedAt = Date.now(); // Set the time when the event was added
     eventData.lastEdited = Date.now(); // Set the time when the event was last edited
     const event = Event.fromDict(eventData);
+    // Check if event.date is set
+    if (!event.date) {
+      return res.status(400).json({ success: false, message: 'The event date must be set before it can be saved.' });
+    }
     // Save the event using the API
     await api.saveEvent(event);
+
+    // Save event as JSON in /data/{year}/{month}/
+    const eventDate = new Date(event.date);
+    const year = eventDate.getFullYear();
+    const month = String(eventDate.getMonth() + 1).padStart(2, '0');
+    const dirPath = path.join(__dirname, 'data', String(year), String(month));
+    const filePath = path.join(dirPath, `${event.eventId}.json`);
+    fs.mkdirSync(dirPath, { recursive: true });
+    fs.writeFileSync(filePath, JSON.stringify(event, null, 2), 'utf8');
+
     res.json({ success: true, event });
   } catch (err) {
     console.error('Error creating event:', err);

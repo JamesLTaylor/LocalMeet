@@ -153,6 +153,9 @@
       <button type="button" id="btnCancel">Cancel</button>
     </div>
   </form>
+  <div id="eventIdDisplay" style="position: fixed; bottom: 10px; right: 20px; font-size: 0.85em; color: #888; background: #f9f9f9; padding: 4px 10px; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.04);">
+    Event ID: <span id="eventIdText"></span>
+  </div>
   <script>
     async function populateFormWithRecentEvent() {
       try {
@@ -165,16 +168,43 @@
             if (!el) continue;
             if (el.type === 'checkbox') {
               el.checked = event[key] === true || event[key] === 'true';
+            } else if (el.type === 'date' && event[key]) {
+              // Convert to yyyy-mm-dd for input[type=date]
+              const d = new Date(event[key]);
+              if (!isNaN(d)) {
+                el.value = d.toISOString().slice(0, 10);
+                // Also set time field if present
+                const timeEl = document.getElementById('startTime');
+                if (timeEl && d instanceof Date && !isNaN(d)) {
+                  // Pad hours/minutes to 2 digits
+                  const hh = String(d.getHours()).padStart(2, '0');
+                  const mm = String(d.getMinutes()).padStart(2, '0');
+                  timeEl.value = `${hh}:${mm}`;
+                }
+              } else {
+                el.value = '';
+              }
             } else {
               el.value = event[key] || '';
             }
           }
+          // Set eventId display
+          document.getElementById('eventIdText').textContent = event.eventId || '';
+        } else {
+          // If no recent event, set eventId to current timestamp
         }
       } catch (err) {
-        // Optionally handle error
+        // On error, set eventId to current timestamp if not already set
       }
     }
     document.addEventListener('DOMContentLoaded', populateFormWithRecentEvent);
+
+    // Ensure eventId is set on form creation if not populated
+    document.addEventListener('DOMContentLoaded', function() {
+      if (!document.getElementById('eventIdText').textContent) {
+        document.getElementById('eventIdText').textContent = Date.now();
+      }
+    });
 
     document.getElementById('btnSaveEvent').addEventListener('click', async function(e) {
       e.preventDefault();
@@ -191,6 +221,8 @@
       });
       // POST to backend
       try {
+        // Add eventId to data
+        data.eventId = document.getElementById('eventIdText').textContent;
         const res = await fetch('/api/createEvent', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -206,6 +238,11 @@
       } catch (err) {
         alert('Error saving event');
       }
+    });
+
+    document.getElementById('btnCancel').addEventListener('click', function(e) {
+      e.preventDefault();
+      window.location.href = '/';
     });
   </script>
 </body>
