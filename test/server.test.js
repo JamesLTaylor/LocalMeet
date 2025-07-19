@@ -1,9 +1,8 @@
-// const chai = await import('chai')
 const chai = require('chai');
 const { startServer, api } = require('../server');
 let server;
 let chaiHttp;
-let request;
+// let request;
 const expect = chai.expect;
 
 // describe('basic assert', () => expect('Alice').to.equal('Alice'));
@@ -16,7 +15,7 @@ describe('Server API Endpoints', function() {
     chaiHttp = (await import('chai-http')).default;
     chai.use(chaiHttp);
     // Start the server on a test port
-    server = startServer(0); // 0 lets the OS pick a free port
+    server = startServer(3000);
     // Wait for server to be ready
     await new Promise(res => setTimeout(res, 300));
     api.csvDir = __dirname+"/test_data"; // Set a test directory for CSV files    
