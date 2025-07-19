@@ -205,8 +205,19 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-const server = app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
 
-module.exports = { server, api };
+let serverInstance;
+function startServer(port = PORT) {
+  if (!serverInstance) {
+    serverInstance = app.listen(port, () => {
+      console.log(`Server running at http://localhost:${port}`);
+    });
+  }
+  return serverInstance;
+}
+
+if (require.main === module) {
+  startServer();
+}
+
+module.exports = { app, api, startServer };
