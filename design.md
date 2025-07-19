@@ -50,9 +50,6 @@ Standard Users can
 2. Rate events
 3. Report events/organizers as not being in keeping the the policy including charging for events without making that clear.
 
-## Community Builder
-
-These are users who add events. Events need to be checked by a moderator before they are published.
 
 ## Moderator
 
@@ -67,9 +64,39 @@ Can do everything moderators can do
 
 Can add/remove Moderators
 
+# Public endpoints:
+
+## Everyone
+
+ * getEvents(dateRange, timeRange, location, distance, **otherSearchTerms)
+ * createUser(userName, password, emailAddress, *otherInfo)
+ * loginAndCreateSession(userName, password)
+
+## User Session
+
+ * logout() - end session
+ * getDefaultEvents() - uses saved search terms
+ * createEvent(*eventDetails)
+ * getCreatedEvents()
+ * getEvent(eventID) - get data for default new event or editing a current event
+ * updateEvent(eventDetails) - can't change event date, must cancel and create new
+ * cancelEvent(eventID) - can be done without moderator
+ * 
+## Moderator Session  
+
+ * getPendingEvents()
+ * approveEvent(eventID)
+
+## Admin Session
+
+ * searchUsers(pattern)
+ * makeUserModerator(userID)
+
 # Databases
 
 ## Events
+
+Stored year/month/eventID and pending/year/month/eventID
 
   * EventID
   * Date
@@ -101,10 +128,16 @@ Can add/remove Moderators
 
 ## User
 
+Table:
+ * UserID,username,salt,passwordHash,filename
+
+Files:
+
  * UserID
- * Name
+ * username
+ * Firstname
+ * Surname
  * email address
- * password
  * Date joined
  * Location 
  * Search group tags

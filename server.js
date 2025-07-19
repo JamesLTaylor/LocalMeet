@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Session setup
 app.use(session({
-  secret: 'localmeet_secret',
+  secret: '50eea2c0fd8c', // update this sometimes
   resave: false,
   saveUninitialized: false,
   cookie: { secure: false } // Set to true if using HTTPS
