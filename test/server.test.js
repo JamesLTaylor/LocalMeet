@@ -1,8 +1,9 @@
 // const chai = await import('chai')
 const chai = require('chai');
-let chaiHttp;
-const { startServer, app } = require('../server');
+const { startServer, api } = require('../server');
 let server;
+let chaiHttp;
+let request;
 const expect = chai.expect;
 
 // describe('basic assert', () => expect('Alice').to.equal('Alice'));
@@ -18,6 +19,7 @@ describe('Server API Endpoints', function() {
     server = startServer(0); // 0 lets the OS pick a free port
     // Wait for server to be ready
     await new Promise(res => setTimeout(res, 300));
+    api.csvDir = __dirname+"/test_data"; // Set a test directory for CSV files    
   });
 
   after(function(done) {
@@ -25,6 +27,8 @@ describe('Server API Endpoints', function() {
     if (server && server.close) server.close(done);
     else done();
   });
+
+
   describe('basic assert', function() {
     it('should equal Alice', function() {
       expect('Alice').to.equal('Alice');
@@ -39,6 +43,19 @@ describe('Server API Endpoints', function() {
         .end((err, res) => {
           expect(res).to.have.status(401);
           expect(res.body).to.have.property('success', false);
+          done();
+        });
+    });
+  });
+
+  describe('GET /api/username-exists', function() {
+    it('should return true for username "james"', function(done) {
+      chai.request(server)
+        .get('/api/username-exists')
+        .query({ username: 'james' })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.have.property('exists', true);
           done();
         });
     });
