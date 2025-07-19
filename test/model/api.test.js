@@ -16,4 +16,15 @@ describe('Api', function() {
     expect(api).to.be.an('object');
   });
 
+  it('should append a user to _user_lookup.csv', async function() {
+    const fs = require('fs');
+    const testUsername = 'TestUser';
+    const testPassword = 'TestPass123!';
+    await api.appendUserToLookup(testUsername, testPassword);
+    await api.getUserLookupById(2).then(user => {
+      expect(user.username).to.equal(testUsername);
+      expect(user.filename).to.equal(`${testUsername.toLowerCase()}.json`);
+    });
+  });
+
 });

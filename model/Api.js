@@ -8,6 +8,75 @@ const { User, Location, UserType } = require('./User');
 const Event = require('./Event');
 
 class Api {
+
+  /**
+   * Get userID, username, and filename for a given userID from _user_lookup.csv
+   * @param {string|number} userId
+   * @returns {Promise<{userID: string, username: string, filename: string} | null>}
+   */
+  async getUserLookupById(userId) {
+    const filePath = path.join(this.csvDir, './users/_user_lookup.csv');
+    return new Promise((resolve, reject) => {
+      fs.createReadStream(filePath)
+        .pipe(csv())
+        .on('data', (row) => {
+          if (row.UserID && String(row.UserID) === String(userId)) {
+            resolve({
+              userID: row.UserID,
+              username: row.username,
+              filename: row.filename
+            });
+          }
+        })
+        .on('end', () => resolve(null))
+        .on('error', reject);
+    });
+  }
+
+  /**
+   * Append a new user row to _user_lookup.csv
+   * @param {string} username
+   * @param {string} password
+   * @returns {Promise<void>}
+   */
+  async appendUserToLookup(username, password) {
+    const filePath = path.join(this.csvDir, './users/_user_lookup.csv');
+    // Generate salt and hash
+    const crypto = require('crypto');
+    const salt = crypto.randomBytes(8).toString('base64');
+    const argon2 = require('argon2');
+    const passwordHash = await argon2.hash(password + salt);
+
+    // Find next UserID
+    let nextId = 1;
+    if (fs.existsSync(filePath)) {
+      const data = fs.readFileSync(filePath, 'utf8').split('\n');
+      if (data.length > 1) {
+        const lastLine = data.filter(line => line.trim()).slice(-1)[0];
+        if (lastLine) {
+          const lastId = parseInt(lastLine.split(',')[0], 10);
+          if (!isNaN(lastId)) nextId = lastId + 1;
+        }
+      }
+    }
+
+    // Compose row
+    const filename = `${username.toLowerCase()}.json`;
+    // Write userID as int (no quotes), rest as quoted CSV
+    const row = [nextId, username, salt, passwordHash, filename]
+      .map((val, idx) => idx === 0 ? String(val) : `"${String(val).replace(/"/g, '""')}"`)
+      .join(',') + '\n';
+    // Append to file
+    return new Promise((resolve, reject) => {
+      fs.appendFile(filePath, row, 'utf8', err => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
+  }
+
+
+
   /**
    * @param {Object} [options]
    * @param {string} [options.csvDir] - Directory for local CSV files
