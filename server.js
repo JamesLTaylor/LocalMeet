@@ -54,13 +54,13 @@ app.post('/api/createUser', async (req, res) => {
     if (!password) {
       return res.status(400).json({ success: false, message: 'Set password' });
     }
-    // Check if user already exists
-    const existingUser = await api.getUserByEmail(email);
-    if (existingUser) {
-      return res.status(409).json({ success: false, message: 'User already exists' });
-    }
-    // Create user (Api should handle persistence)
-    const newUser = await api.createUser({ email, password, name, userType: userType || 'USER' });
+    await api.usernameExists(username).then(exists => {
+      if (exists) {
+        return res.status(409).json({ success: false, message: 'User already exists' });
+      }
+    });
+    
+    // const newUser = await api.createUser({ email, password, name, userType: userType || 'USER' });
     res.json({ success: true, user: newUser });
   } catch (err) {
     console.error('Error creating user:', err);
