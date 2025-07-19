@@ -206,6 +206,7 @@ app.get('*', (req, res) => {
 });
 
 
+
 let serverInstance;
 function startServer(port = PORT) {
   if (!serverInstance) {
@@ -216,8 +217,23 @@ function startServer(port = PORT) {
   return serverInstance;
 }
 
+function closeServer(done) {
+  if (serverInstance) {
+    console.log('Closing server...');
+    // Close the server and reset the instance
+    serverInstance.close(err => {
+      serverInstance = null;
+      if (done) done(err);
+    });
+    console.log('Server closed');
+  } else if (done) {
+    done();
+  }
+}
+
+
 if (require.main === module) {
   startServer();
 }
 
-module.exports = { app, api, startServer };
+module.exports = { app, api, startServer, closeServer };
