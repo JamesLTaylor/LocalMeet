@@ -1,9 +1,8 @@
-const chai = require('chai');
+let chai;
+let expect;
 const { startServer, api } = require('../server');
 let server;
 let chaiHttp;
-// let request;
-const expect = chai.expect;
 
 // describe('basic assert', () => expect('Alice').to.equal('Alice'));
 
@@ -11,9 +10,11 @@ describe('Server API Endpoints', function() {
 
 
   before(async function() {
-    // Dynamically import chai-http (ESM)
+    // Dynamically import chai and chai-http (ESM)
+    chai = (await import('chai')).default || (await import('chai'));
     chaiHttp = (await import('chai-http')).default;
     chai.use(chaiHttp);
+    expect = chai.expect;
     // Start the server on a test port
     server = startServer(3000);
     // Wait for server to be ready
