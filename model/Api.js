@@ -10,38 +10,10 @@ const Event = require('./Event');
 class Api {
   /**
    * @param {Object} [options]
-   * @param {Object} [options.mysqlConfig] - MySQL connection config
    * @param {string} [options.csvDir] - Directory for local CSV files
    */
   constructor(options = {}) {
-    this.mysqlConfig = options.mysqlConfig;
     this.csvDir = options.csvDir;
-    this.connection = null;
-    if (this.mysqlConfig) {
-      this.connection = mysql.createConnection(this.mysqlConfig);
-    }
-  }
-
-  // Connect to MySQL
-  connectMySQL() {
-    if (!this.connection) throw new Error('No MySQL config provided');
-    return new Promise((resolve, reject) => {
-      this.connection.connect(err => {
-        if (err) return reject(err);
-        resolve();
-      });
-    });
-  }
-
-  // Query MySQL
-  queryMySQL(sql, params = []) {
-    if (!this.connection) throw new Error('No MySQL connection');
-    return new Promise((resolve, reject) => {
-      this.connection.query(sql, params, (err, results) => {
-        if (err) return reject(err);
-        resolve(results);
-      });
-    });
   }
 
   // Read from a CSV file
@@ -69,6 +41,30 @@ class Api {
       .on('data', onRow)
       .on('end', () => { if (onEnd) onEnd(); })
       .on('error', err => { if (onError) onError(err); });
+  }
+
+  /**
+   * Check if a username exists in _user_lookup.csv
+   * @param {string} username
+   * @returns {Promise<boolean>} Resolves with true if username exists, false otherwise
+   */
+  async usernameExists(username) {
+    return new Promise((resolve, reject) => {
+      let found = false;
+      fs.createReadStream(path.join(this.csvDir, './users/_user_lookup.csv'))
+        .pipe(csv())
+        .on('data', (row) => {
+          if (!found && row.username && row.username.toLowerCase() === username.toLowerCase()) {
+            found = true;
+            resolve(true);
+            this.destroy && this.destroy(); // End stream early if possible
+          }
+        })
+        .on('end', () => {
+          if (!found) resolve(false);
+        })
+        .on('error', reject);
+    });
   }
 
   /**

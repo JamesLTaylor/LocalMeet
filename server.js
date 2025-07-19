@@ -24,8 +24,49 @@ app.use(session({
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Create an instance of the API class on app startup
-const api = new Api({ csvDir: __dirname+"/model/TestDB" });
-// in future connect to MySQL
+const api = new Api({ csvDir: __dirname + "/data" });
+
+
+// Endpoint to check if a username exists
+app.get('/api/username-exists', async (req, res) => {
+  try {
+    const { username } = req.query;
+    if (!username) {
+      return res.status(400).json({ success: false, message: 'Missing username' });
+    }
+    api.usernameExists(username).then(exists => {
+      res.json({ exists });
+    });
+  } catch (err) {
+    console.error('Error checking username:', err);
+    res.status(500).json({ success: false, message: 'Error checking username' });
+  }
+});
+
+
+// Create user endpoint
+app.post('/api/createUser', async (req, res) => {
+  try {
+    const { username, password, extraInfo } = req.body;
+    if (!username) {
+      return res.status(400).json({ success: false, message: 'Set username' });
+    }
+    if (!password) {
+      return res.status(400).json({ success: false, message: 'Set password' });
+    }
+    // Check if user already exists
+    const existingUser = await api.getUserByEmail(email);
+    if (existingUser) {
+      return res.status(409).json({ success: false, message: 'User already exists' });
+    }
+    // Create user (Api should handle persistence)
+    const newUser = await api.createUser({ email, password, name, userType: userType || 'USER' });
+    res.json({ success: true, user: newUser });
+  } catch (err) {
+    console.error('Error creating user:', err);
+    res.status(500).json({ success: false, message: 'Error creating user' });
+  }
+});
 
 // Login endpoint
 app.post('/api/login', (req, res) => {
@@ -168,4 +209,4 @@ const server = app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
 
-module.exports = server;
+module.exports = { server, api };

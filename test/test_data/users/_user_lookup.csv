@@ -1,0 +1,2 @@
+UserID,username,salt,passwordHash,filename
+1,James,tnjN4O3v,"$argon2id$v=19$m=65536,t=3,p=4$av6sextGKUEo3DI7Xts6dg$sx/koLLfnheFASJi9aVPxaSHI70kXbT8NrO6cnesvOY",james.json
