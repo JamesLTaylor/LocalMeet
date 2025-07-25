@@ -9,6 +9,14 @@ const Event = require('./Event');
 
 class Api {
   /**
+   * @param {Object} [options]
+   * @param {string} [options.csvDir] - Directory for local CSV files
+   */
+  constructor(options = {}) {
+    this.csvDir = options.csvDir;
+  }
+
+  /**
    * Append a new user row to _user_lookup.csv
    * @param {string} username
    * @param {string} password
@@ -72,51 +80,15 @@ class Api {
       `"${String(passwordHash).replace(/"/g, '""')}"`,
       filename
     ].join(',') + '\n';
-    // Append to file
+    // Append to file and return userID
     return new Promise((resolve, reject) => {
       fs.appendFile(filePath, row, 'utf8', err => {
         if (err) reject(err);
-        else resolve();
+        else resolve(nextId);
       });
     });
   }
 
-
-
-  /**
-   * @param {Object} [options]
-   * @param {string} [options.csvDir] - Directory for local CSV files
-   */
-  constructor(options = {}) {
-    this.csvDir = options.csvDir;
-  }
-
-  // Read from a CSV file
-  readCSV(filename) {
-    return new Promise((resolve, reject) => {
-      const results = [];
-      fs.createReadStream(path.join(this.csvDir, filename))
-        .pipe(csv())
-        .on('data', (data) => results.push(data))
-        .on('end', () => resolve(results))
-        .on('error', reject);
-    });
-  }
-
-  /**
-   * Iterate over each row in a CSV file and call a callback for each row.
-   * @param {string} filename - The CSV file name (relative to csvDir)
-   * @param {(row: object) => void} onRow - Callback for each row
-   * @param {() => void} [onEnd] - Optional callback when done
-   * @param {(err: Error) => void} [onError] - Optional callback for errors
-   */
-  forEachCSVRow(filename, onRow, onEnd, onError) {
-    fs.createReadStream(path.join(this.csvDir, filename))
-      .pipe(csv())
-      .on('data', onRow)
-      .on('end', () => { if (onEnd) onEnd(); })
-      .on('error', err => { if (onError) onError(err); });
-  }
 
   /**
    * Get userID, username, and filename for a given userID from _user_lookup.csv

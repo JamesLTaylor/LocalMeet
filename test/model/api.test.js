@@ -24,18 +24,19 @@ describe('Api', function() {
     api = new Api({ csvDir });
   });
 
-
-
-  it('should append a user to _user_lookup.csv', async function() {
-    await api.appendUserToLookup(testUsername, testPassword);
-    await api.getUserLookupById(2).then(user => {
-      expect(user.username).to.equal(testUsername);
-      expect(user.filename).to.equal(`${testUsername.toLowerCase()}.json`);
-    });    
-  });
-  
   it('should return false for a username that does not exist', async function() {
     const exists = await api.usernameExists('testUser');
     expect(exists).to.be.false;
+  });
+
+
+  it('should append a user to _user_lookup.csv', async function() {
+    const userID = await api.appendUserToLookup(testUsername, testPassword);
+    await api.getUserLookupById(userID).then(user => {
+      expect(user.username).to.equal(testUsername);
+      expect(user.filename).to.equal(`${testUsername.toLowerCase()}.json`);
+    });
+    const exists = await api.usernameExists('testUser');
+    expect(exists).to.be.true;
   });
 });

@@ -42,4 +42,8 @@ coverage/
 .vscode/
 !.vscode/launch.json
 
+# data used to generate postcode lookup
 .data/
+
+# Test data files that may get created while testing
+test/test_data/users/_user_lookup.csv
