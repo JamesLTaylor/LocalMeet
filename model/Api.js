@@ -8,31 +8,6 @@ const { User, Location, UserType } = require('./User');
 const Event = require('./Event');
 
 class Api {
-
-  /**
-   * Get userID, username, and filename for a given userID from _user_lookup.csv
-   * @param {string|number} userId
-   * @returns {Promise<{userID: string, username: string, filename: string} | null>}
-   */
-  async getUserLookupById(userId) {
-    const filePath = path.join(this.csvDir, './users/_user_lookup.csv');
-    return new Promise((resolve, reject) => {
-      fs.createReadStream(filePath)
-        .pipe(csv())
-        .on('data', (row) => {
-          if (row.UserID && String(row.UserID) === String(userId)) {
-            resolve({
-              userID: row.UserID,
-              username: row.username,
-              filename: row.filename
-            });
-          }
-        })
-        .on('end', () => resolve(null))
-        .on('error', reject);
-    });
-  }
-
   /**
    * Append a new user row to _user_lookup.csv
    * @param {string} username
@@ -40,32 +15,63 @@ class Api {
    * @returns {Promise<void>}
    */
   async appendUserToLookup(username, password) {
+    // Validate username: only alphanumeric, no spaces
+    if (!/^[a-zA-Z0-9]+$/.test(username)) {
+      throw new Error('Username must be alphanumeric with no spaces');
+    }
+    // Validate password: at least 8 chars, mix of upper, lower, number, special
+    if (
+      typeof password !== 'string' ||
+      password.length < 8 ||
+      !/[A-Z]/.test(password) ||
+      !/[a-z]/.test(password) ||
+      !/[0-9]/.test(password) ||
+      !/[^A-Za-z0-9]/.test(password)
+    ) {
+      throw new Error('Password must be at least 8 characters long and contain uppercase, lowercase, number, and special character');
+    }
     const filePath = path.join(this.csvDir, './users/_user_lookup.csv');
+    // Check if username exists and find lastId in one pass
+    let usernameExists = false;
+    let lastId = 0;
+    if (fs.existsSync(filePath)) {
+      await new Promise((resolve, reject) => {
+        fs.createReadStream(filePath)
+          .pipe(csv())
+          .on('data', (row) => {
+            if (row.username && row.username.toLowerCase() === username.toLowerCase()) {
+              usernameExists = true;
+            }
+            if (row.UserID && !isNaN(row.UserID)) {
+              const id = parseInt(row.UserID, 10);
+              if (id > lastId) lastId = id;
+            }
+          })
+          .on('end', resolve)
+          .on('error', reject);
+      });
+    }
+    if (usernameExists) {
+      throw new Error('Username already exists');
+    }
+
     // Generate salt and hash
     const crypto = require('crypto');
     const salt = crypto.randomBytes(8).toString('base64');
     const argon2 = require('argon2');
     const passwordHash = await argon2.hash(password + salt);
 
-    // Find next UserID
-    let nextId = 1;
-    if (fs.existsSync(filePath)) {
-      const data = fs.readFileSync(filePath, 'utf8').split('\n');
-      if (data.length > 1) {
-        const lastLine = data.filter(line => line.trim()).slice(-1)[0];
-        if (lastLine) {
-          const lastId = parseInt(lastLine.split(',')[0], 10);
-          if (!isNaN(lastId)) nextId = lastId + 1;
-        }
-      }
-    }
-
+    const nextId = lastId + 1;
     // Compose row
     const filename = `${username.toLowerCase()}.json`;
-    // Write userID as int (no quotes), rest as quoted CSV
-    const row = [nextId, username, salt, passwordHash, filename]
-      .map((val, idx) => idx === 0 ? String(val) : `"${String(val).replace(/"/g, '""')}"`)
-      .join(',') + '\n';
+    // Only passwordHash is quoted, all other fields are unquoted
+    const row = [
+      nextId,
+      username,
+      salt,
+      `"${String(passwordHash).replace(/"/g, '""')}"`,
+      filename
+    ].join(',') + '\n';
     // Append to file
     return new Promise((resolve, reject) => {
       fs.appendFile(filePath, row, 'utf8', err => {
@@ -110,6 +116,30 @@ class Api {
       .on('data', onRow)
       .on('end', () => { if (onEnd) onEnd(); })
       .on('error', err => { if (onError) onError(err); });
+  }
+
+  /**
+   * Get userID, username, and filename for a given userID from _user_lookup.csv
+   * @param {string|number} userId
+   * @returns {Promise<{userID: string, username: string, filename: string} | null>}
+   */
+  async getUserLookupById(userId) {
+    const filePath = path.join(this.csvDir, './users/_user_lookup.csv');
+    return new Promise((resolve, reject) => {
+      fs.createReadStream(filePath)
+        .pipe(csv())
+        .on('data', (row) => {
+          if (row.UserID && String(row.UserID) === String(userId)) {
+            resolve({
+              userID: row.UserID,
+              username: row.username,
+              filename: row.filename
+            });
+          }
+        })
+        .on('end', () => resolve(null))
+        .on('error', reject);
+    });
   }
 
   /**
