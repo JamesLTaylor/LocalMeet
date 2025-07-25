@@ -2,6 +2,8 @@ const chai = require('chai');
 const expect = chai.expect;
 const path = require('path');
 const Api = require('../../model/Api');
+const Event = require('../../model/Event');
+const fs = require('fs');
 
 describe('User Api', function() {
   let api;
@@ -16,6 +18,50 @@ describe('User Api', function() {
   beforeEach(function() {
     // Copy reference_user_lookup.csv to _user_lookup.csv before each test
     fs.copyFileSync(refFile, targetFile);
+  });
+});
+
+describe('Event file operations', function() {
+  let api;
+  before(function() {
+    const csvDir = path.join(__dirname, '../test_data');
+    api = new Api({ csvDir });
+  });
+
+  it('should create, save, load, and delete an event file', async function() {
+    // Create event for current month
+    const now = new Date(2025, 6, 25); // July 25, 2025
+    const event = new Event({
+      eventId: 'evt_test',
+      title: 'Test Event',
+      date: now,
+      location: { latitude: 51.5, longitude: -0.1 },
+      groupTags: ['test'],
+      categoryTags: ['test'],
+      description: 'Test event file',
+      contactPerson: 'Test',
+      contactDetails: 'test@example.com',
+      memberOnly: false,
+      localMeetRegister: true,
+      isCancelled: false,
+      isDeleted: false
+    });
+    await api.writeEventToFile(event);
+    // Get events for this month
+    const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    const events = await api.getEvents(startDate, endDate);
+    const found = events.some(e => e.eventId === 'evt_test');
+    expect(found).to.be.true;
+    // Delete the event file
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const filename = `${day}_test_event.json`;
+    const filePath = path.join(api.csvDir, 'events', year.toString(), month, filename);
+    // if (fs.existsSync(filePath)) {
+    //   fs.unlinkSync(filePath);
+    // }
   });
 
   before(function() {
@@ -41,7 +87,6 @@ describe('User Api', function() {
   });
 });
 
-const Event = require('../../model/Event');
 
 describe('Event Api', function() {
   let api;

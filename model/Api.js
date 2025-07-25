@@ -6,6 +6,7 @@ const csv = require('csv-parser');
 const argon2 = require('argon2');
 const { User, Location, UserType } = require('./User');
 const Event = require('./Event');
+const { haversine } = require('./utils');
 
 class Api {
   /**
@@ -200,68 +201,60 @@ class Api {
    * @param {number} [distance] - Max distance in kilometers
    * @returns {Promise<Event[]>}
    */
-  async getEvents({ startDate, endDate, location, distance }) {
+  async getEvents({startDate, endDate, location, distance}) {
     const Event = require('./Event');
     const events = [];
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    function haversine(lat1, lon1, lat2, lon2) {
-      const R = 6371; // km
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
-      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-        Math.sin(dLon/2) * Math.sin(dLon/2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-      return R * c;
+    if (!startDate) {
+      startDate = new Date();
     }
-    return new Promise((resolve, reject) => {
-      fs.createReadStream(path.join(this.csvDir, 'events.csv'))
-        .pipe(csv())
-        .on('data', (row) => {
+    if (!endDate) {
+      endDate = startDate + 60 * 24 * 60 * 60 * 1000; // Default to 2 months ahead 
+    }
+    // get all months and years from startDate to endDate, inclusive.
+    const currentYear = startDate.getFullYear();
+    const currentMonth = startDate.getMonth() + 1;
+    const endYear = endDate.getFullYear();
+    const endMonth = endDate.getMonth() + 1;
+    const monthsToLoad = [];
+    let year = currentYear
+    let month = currentMonth;
+    // Generate all months from start to end  
+    while (year < endYear || (year === endYear && month <= endMonth)) {
+      monthsToLoad.push({ year, month: String(month).padStart(2, '0') });
+      month++;
+      if (month > 12) {
+        month = 1;
+        year++;
+      } 
+    }
+    const eventsDir = path.join(this.csvDir, 'events');
+    for (const { year, month } of monthsToLoad) {
+      const monthDir = path.join(eventsDir, year.toString(), month);
+      if (fs.existsSync(monthDir)) {
+        const files = fs.readdirSync(monthDir).filter(f => f.endsWith('.json'));
+        for (const file of files) {
+          const filePath = path.join(monthDir, file);
           try {
-            const eventDate = new Date(row.date);
-            if (eventDate >= start && eventDate <= end) {
-              let include = true;
-              if (location && distance && row.latitude && row.longitude) {
-                const d = haversine(
-                  Number(row.latitude), Number(row.longitude),
-                  location.latitude, location.longitude
-                );
-                if (d > distance) include = false;
-              }
-              if (include) {
-                events.push(new Event({
-                  eventId: row.eventId,
-                  date: row.date,
-                  title: row.title,
-                  locationDescription: row.locationDescription,
-                  location: row.location,
-                  memberOnly: row.memberOnly === 'true' || row.memberOnly === true,
-                  externalRegister: row.externalRegister,
-                  localMeetRegister: row.localMeetRegister === 'true' || row.localMeetRegister === true,
-                  groupTags: row.groupTags ? row.groupTags.split(';') : [],
-                  categoryTags: row.categoryTags ? row.categoryTags.split(';') : [],
-                  description: row.description,
-                  contactPerson: row.contactPerson,
-                  contactDetails: row.contactDetails,
-                  directContact: row.directContact === 'true' || row.directContact === true,
-                  cost: Number(row.cost) || 0,
-                  registeredUsers: row.registeredUsers ? row.registeredUsers.split(';') : [],
-                  interestedUsers: row.interestedUsers ? row.interestedUsers.split(';') : [],
-                  expectedAttendees: Number(row.expectedAttendees) || 0,
-                  isCancelled: row.isCancelled === 'true' || row.isCancelled === true,
-                  isDeleted: row.isDeleted === 'true' || row.isDeleted === true
-                }));
-              }
+            const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+            // Optionally filter by location/distance
+            let include = true;
+            if (location && distance && data.location && typeof data.location === 'object') {
+              const d = haversine(
+                Number(data.location.latitude), Number(data.location.longitude),
+                location.latitude, location.longitude
+              );
+              if (d > distance) include = false;
+            }
+            if (include) {
+              events.push(new Event(data));
             }
           } catch (err) {
-            // skip invalid row
+            // skip invalid file
           }
-        })
-        .on('end', () => resolve(events))
-        .on('error', reject);
-    });
+        }
+      }
+    }
+    return events;
   }
 
   /**
