@@ -17,6 +17,28 @@ class Api {
   }
 
   /**
+   * Write a user JSON file to the users folder given a User instance
+   * @param {User} user - Instance of User
+   * @returns {Promise<void>}
+   */
+  async writeUserJson(user) {
+    if (!user || !user.username) {
+      throw new Error('User instance with username required');
+    }
+    const usersDir = path.join(this.csvDir, './users');
+    const filename = `${user.username.toLowerCase()}.json`;
+    const filePath = path.join(usersDir, filename);
+    // Serialize user object (remove circular refs if any)
+    const userObj = typeof user.toJSON === 'function' ? user.toJSON() : user;
+    return new Promise((resolve, reject) => {
+      fs.writeFile(filePath, JSON.stringify(userObj, null, 2), 'utf8', err => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
+  }
+
+  /**
    * Append a new user row to _user_lookup.csv
    * @param {string} username
    * @param {string} password
@@ -90,6 +112,8 @@ class Api {
   }
 
 
+
+
   /**
    * Get userID, username, and filename for a given userID from _user_lookup.csv
    * @param {string|number} userId
@@ -139,70 +163,32 @@ class Api {
   }
 
 
-
+  // EVENT METHODS
   /**
-   * Get a user by email and password from users.csv
-   * @param {string} email
-   * @param {string} password
-   * @returns {Promise<object|null>} Resolves with user object or null if not found
+   * Write an Event instance to a JSON file. The will be saved in the format /data/events/{year}/{month}/{day}_{eventTitle}.json
+   * @param {Event} event - The Event instance to write
+   * @returns {Promise<void>}
    */
-  async getUserByEmail(email, password) {
-    const emailLower = email.toLowerCase();
+  async writeEventToFile(event) {
+    if (!event || !event.title) {
+      throw new Error('Event instance with title required');
+    }
+    const eventsDir = path.join(this.csvDir, './events');
+    const eventDate = new Date(event.date);
+    const year = eventDate.getFullYear();
+    const month = String(eventDate.getMonth() + 1).padStart(2, '0');
+    const day = String(eventDate.getDate()).padStart(2, '0');
+    const filename = `${day}_${event.title.toLowerCase().replace(/[^a-z0-9]/g, '_')}.json`;
+    const filePath = path.join(eventsDir, year.toString(), month, filename);
+    // Ensure directory exists
+    await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
+    // Serialize event object (remove circular refs if any)
+    const eventObj = typeof event.toJSON === 'function' ? event.toJSON() : event;
     return new Promise((resolve, reject) => {
-      let resolved = false;
-      const stream = fs.createReadStream(path.join(this.csvDir, 'users.csv'))
-        .pipe(csv())
-        .on('data', (row) => {
-          if (resolved) return; // Prevent multiple resolves
-          if (row.email && row.email === emailLower) {
-            // Pause the stream while we verify
-            stream.pause();
-            console.log('Checking user:', row.email);
-            // argon2.hash(password + row.salt)
-            // .then((hash) => {
-            //   console.log(hash);})
-            argon2.verify(row.password, password + row.salt)
-              .then((match) => {
-                if (match && !resolved) {
-                  resolved = true;
-                const user = new User({
-                  userId: row.userId,
-                  name: row.name,
-                  email: row.email,
-                  salt: row.salt,
-                  password: row.password,
-                  dateJoined: row.dateJoined,
-                  location: new Location(Number(row.latitude), Number(row.longitude)),
-                  searchGroupTags: row.searchGroupTags ? row.searchGroupTags.split(';') : [],
-                  searchCategoryTags: row.searchCategoryTags ? row.searchCategoryTags.split(';') : [],
-                  daysTimesOfInterest: row.daysTimesOfInterest ? row.daysTimesOfInterest.split(';') : [],
-                  eventsReviewed: row.eventsReviewed ? row.eventsReviewed.split(';') : [],
-                  eventsRegisteredInterest: row.eventsRegisteredInterest ? row.eventsRegisteredInterest.split(';') : [],
-                  eventsSignedUpFor: row.eventsSignedUpFor ? row.eventsSignedUpFor.split(';') : [],
-                  eventsAttended: row.eventsAttended ? row.eventsAttended.split(';') : [],
-                  userType: row.userType
-                });
-                resolve(user);
-                stream.destroy();
-              } else {
-                stream.resume();
-              }
-            })
-            .catch(err => {
-              if (!resolved) {
-                resolved = true;
-                reject(err);
-                stream.destroy();
-              }
-            });
-          }
-        })
-        .on('end', () => {
-          if (!resolved) resolve(null);
-        })
-        .on('error', err => {
-          if (!resolved) reject(err);
-        });
+      fs.writeFile(filePath, JSON.stringify(eventObj, null, 2), 'utf8', err => {
+        if (err) reject(err);
+        else resolve();
+      });
     });
   }
 
@@ -297,35 +283,6 @@ class Api {
           }
         })
         .on('end', () => resolve(tags))
-        .on('error', reject);
-    });
-  }
-
-
-
-  /**
-   * Get the most recent event added by a user
-   * @param {string} userId - The userId of the user
-   * @returns {Promise<Event|null>} - Resolves with the most recent Event or null
-   */
-  async getMostRecentEventByUser(userId) {
-    const Event = require('./Event');
-    return new Promise((resolve, reject) => {
-      const filePath = path.join(this.csvDir, 'events.csv');
-      const events = [];
-      fs.createReadStream(filePath)
-        .pipe(csv())
-        .on('data', (row) => {
-          if (row.addedBy && row.addedBy === userId) {
-            events.push(new Event(row));
-          }
-        })
-        .on('end', () => {
-          if (events.length === 0) return resolve(null);
-          // Sort by eventId descending
-          events.sort((a, b) => new Date(b.eventId) - new Date(a.eventId));
-          resolve(events[0]);
-        })
         .on('error', reject);
     });
   }

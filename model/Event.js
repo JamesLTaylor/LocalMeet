@@ -25,6 +25,40 @@ const Duration = Object.freeze({
 
 class Event {
   /**
+   * Create and return an example Event instance
+   * @returns {Event}
+   */
+  static example() {
+    return new Event({
+      eventId: 'evt_example',
+      title: 'Example Event',
+      description: 'This is an example event.',
+      date: new Date('2025-07-25T18:00:00Z'),
+      duration: Duration.ONE_HOUR_OR_LESS,
+      locationAddress: '123 Example St',
+      locationPostcode: 'SG12 0DE',
+      location: new Location(51.811892, -0.037170),
+      memberOnly: false,
+      externalRegister: '',
+      localMeetRegister: true,
+      groupTags: ['exampleGroup'],
+      categoryTags: ['exampleCategory'],
+      contactPerson: 'Jane Doe',
+      contactDetails: 'jane@example.com',
+      contactVisibility: ContactVisibility.LOGGED_IN,
+      costIntroductory: 0,
+      costRegular: 0,
+      size: EventSize.SMALL,
+      addedBy: 'user1',
+      addedAt: Date.now(),
+      lastEdited: Date.now(),
+      registeredUsers: [1],
+      interestedUsers: [2],
+      isCancelled: false,
+      isDeleted: false
+    });
+  }
+  /**
    * @param {Object} options
    * @param {string} options.eventId
    * @param {string} options.title
@@ -46,9 +80,9 @@ class Event {
    * @param {number} [options.costRegular]
    * @param {string} [options.size] // One of EventSize
    * @param {boolean} [options.directContact]
-   * @param {string|null} [options.addedBy]
-   * @param {Date|null} [options.addedAt]
-   * @param {Date|null} [options.lastEdited]
+   * @param {string} [options.addedBy]
+   * @param {Date} [options.addedAt]
+   * @param {Date} [options.lastEdited]
    * @param {string[]} [options.registeredUsers]
    * @param {string[]} [options.interestedUsers]
    * @param {boolean} [options.isCancelled]

@@ -46,4 +46,4 @@ coverage/
 .data/
 
 # Test data files that may get created while testing
-test/test_data/users/_user_lookup.csv
+test/test_data/
