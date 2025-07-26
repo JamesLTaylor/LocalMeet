@@ -3,6 +3,7 @@ const expect = chai.expect;
 const path = require('path');
 const Api = require('../../model/Api');
 const Event = require('../../model/Event');
+const { User, UserType } = require('../../model/User');
 const fs = require('fs');
   const { resetUserLookupCsv } = require('../testUtils');
 
@@ -34,15 +35,28 @@ describe('User Api', function() {
 
   it('should append a user to _user_lookup.csv and be able to log in as that user', async function() {
     const userID = await api.appendUserToLookup(testUsername, testPassword);
-    await api.getUserLookupById(userID).then(user => {
+    await api.getUserCredentialsById(userID).then(user => {
       expect(user.username).to.equal(testUsername);
       expect(user.filename).to.equal(`${testUsername.toLowerCase()}.json`);
     });
     const exists = await api.usernameExists('testUser');
     expect(exists).to.be.true;
+    const user = new User({
+      userID: userID,
+      name: testUsername,
+      email: 'test@example.com',
+      // other user properties
+    });
+    await api.writeUserJson(user);
 
     const loginUser = await api.tryLogin(testUsername, testPassword);
     expect(loginUser).to.have.property('userID');
+    expect(loginUser).to.have.property('filename');
+
+    await api.getUserDetailsByFilename(loginUser.filename).then(user => {
+      expect(user).to.not.be.null;
+      expect(user.name).to.equal(testUsername);
+    });
   });
 
 });
@@ -75,9 +89,11 @@ describe('Event file operations', function() {
     });
     await api.writeEventToFile(event);
     // Get events for this month
-    const startDate = new Date(2025, 6, 1);
-    const endDate = new Date(2025, 7, 31);
-    const events = await api.getEvents(startDate, endDate);
+    const query = {
+      startDate: new Date(2025, 6, 1),
+      endDate: new Date(2025, 7, 31)
+    };
+    const events = await api.getEvents(query);
     const found = events.some(e => e.eventId === 'evt_test');
     expect(found).to.be.true;
     // Delete the event file

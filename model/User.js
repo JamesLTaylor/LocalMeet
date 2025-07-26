@@ -1,20 +1,11 @@
+
+const { Location } = require('./utils');
 const UserType = Object.freeze({
   MEMBER: 'member',
   ORGANIZER: 'organizer',
   MODERATOR: 'moderator',
   ADMIN: 'admin'
 });
-
-class Location {
-  /**
-   * @param {number} latitude
-   * @param {number} longitude
-   */
-  constructor(latitude, longitude) {
-    this.latitude = latitude;
-    this.longitude = longitude;
-  }
-}
 
 class User {
   /**
@@ -108,4 +99,4 @@ class User {
     }
   } 
 
-module.exports = { User, Location, UserType };
+module.exports = { User, UserType };

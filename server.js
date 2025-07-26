@@ -2,7 +2,6 @@ const express = require('express');
 const path = require('path');
 const session = require('express-session');
 const fs = require('fs');
-const csv = require('csv-parser');
 const Api = require('./model/Api');
 const Event = require('./model/Event');
 
@@ -59,8 +58,8 @@ app.post('/api/createUser', async (req, res) => {
         return res.status(409).json({ success: false, message: 'User already exists' });
       }
     });
-    
-    // const newUser = await api.createUser({ email, password, name, userType: userType || 'USER' });
+
+    const newUser = await api.appendUserToLookup(username, password);
     res.json({ success: true, user: newUser });
   } catch (err) {
     console.error('Error creating user:', err);
@@ -70,16 +69,38 @@ app.post('/api/createUser', async (req, res) => {
 
 // Login endpoint
 app.post('/api/login', (req, res) => {
-  const { email, password } = req.body;
-  api.getUserByEmail(email, password)
-    .then(user => {
-      if (user) {
-        req.session.user = user;
-        res.json({ success: true, message: 'Login successful' });
+  const { username, password } = req.body;
+
+  // Function to set user details on session
+  function setDetailsOnSession(user) {
+    if (!user) {
+      return res.status(401).json({ success: false, message: 'Invalid user' });
+    }
+    req.session.user = user;
+    req.session.save();
+    res.json({ success: true, message: 'Login successful' });
+    console.log(`User ${user.name} logged in successfully`);
+  }
+
+  // Function to get user details from credentials
+  function getDetailsFromCredentials(userCredentials) {
+    return new Promise((resolve, reject) => {
+      if (userCredentials) {
+        api.getUserDetailsByFilename(userCredentials.filename)
+          .then(user => {
+            resolve(user);
+          })
+          .catch(err => {
+            reject(new Error('Error fetching user details'));
+          });
       } else {
-        res.status(401).json({ success: false, message: 'Invalid credentials' });
+        reject(new Error('Invalid credentials'));
       }
-    })
+    });
+  }
+  api.tryLogin(username, password)
+    .then(getDetailsFromCredentials)
+    .then(setDetailsOnSession)
     .catch(err => {
       console.error('Error during login:', err);
       res.status(500).json({ success: false, message: 'Internal server error' });
@@ -236,4 +257,4 @@ if (require.main === module) {
   startServer();
 }
 
-module.exports = { app, api, startServer, closeServer };
+module.exports = { app, startServer, closeServer };

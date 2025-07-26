@@ -19,3 +19,20 @@ function haversine(lat1, lon1, lat2, lon2) {
 }
 
 module.exports = { haversine };
+
+/**
+ * Location class for latitude/longitude
+ * @class
+ */
+class Location {
+  /**
+   * @param {number} latitude
+   * @param {number} longitude
+   */
+  constructor(latitude, longitude) {
+    this.latitude = latitude;
+    this.longitude = longitude;
+  }
+}
+
+module.exports.Location = Location;

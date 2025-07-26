@@ -28,11 +28,6 @@ function setupMenuHandlers() {
   document.getElementById('closeLogin').onclick = function() {
     document.getElementById('loginModal').style.display = 'none';
   };
-  window.onclick = function(event) {
-    if (event.target == document.getElementById('loginModal')) {
-      document.getElementById('loginBtn').style.display = 'none';
-    }
-  };
 }
 
 async function setUserName() {
@@ -79,24 +74,22 @@ function setupLogoutHandler() {
 }
 
 function setupLoginFormHandler() {
-  console.log('Setting up login form handler');
   const loginForm = document.getElementById('loginForm');
   if (loginForm) {
-    console.log('Login form found, adding event listener');
-    loginForm.addEventListener('submit', async (e) => {
+      loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const email = document.getElementById('loginEmail').value;
+      const username = document.getElementById('loginUsername').value;
       const password = document.getElementById('loginPassword').value;
       try {
         const res = await fetch('/api/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password })
+          body: JSON.stringify({ username, password })
         });
         const data = await res.json();
         if (data.success) {
           document.getElementById('loginModal').style.display = 'none';
-          window.dispatchEvent(new CustomEvent('user-logged-in', { detail: { name: email } }));
+          window.dispatchEvent(new CustomEvent('user-logged-in', { detail: { name: username } }));
         } else {
           alert(data.message || 'Login failed');
         }

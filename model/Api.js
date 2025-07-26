@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const csv = require('csv-parser');
 const argon2 = require('argon2');
-const { User, Location, UserType } = require('./User');
+const { User, UserType } = require('./User');
 const Event = require('./Event');
 const { haversine } = require('./utils');
 
@@ -23,11 +23,11 @@ class Api {
    * @returns {Promise<void>}
    */
   async writeUserJson(user) {
-    if (!user || !user.username) {
-      throw new Error('User instance with username required');
+    if (!user || !user.name) {
+      throw new Error('User instance with name required');
     }
     const usersDir = path.join(this.csvDir, './users');
-    const filename = `${user.username.toLowerCase()}.json`;
+    const filename = `${user.name.toLowerCase()}.json`;
     const filePath = path.join(usersDir, filename);
     // Serialize user object (remove circular refs if any)
     const userObj = typeof user.toJSON === 'function' ? user.toJSON() : user;
@@ -40,7 +40,8 @@ class Api {
   }
 
   /**
-   * Append a new user row to _user_lookup.csv
+   * Append a new user row to _user_lookup.csv and return the new userID.
+   * Validates username and password before appending.
    * @param {string} username
    * @param {string} password
    * @returns {Promise<void>}
@@ -124,7 +125,7 @@ class Api {
         if (!username || !password) {
           return reject(new Error('Username and password are required'));
         }
-        const user = await this.getUserByUsername(username);
+        const user = await this.getUserCredentialsByName(username);
         if (!user) {
           return reject(new Error('User not found'));
         }
@@ -139,7 +140,7 @@ class Api {
     });
   }
 
-  async getUserByUsername(username) {
+  async getUserCredentialsByName(username) {
     if (!username) {
       throw new Error('Username is required');
     }
@@ -163,12 +164,13 @@ class Api {
     });
   }
 
+
   /**
    * Get userID, username, and filename for a given userID from _user_lookup.csv
    * @param {string|number} userID
    * @returns {Promise<{userID: string, username: string, filename: string} | null>}
    */
-  async getUserLookupById(userID) {
+  async getUserCredentialsById(userID) {
     const filePath = path.join(this.csvDir, './users/_user_lookup.csv');
     return new Promise((resolve, reject) => {
       fs.createReadStream(filePath)
@@ -186,6 +188,34 @@ class Api {
         .on('error', reject);
     });
   }
+
+  /**
+ * Get an instance of the user class given the filename for the user.
+ * @param {string} filename
+ * @returns {Promise<Object|null>}
+ */
+async getUserDetailsByFilename(filename) {
+  const filePath = path.join(this.csvDir, './users', filename);
+  return new Promise((resolve, reject) => {
+    fs.readFile(filePath, 'utf8', (err, data) => {
+      if (err) {
+        if (err.code === 'ENOENT') {
+          resolve(null);
+        } else {
+          reject(err);
+        }
+        return;
+      }
+      try {
+        const userObj = JSON.parse(data);
+        const user = new User(userObj);
+        resolve(user);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  });
+}
 
   /**
    * Check if a username exists in _user_lookup.csv
@@ -243,10 +273,11 @@ class Api {
 
   /**
    * Get a list of events filtered by date range and location.
-   * @param {Date|string} startDate - Start date (inclusive)
-   * @param {Date|string} endDate - End date (inclusive)
-   * @param {{ latitude: number, longitude: number }} [location] - Center location
-   * @param {number} [distance] - Max distance in kilometers
+   * @param {Object} [options] - Options object
+   * @param {Date|string} [options.startDate] - Start date (inclusive)
+   * @param {Date|string} [options.endDate] - End date (inclusive)
+   * @param {{ latitude: number, longitude: number }} [options.location] - Center location
+   * @param {number} [options.distance] - Max distance in kilometers
    * @returns {Promise<Event[]>}
    */
   async getEvents({startDate, endDate, location, distance}={}) {
