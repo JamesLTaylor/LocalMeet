@@ -1,6 +1,7 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const { startServer, api, closeServer } = require('../server');
+const { resetUserLookupCsv } = require('./testUtils');
 let expect = chai.expect;
 let server;
 

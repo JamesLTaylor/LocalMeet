@@ -25,7 +25,7 @@ class User {
    *  * an admin
    *  
    *  * @param {Object} options
-   * @param {string} options.userId
+   * @param {string} options.userID
    * @param {string} options.name
    * @param {string} options.email
    * @param {Date} options.dateJoined
@@ -42,7 +42,7 @@ class User {
    * @param {string[]} options.eventFilesEdited - List of event JSON filenames the user has edited
    */
   constructor({
-    userId,
+    userID,
     name,
     email,
     dateJoined,
@@ -58,7 +58,7 @@ class User {
     eventFilesCreated = [],
     eventFilesEdited = []
   }) {
-    this.userId = userId;
+    this.userID = userID;
     this.name = name;
     this.email = email;
     this.dateJoined = dateJoined;
@@ -83,7 +83,7 @@ class User {
    * */
   fromDict = function(dict) {
     return new User({
-      userId: dict.userId,
+      userID: dict.userID,
       name: dict.name,
       email: dict.email,
       dateJoined: dict.dateJoined,

@@ -4,21 +4,47 @@ const path = require('path');
 const Api = require('../../model/Api');
 const Event = require('../../model/Event');
 const fs = require('fs');
+  const { resetUserLookupCsv } = require('../testUtils');
 
 describe('User Api', function() {
   let api;
   const testUsername = 'TestUser';
   const testPassword = 'TestPass123!';
 
-  const fs = require('fs');
-  const testDataDir = path.join(__dirname, '../test_data/users');
-  const refFile = path.join(testDataDir, 'reference_user_lookup.csv');
-  const targetFile = path.join(testDataDir, '_user_lookup.csv');
-
   beforeEach(function() {
-    // Copy reference_user_lookup.csv to _user_lookup.csv before each test
-    fs.copyFileSync(refFile, targetFile);
+    resetUserLookupCsv();
+    const csvDir = path.join(__dirname, '../test_data');
+    api = new Api({ csvDir });
   });
+
+
+  it('should fail to log in as TestUser before user is created', async function() {
+    try {
+      await api.tryLogin(testUsername, testPassword);
+      throw new Error('Login should have failed but succeeded');
+    } catch (err) {
+      expect(err.message).to.match(/not found|invalid/i);
+    }
+  });
+
+  it('should return false for a username that does not exist', async function() {
+    const exists = await api.usernameExists('testUser');
+    expect(exists).to.be.false;
+  });
+
+  it('should append a user to _user_lookup.csv and be able to log in as that user', async function() {
+    const userID = await api.appendUserToLookup(testUsername, testPassword);
+    await api.getUserLookupById(userID).then(user => {
+      expect(user.username).to.equal(testUsername);
+      expect(user.filename).to.equal(`${testUsername.toLowerCase()}.json`);
+    });
+    const exists = await api.usernameExists('testUser');
+    expect(exists).to.be.true;
+
+    const loginUser = await api.tryLogin(testUsername, testPassword);
+    expect(loginUser).to.have.property('userID');
+  });
+
 });
 
 describe('Event file operations', function() {
@@ -27,6 +53,7 @@ describe('Event file operations', function() {
     const csvDir = path.join(__dirname, '../test_data');
     api = new Api({ csvDir });
   });
+
 
   it('should create, save, load, and delete an event file', async function() {
     // Create event for current month
@@ -48,8 +75,8 @@ describe('Event file operations', function() {
     });
     await api.writeEventToFile(event);
     // Get events for this month
-    const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-    const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    const startDate = new Date(2025, 6, 1);
+    const endDate = new Date(2025, 7, 31);
     const events = await api.getEvents(startDate, endDate);
     const found = events.some(e => e.eventId === 'evt_test');
     expect(found).to.be.true;
@@ -62,28 +89,6 @@ describe('Event file operations', function() {
     // if (fs.existsSync(filePath)) {
     //   fs.unlinkSync(filePath);
     // }
-  });
-
-  before(function() {
-    // Use test data directory if available
-    const csvDir = path.join(__dirname, '../test_data');
-    api = new Api({ csvDir });
-  });
-
-  it('should return false for a username that does not exist', async function() {
-    const exists = await api.usernameExists('testUser');
-    expect(exists).to.be.false;
-  });
-
-
-  it('should append a user to _user_lookup.csv', async function() {
-    const userID = await api.appendUserToLookup(testUsername, testPassword);
-    await api.getUserLookupById(userID).then(user => {
-      expect(user.username).to.equal(testUsername);
-      expect(user.filename).to.equal(`${testUsername.toLowerCase()}.json`);
-    });
-    const exists = await api.usernameExists('testUser');
-    expect(exists).to.be.true;
   });
 });
 

@@ -112,21 +112,69 @@ class Api {
     });
   }
 
-
-
-
   /**
-   * Get userID, username, and filename for a given userID from _user_lookup.csv
-   * @param {string|number} userId
-   * @returns {Promise<{userID: string, username: string, filename: string} | null>}
+   * Try to login with username and password. Will raise an error is login fails.
+   * Returns the user object if successful.
+   * @param {string} username
+   * @param {string} password
    */
-  async getUserLookupById(userId) {
+  tryLogin(username, password) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        if (!username || !password) {
+          return reject(new Error('Username and password are required'));
+        }
+        const user = await this.getUserByUsername(username);
+        if (!user) {
+          return reject(new Error('User not found'));
+        }
+        const isValid = await argon2.verify(user.passwordHash, password + user.salt);
+        if (!isValid) {
+          return reject(new Error('Invalid password'));
+        }
+        resolve(user);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  async getUserByUsername(username) {
+    if (!username) {
+      throw new Error('Username is required');
+    }
     const filePath = path.join(this.csvDir, './users/_user_lookup.csv');
     return new Promise((resolve, reject) => {
       fs.createReadStream(filePath)
         .pipe(csv())
         .on('data', (row) => {
-          if (row.UserID && String(row.UserID) === String(userId)) {
+          if (row.username && row.username.toLowerCase() === username.toLowerCase()) {
+            resolve({
+              userID: row.UserID,
+              username: row.username,
+              passwordHash: row.passwordHash,
+              salt: row.salt,
+              filename: row.filename
+            });
+          }
+        })
+        .on('end', () => resolve(null))
+        .on('error', reject);
+    });
+  }
+
+  /**
+   * Get userID, username, and filename for a given userID from _user_lookup.csv
+   * @param {string|number} userID
+   * @returns {Promise<{userID: string, username: string, filename: string} | null>}
+   */
+  async getUserLookupById(userID) {
+    const filePath = path.join(this.csvDir, './users/_user_lookup.csv');
+    return new Promise((resolve, reject) => {
+      fs.createReadStream(filePath)
+        .pipe(csv())
+        .on('data', (row) => {
+          if (row.UserID && String(row.UserID) === String(userID)) {
             resolve({
               userID: row.UserID,
               username: row.username,
@@ -201,7 +249,7 @@ class Api {
    * @param {number} [distance] - Max distance in kilometers
    * @returns {Promise<Event[]>}
    */
-  async getEvents({startDate, endDate, location, distance}) {
+  async getEvents({startDate, endDate, location, distance}={}) {
     const Event = require('./Event');
     const events = [];
     if (!startDate) {
@@ -265,6 +313,11 @@ class Api {
     const CategoryTag = require('./CategoryTag');
     const tags = [];
     return new Promise((resolve, reject) => {
+      try {
+        fs.accessSync(path.join(this.csvDir, 'categoryTags.csv'), fs.constants.R_OK);
+      } catch (err) {
+        return reject(new Error('categoryTags.csv not found or not readable'));
+      } 
       fs.createReadStream(path.join(this.csvDir, 'categoryTags.csv'))
         .pipe(csv())
         .on('data', (row) => {

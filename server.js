@@ -151,7 +151,7 @@ app.post('/api/createEvent', requireLogin, async (req, res) => {
   }
   try {
     const eventData = { ...req.body };
-    eventData.addedBy = req.session.user.userId; // Set the user who added    
+    eventData.addedBy = req.session.user.userID; // Set the user who added    
     eventData.lastEdited = Date.now(); // Set the time when the event was last edited
     const event = Event.fromDict(eventData);
     // Check if event.date is set
@@ -177,8 +177,8 @@ app.post('/api/createEvent', requireLogin, async (req, res) => {
 // Endpoint to get the most recent event added by the current user
 app.get('/api/my-most-recent-event', requireLogin, async (req, res) => {
   try {
-    const userId = req.session.user.userId;
-    const event = await api.getMostRecentEventByUser(userId);
+    const userID = req.session.user.userID;
+    const event = await api.getMostRecentEventByUser(userID);
     res.json({ success: true, event });
   } catch (err) {
     console.error('Error fetching most recent event:', err);
