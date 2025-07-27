@@ -1,0 +1,39 @@
+/* Set the widths of the table columns to be fixed */
+.event-form-table {
+    min-width: 200px;
+    max-width: 600px;
+    border-collapse: separate;
+    border-spacing: 0 8px;
+    margin-left: 0;
+    margin-right: auto;
+}
+.event-form-table td {
+    vertical-align: middle;
+    padding: 4px 8px;
+}
+.event-form-table label {
+    font-weight: bold;
+    display: block;
+    text-align: right;
+    margin-right: 8px;
+}
+.event-form-table input,
+.event-form-table textarea,
+.event-form-table select {
+    width: 100%;
+    box-sizing: border-box;
+}
+.event-form-label {
+    text-align: right;
+}
+.event-form-input {
+    text-align: left;
+}
+input[type=checkbox] { width: auto }
+.event-form-actions {
+    margin-top: 16px;
+    text-align: left;
+}
+.event-form-actions button:not(:first-child) {
+    margin-left: 8px;
+}

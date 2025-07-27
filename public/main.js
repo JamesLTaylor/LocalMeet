@@ -30,12 +30,16 @@ function setupMenuHandlers() {
   };
 }
 
+// Set the username and update what menu items are visible
+// This is called on page load and after login/logout
 async function setUserName() {
   const userNameDisplay = document.getElementById('userNameDisplay');
+  const profileMenuItem = document.getElementById('profileMenuItem');
   const logoutMenuItem = document.getElementById('logoutMenuItem');
   const loginMenuItem = document.getElementById('loginMenuItem');
   const signupMenuItem = document.getElementById('signupMenuItem');
   const addEventMenuItem = document.getElementById('addEventMenuItem');
+
   const res = await fetch('/api/userName');
   const data = await res.json();
   const name = data.name;
@@ -45,6 +49,7 @@ async function setUserName() {
   if (name && name !== null) {
     userNameDisplay.textContent = name;
     userNameDisplay.style.display = 'inline-block';
+    profileMenuItem.style.display = 'block';
     logoutMenuItem.style.display = 'block';
     loginMenuItem.style.display = 'none';
     signupMenuItem.style.display = 'none';
@@ -56,6 +61,7 @@ async function setUserName() {
   } else {
     userNameDisplay.textContent = '';
     userNameDisplay.style.display = 'none';
+    profileMenuItem.style.display = 'none';
     logoutMenuItem.style.display = 'none';
     loginMenuItem.style.display = 'block';
     signupMenuItem.style.display = 'block';

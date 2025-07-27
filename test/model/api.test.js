@@ -43,7 +43,7 @@ describe('User Api', function() {
     expect(exists).to.be.true;
     const user = new User({
       userID: userID,
-      name: testUsername,
+      username: testUsername,
       email: 'test@example.com',
       // other user properties
     });
@@ -55,7 +55,7 @@ describe('User Api', function() {
 
     await api.getUserDetailsByFilename(loginUser.filename).then(user => {
       expect(user).to.not.be.null;
-      expect(user.name).to.equal(testUsername);
+      expect(user.username).to.equal(testUsername);
     });
   });
 

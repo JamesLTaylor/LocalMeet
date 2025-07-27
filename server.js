@@ -79,7 +79,7 @@ app.post('/api/login', (req, res) => {
     req.session.user = user;
     req.session.save();
     res.json({ success: true, message: 'Login successful' });
-    console.log(`User ${user.name} logged in successfully`);
+    console.log(`User ${user.username} logged in successfully`);
   }
 
   // Function to get user details from credentials
@@ -118,7 +118,7 @@ app.post('/api/logout', (req, res) => {
 // Session info endpoint
 app.get('/api/userName', (req, res) => {
   if (req.session && req.session.user) {
-    res.json({ name: req.session.user.name });
+    res.json({ name: req.session.user.username });
   } else {
     res.json({ name: null });
   }
@@ -219,6 +219,11 @@ function requireLogin(req, res, next) {
 // Serve event form only to logged in users from private directory
 app.get('/eventForm', requireLogin, (req, res) => {
   res.sendFile(path.join(__dirname, 'private', 'eventForm.html'));
+});
+
+// Serve user profile form only to logged in users from private directory
+app.get('/userProfileForm', /*requireLogin,*/ (req, res) => {
+  res.sendFile(path.join(__dirname, 'private', 'userProfileForm.html'));
 });
 
 // Fallback to index.html for all other routes (SPA support)

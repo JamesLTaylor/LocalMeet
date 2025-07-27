@@ -17,6 +17,7 @@ class User {
    *  
    *  * @param {Object} options
    * @param {string} options.userID
+   * @param {string} options.username
    * @param {string} options.name
    * @param {string} options.email
    * @param {Date} options.dateJoined
@@ -34,6 +35,7 @@ class User {
    */
   constructor({
     userID,
+    username,
     name,
     email,
     dateJoined,
@@ -50,6 +52,7 @@ class User {
     eventFilesEdited = []
   }) {
     this.userID = userID;
+    this.username = username
     this.name = name;
     this.email = email;
     this.dateJoined = dateJoined;
@@ -75,6 +78,7 @@ class User {
   fromDict = function(dict) {
     return new User({
       userID: dict.userID,
+      username: dict.username,
       name: dict.name,
       email: dict.email,
       dateJoined: dict.dateJoined,

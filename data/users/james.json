@@ -1,4 +1,5 @@
 {
   "userID": 1,
-  "name": "James"
+  "name": "James",
+  "userType": "admin"
 }

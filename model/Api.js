@@ -23,11 +23,11 @@ class Api {
    * @returns {Promise<void>}
    */
   async writeUserJson(user) {
-    if (!user || !user.name) {
+    if (!user || !user.username) {
       throw new Error('User instance with name required');
     }
     const usersDir = path.join(this.csvDir, './users');
-    const filename = `${user.name.toLowerCase()}.json`;
+    const filename = `${user.username.toLowerCase()}.json`;
     const filePath = path.join(usersDir, filename);
     // Serialize user object (remove circular refs if any)
     const userObj = typeof user.toJSON === 'function' ? user.toJSON() : user;
@@ -342,14 +342,15 @@ async getUserDetailsByFilename(filename) {
    */
   async getCategoryTags() {
     const CategoryTag = require('./CategoryTag');
+    const tagPath = path.join(this.csvDir, './tags/categoryTags.csv');
     const tags = [];
     return new Promise((resolve, reject) => {
       try {
-        fs.accessSync(path.join(this.csvDir, 'categoryTags.csv'), fs.constants.R_OK);
+        fs.accessSync(tagPath, fs.constants.R_OK);
       } catch (err) {
         return reject(new Error('categoryTags.csv not found or not readable'));
-      } 
-      fs.createReadStream(path.join(this.csvDir, 'categoryTags.csv'))
+      }
+      fs.createReadStream(tagPath)
         .pipe(csv())
         .on('data', (row) => {
           if (row.name) {
