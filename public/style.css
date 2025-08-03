@@ -150,10 +150,30 @@ button {
 .content-area {
   flex: 1 1 0;
 }
-#category-filter-container {
-  margin-bottom: 1rem;
+.filters-area {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 5px;
+  padding: 5px;
+  grid-template-areas:
+    "label-cat select-cat"
+    "label-group select-group";
+  align-items: center;
 }
-#categoryTags {
+/* .select-container {  
+  margin-bottom: 1rem;
+} */
+.label-cat { 
+  grid-area: label-cat;
+  }
+.label-group {  
+  grid-area: label-group;
+}
+.select-cat {  
+  grid-area: select-cat;}
+.select-group {  
+  grid-area: select-group;}
+.select-element {
   width: 100%;
   min-width: 180px;
   max-width: 320px;
@@ -163,7 +183,7 @@ button {
   font-size: 1rem;
   background: #fff;
 }
-#categoryTags option {
+.select-element option {
   padding: 0.25rem 0.5rem;
 }
 /* Calendar styles */

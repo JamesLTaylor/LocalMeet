@@ -30,13 +30,26 @@
     <div class="calendar-container">
       <div id="calendar"></div>
     </div>
+
     <div class="content-area">
-      <div id="category-filter-container">
-        <label for="categoryTags">Category:</label>
-        <select id="categoryTags">
-          <option value=""></option>
-        </select>
-      </div>
+    <div class="filters-area">
+      <label for="categoryTags" class="label-cat">Category:</label>
+      <select id="categoryTags" class="select-cat select-element">
+            <option value=""></option>
+      </select>
+        
+      <label for="groupTags" class="label-group">Groups:</label>
+      <select id="groupTags" class="select-group select-element">
+        <option value=""></option>
+      </select>
+    </div>
+      <!-- <div class="filters-area">
+          <label for="categoryTags" class="label-cat">Category:</label>
+          <div id="categoryTags" class="select-cat select-element">Dropdown for categories</div>            
+          <label for="groupTags" class="label-group">Groups:</label>
+          <div id="groupTags" class="select-group select-element">Dropdown for groups</div>
+      </div>       -->
+      
       <div id="event-list"></div>
       <!-- Event list and other main content here -->
       <p></p>
@@ -55,10 +68,10 @@
       </form>
     </div>
   </div>
-
+  <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+  <script src="functions.js"></script>
   <script src="main.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 </body>
 </html>

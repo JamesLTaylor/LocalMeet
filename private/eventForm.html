@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <title>Create Event</title>
+  <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="../style.css">
-  <link rel="stylesheet" href="../formStyles.css">
+  <!-- <link rel="stylesheet" href="../formStyles.css"> -->
   <style>
   </style>
 </head>
@@ -71,6 +72,7 @@
         <td class="event-form-input"><select id="categoryTags" name="categoryTags" title="Select one or more categories for this event.">
           <option value=""></option>
         </select>
+        </td>
       </tr>
       <tr>
         <td class="event-form-label"><label for="contactPerson">Contact Person/Organization:</label></td>
@@ -121,94 +123,13 @@
   <div id="eventIdDisplay" style="position: fixed; bottom: 10px; right: 20px; font-size: 0.85em; color: #888; background: #f9f9f9; padding: 4px 10px; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.04);">
     Event ID: <span id="eventIdText"></span>
   </div>
+  <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+  <script src="functions.js"></script>
   <script>
-    // inserts reference to main.js for shared functions
-    const script = document.createElement('script');
-    script.src = 'main.js';
-    document.head.appendChild(script);
-
-    async function populateFormWithRecentEvent() {
-      try {
-        const res = await fetch('/api/my-most-recent-event');
-        const result = await res.json();
-        if (result.success && result.event) {
-          const event = result.event;
-          for (const key in event) {
-            const el = document.getElementById(key);
-            if (!el) continue;
-            if (el.type === 'checkbox') {
-              el.checked = event[key] === true || event[key] === 'true';
-            } else if (el.type === 'date' && event[key]) {
-              // Convert to yyyy-mm-dd for input[type=date]
-              const d = new Date(event[key]);
-              if (!isNaN(d)) {
-                el.value = d.toISOString().slice(0, 10);
-                // Also set time field if present
-                const timeEl = document.getElementById('startTime');
-                if (timeEl && d instanceof Date && !isNaN(d)) {
-                  // Pad hours/minutes to 2 digits
-                  const hh = String(d.getHours()).padStart(2, '0');
-                  const mm = String(d.getMinutes()).padStart(2, '0');
-                  timeEl.value = `${hh}:${mm}`;
-                }
-              } else {
-                el.value = '';
-              }
-            } else {
-              el.value = event[key] || '';
-            }
-          }
-          // Set eventId display
-          document.getElementById('eventIdText').textContent = event.eventId || '';
-        } else {
-          // If no recent event, set eventId to current timestamp
-        }
-      } catch (err) {
-        // On error, set eventId to current timestamp if not already set
-      }
-    }
-    async function setupForm() {
-      await populateCategoryTags();
-      await populateGroupTags();
-      await populateFormWithRecentEvent();
-      // Ensure eventId is set on form creation if not populated
-      if (!document.getElementById('eventIdText').textContent) {
-        document.getElementById('eventIdText').textContent = Date.now();
-      }
-    }
     document.addEventListener('DOMContentLoaded', setupForm);
-    document.getElementById('btnSaveEvent').addEventListener('click', async function(e) {
+    document.getElementById('btnSaveEvent').addEventListener('click', function(e) {
       e.preventDefault();
-      const form = document.getElementById('eventForm');
-      const formData = new FormData(form);
-      const data = {};
-      formData.forEach((value, key) => {
-        // Convert checkboxes to boolean
-        if (form.elements[key] && form.elements[key].type === 'checkbox') {
-          data[key] = form.elements[key].checked;
-        } else {
-          data[key] = value;
-        }
-      });
-      // POST to backend
-      try {
-        // Add eventId to data
-        data.eventId = document.getElementById('eventIdText').textContent;
-        const res = await fetch('/api/createEvent', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
-        const result = await res.json();
-        if (result.success) {
-          alert('Event saved successfully!');
-          // Optionally redirect or reset form
-        } else {
-          alert(result.message || 'Error saving event');
-        }
-      } catch (err) {
-        alert('Error saving event');
-      }
+      saveEvent();
     });
 
     document.getElementById('btnCancel').addEventListener('click', function(e) {

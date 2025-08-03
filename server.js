@@ -155,7 +155,7 @@ app.get('/api/events', async (req, res) => {
 });
 
 // Category tags endpoint
-app.get('/api/category-tags', async (req, res) => {
+app.get('/api/getCategoryTags', async (req, res) => {
   try {
     const tags = await api.getCategoryTags();
     res.json(tags);

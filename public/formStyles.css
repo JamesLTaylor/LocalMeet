@@ -19,10 +19,10 @@
 }
 .event-form-table input,
 .event-form-table textarea,
-.event-form-table select {
+/* .event-form-table select {
     width: 100%;
     box-sizing: border-box;
-}
+} */
 .event-form-label {
     text-align: right;
 }

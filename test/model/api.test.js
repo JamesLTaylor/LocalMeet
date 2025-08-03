@@ -7,7 +7,7 @@ const { User, UserType } = require('../../model/User');
 const fs = require('fs');
   const { resetUserLookupCsv } = require('../testUtils');
 
-describe('User Api', function() {
+describe('Logging in user API', function() {
   let api;
   const testUsername = 'TestUser';
   const testPassword = 'TestPass123!';
@@ -108,7 +108,7 @@ describe('Event file operations', function() {
   });
 });
 
-
+// Test for writing an event to a JSON file
 describe('Event Api', function() {
   let api;
   const fs = require('fs');
@@ -152,5 +152,23 @@ describe('Event Api', function() {
     expect(fs.existsSync(filePath)).to.be.true;
     // Optionally, clean up
     // fs.unlinkSync(filePath);
+  });
+});
+
+// Tests for category and group tags
+describe('Category and Group Tags', function() {
+  let api;
+  before(function() {
+    const csvDir = path.join(__dirname, '../test_data');
+    api = new Api({ csvDir });
+  });
+
+  // Test for getting a list of category tags
+  it('should return a list of category tags', async function() {
+    const categoryTags = await api.getCategoryTags();
+    expect(categoryTags).to.be.an('array');
+    // Collect the names of the tags into a new array
+    const tagNames = categoryTags.map(tag => tag.name);
+    expect(tagNames).to.include('Gaming'); // Assuming 'Gaming' is a tag in the test data
   });
 });
