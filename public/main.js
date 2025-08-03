@@ -1,7 +1,6 @@
 /*
  * main.js - LocalMeet frontend logic
  *
- * All functions are grouped together for maintainability.
  * DOMContentLoaded and event listeners are at the bottom.
  */
 
@@ -96,6 +95,7 @@ function setupLoginFormHandler() {
         if (data.success) {
           document.getElementById('loginModal').style.display = 'none';
           window.dispatchEvent(new CustomEvent('user-logged-in', { detail: { name: username } }));
+          setUserName();
         } else {
           alert(data.message || 'Login failed');
         }
@@ -188,8 +188,8 @@ function renderEventList(events) {
 }
 
 // --- Category Filter functions ---
-async function populateCategoryFilter() {
-  const select = document.getElementById('categoryFilter');
+async function populatecategoryTags() {
+  const select = document.getElementById('categoryTags');
   if (!select) return;
   try {
     const res = await fetch('/api/category-tags');
@@ -227,8 +227,8 @@ function filterEventsByCategory(events, selectedCategory) {
   });
 }
 
-function setupCategoryFilter(events) {
-  const select = document.getElementById('categoryFilter');
+function setupcategoryTags(events) {
+  const select = document.getElementById('categoryTags');
   if (!select) return;
   select.addEventListener('change', () => {
     const selected = select.value;
@@ -242,7 +242,7 @@ async function fetchAndRenderEventList() {
     if (res.ok) {
       const events = await res.json();
       renderEventList(events);
-      setupCategoryFilter(events);
+      setupcategoryTags(events);
     }
   } catch {}
 }
@@ -264,7 +264,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
   // Event list and category filter
   fetchAndRenderEventList();
-  populateCategoryFilter();
+  populatecategoryTags();
 });
 
 // Listen for calendar day clicks

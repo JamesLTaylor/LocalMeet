@@ -153,7 +153,7 @@ button {
 #category-filter-container {
   margin-bottom: 1rem;
 }
-#categoryFilter {
+#categoryTags {
   width: 100%;
   min-width: 180px;
   max-width: 320px;
@@ -163,7 +163,7 @@ button {
   font-size: 1rem;
   background: #fff;
 }
-#categoryFilter option {
+#categoryTags option {
   padding: 0.25rem 0.5rem;
 }
 /* Calendar styles */

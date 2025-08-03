@@ -1,5 +1,18 @@
 {
-  "userID": 1,
-  "name": "James",
-  "userType": "admin"
+   "userID": 1,
+   "username": "James",
+   "name": "James Taylor",
+   "email": "james@cogn.co.za",
+   "dateJoined": "2025-01-01",
+   "location": [50.0, -1.0],
+   "searchGroupTags": [],
+   "searchCategoryTags": [],
+   "daysTimesOfInterest": [],
+   "eventsReviewed": [],
+   "eventsRegisteredInterest": [],
+   "eventsSignedUpFor": [],
+   "eventsAttended": [],
+   "userType": "admin",
+   "eventFilesCreated": [],
+   "eventFilesEdited": []
 }

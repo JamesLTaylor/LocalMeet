@@ -68,7 +68,9 @@
       </tr>
       <tr>
         <td class="event-form-label"><label for="categoryTags">What type of event is it?</label></td>
-        <td class="event-form-input"><input type="text" id="categoryTags" name="categoryTags"></td>
+        <td class="event-form-input"><select id="categoryTags" name="categoryTags" title="Select one or more categories for this event.">
+          <option value=""></option>
+        </select>
       </tr>
       <tr>
         <td class="event-form-label"><label for="contactPerson">Contact Person/Organization:</label></td>
@@ -120,6 +122,11 @@
     Event ID: <span id="eventIdText"></span>
   </div>
   <script>
+    // inserts reference to main.js for shared functions
+    const script = document.createElement('script');
+    script.src = 'main.js';
+    document.head.appendChild(script);
+
     async function populateFormWithRecentEvent() {
       try {
         const res = await fetch('/api/my-most-recent-event');
@@ -160,15 +167,16 @@
         // On error, set eventId to current timestamp if not already set
       }
     }
-    document.addEventListener('DOMContentLoaded', populateFormWithRecentEvent);
-
-    // Ensure eventId is set on form creation if not populated
-    document.addEventListener('DOMContentLoaded', function() {
+    async function setupForm() {
+      await populateCategoryTags();
+      await populateGroupTags();
+      await populateFormWithRecentEvent();
+      // Ensure eventId is set on form creation if not populated
       if (!document.getElementById('eventIdText').textContent) {
         document.getElementById('eventIdText').textContent = Date.now();
       }
-    });
-
+    }
+    document.addEventListener('DOMContentLoaded', setupForm);
     document.getElementById('btnSaveEvent').addEventListener('click', async function(e) {
       e.preventDefault();
       const form = document.getElementById('eventForm');
@@ -204,7 +212,6 @@
     });
 
     document.getElementById('btnCancel').addEventListener('click', function(e) {
-      e.preventDefault();
       window.location.href = '/';
     });
   </script>
