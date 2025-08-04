@@ -181,12 +181,21 @@ function renderEventList(events) {
   listContainer.appendChild(eventList);
 }
 
-// --- Category Filter functions ---
+async function populateGroupTags() {
+  await populateTags('groupTags', '/api/getGroupTags', "Select groups...");
+  
+}
+
 async function populateCategoryTags() {
-  const select = document.getElementById('categoryTags');
+  await populateTags('categoryTags', '/api/getCategoryTags', "Select categories...");
+}
+
+// --- Category Filter functions ---
+async function populateTags(elementId, apiCall, msg) {
+  const select = document.getElementById(elementId);
   if (!select) return;
   try {
-    const res = await fetch('/api/getCategoryTags');
+    const res = await fetch(apiCall);
     if (res.ok) {
       const tags = await res.json();
       select.innerHTML = '';
@@ -196,7 +205,7 @@ async function populateCategoryTags() {
         option.textContent = tag.name;
         option.title = tag.description || tag.name;
         select.appendChild(option);
-        console.log('  Adding category tag:', tag.name);
+        console.log('Adding tag:', tag.name);
       }
     }
     if (window.TomSelect) {
@@ -205,14 +214,14 @@ async function populateCategoryTags() {
         plugins: ['remove_button'],
         maxItems: null,
         items: [],
-        placeholder: 'Select categories...',
+        placeholder: msg,
         searchField: ['text'],
         closeAfterSelect: false,
         allowEmptyOption: true
       });
     }
   } catch (err) {
-    console.error('Error populating category tags:', err);
+    console.error('Error populating tags:', err);
   }
 }
 

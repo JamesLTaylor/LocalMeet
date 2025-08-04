@@ -165,6 +165,17 @@ app.get('/api/getCategoryTags', async (req, res) => {
   }
 });
 
+// Group tags endpoint
+app.get('/api/getGroupTags', async (req, res) => {
+  try {
+    const tags = await api.getGroupTags();
+    res.json(tags);
+  } catch (err) {
+    console.error('Error fetching group tags:', err);
+    res.status(500).json({ success: false, message: 'Error fetching group tags' });
+  }
+});
+
 // Endpoint to create a new event (admin only)
 app.post('/api/createEvent', requireLogin, async (req, res) => {
   if (!req.session.user || String(req.session.user.userType).toUpperCase() !== 'ADMIN') {

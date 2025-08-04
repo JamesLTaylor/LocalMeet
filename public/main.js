@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', async function() {
   // Event list and category filter
   fetchAndRenderEventList();
   populateCategoryTags();
+  populateGroupTags();
 });
 
 // Listen for calendar day clicks

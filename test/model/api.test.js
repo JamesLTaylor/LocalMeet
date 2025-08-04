@@ -171,4 +171,13 @@ describe('Category and Group Tags', function() {
     const tagNames = categoryTags.map(tag => tag.name);
     expect(tagNames).to.include('Gaming'); // Assuming 'Gaming' is a tag in the test data
   });
+
+  // Test for getting a list of group tags
+  it('should return a list of group tags', async function() {
+    const groupTags = await api.getGroupTags();
+    expect(groupTags).to.be.an('array');
+    // Collect the names of the tags into a new array
+    const tagNames = groupTags.map(tag => tag.name);
+    expect(tagNames).to.include('Everyone'); // Assuming 'Everyone' is a tag in the test data
+  });
 });

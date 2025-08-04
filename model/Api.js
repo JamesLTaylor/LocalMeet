@@ -7,6 +7,7 @@ const argon2 = require('argon2');
 const { User, UserType } = require('./User');
 const Event = require('./Event');
 const { haversine } = require('./utils');
+const CategoryTag = require('./CategoryTag');
 
 class Api {
   /**
@@ -336,21 +337,37 @@ async getUserDetailsByFilename(filename) {
     return events;
   }
 
+/**
+ * Get a list of CategoryTags from categoryTags.csv
+ * @returns {Promise<CategoryTag[]>}
+ */
+async getCategoryTags() {    
+    return this.getTags('./tags/categoryTags.csv');
+}
+
+/**
+ * Get a list of group tags from groupTags.csv
+ * @returns {Promise<CategoryTag[]>}
+ */ 
+async getGroupTags() {
+    return this.getTags('./tags/groupTags.csv');
+  } 
+
   /**
-   * Get a list of CategoryTags from categoryTags.csv
+   * Get a list of tags from a CSV file
+   * @param {string} tagPath - Path to the CSV file
    * @returns {Promise<CategoryTag[]>}
    */
-  async getCategoryTags() {
-    const CategoryTag = require('./CategoryTag');
-    const tagPath = path.join(this.csvDir, './tags/categoryTags.csv');
+async getTags(tagPath) {
+    const fullPath = path.join(this.csvDir, tagPath);
     const tags = [];
     return new Promise((resolve, reject) => {
       try {
-        fs.accessSync(tagPath, fs.constants.R_OK);
+        fs.accessSync(fullPath, fs.constants.R_OK);
       } catch (err) {
-        return reject(new Error('categoryTags.csv not found or not readable'));
+        return reject(new Error(`${fullPath} not found or not readable`));
       }
-      fs.createReadStream(tagPath)
+      fs.createReadStream(fullPath)
         .pipe(csv())
         .on('data', (row) => {
           if (row.name) {
