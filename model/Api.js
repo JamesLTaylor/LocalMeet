@@ -213,6 +213,19 @@ class Api {
     });
   }
 
+  async getMostRecentEventByUser(user) {
+    if (!user || !user.username) {
+      throw new Error('User instance with username required');
+    }
+    // Get the last event file created by the user
+    user.eventFilesCreated.sort(); // Ensure the array is sorted
+    const lastEventFile = user.eventFilesCreated[user.eventFilesCreated.length - 1];
+    if (!lastEventFile) {
+      return Event.example();
+    }
+    return this.getEventDetailsByFilename(lastEventFile);
+  }
+
   /**
    * Check if a username exists in _user_lookup.csv
    * @param {string} username

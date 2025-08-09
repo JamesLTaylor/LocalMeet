@@ -185,7 +185,7 @@ app.post('/api/createEvent', requireLogin, async (req, res) => {
   // call api.createEvent
   try {
     const event = new Event(req.body);
-    const createdEvent = await api.createEvent(event);
+    const createdEvent = await api.writeEventToFile(event, req.session.user);
     res.json({ success: true, event: createdEvent });
   } catch (err) {
     console.error('Error creating event:', err);

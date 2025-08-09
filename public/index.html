@@ -1,77 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LocalMeet</title>
-  <link rel="stylesheet" href="style.css">
-  <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.css' rel='stylesheet' />
-  <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet" />
-</head>
-<body>
-  <div class="top-bar">
-    <h1>Welcome to LocalMeet</h1>
-    <span id="userNameDisplay" class="user-name" style="margin-left:auto;margin-right:1rem;display:none;"></span>
-    <button id="menuBtn" class="menu-btn">☰</button>
-    <div id="menu" class="menu-dropdown" style="display:none;">
-      <ul>
-        <li id="loginMenuItem"><a href="#">Login</a></li>
-        <li id="signupMenuItem"><a href="#">Sign Up</a></li>
-        <li id="profileMenuItem" style="display:none;"><a href="/userProfileForm">Profile</a></li>
-        <li id="addEventMenuItem" style="display:none;"><a href="/eventForm">Add Event</a></li>
-        <li id="logoutMenuItem" style="display:none;"><a href="#" id="logoutMenuLink">Logout</a></li>
-      </ul>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LocalMeet</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="top-bar">
+      <h1>Welcome to LocalMeet</h1>
+      <span id="userNameDisplay" class="user-name" style="margin-left: auto; margin-right: 1rem; display: none"></span>
+      <button id="menuBtn" class="menu-btn">☰</button>
+      <div id="menu" class="menu-dropdown" style="display: none">
+        <ul>
+          <li id="loginMenuItem"><a href="#">Login</a></li>
+          <li id="signupMenuItem"><a href="#">Sign Up</a></li>
+          <li id="profileMenuItem" style="display: none"><a href="/userProfileForm">Profile</a></li>
+          <li id="addEventMenuItem" style="display: none"><a href="/eventForm">Add Event</a></li>
+          <li id="logoutMenuItem" style="display: none"><a href="#" id="logoutMenuLink">Logout</a></li>
+        </ul>
+      </div>
     </div>
-  </div>
-  <div class="hero-section">
-    <p>A community building site for people. No ads, no tracking, no algorithms.</p>
-  </div>
-  <div class="main-content">
-    <div class="calendar-container">
-      <div id="calendar"></div>
+    <div class="hero-section">
+      <p>A community building site for people. No ads, no tracking, no algorithms.</p>
     </div>
+    <div class="main-content">
+      <div class="calendar-container">
+        <div id="calendar"></div>
+      </div>
 
-    <div class="content-area">
-    <div class="filters-area">
-      <label for="categoryTags" class="label-cat">Category:</label>
-      <select id="categoryTags" class="select-cat select-element">
-            <option value=""></option>
-      </select>
-        
-      <label for="groupTags" class="label-group">Groups:</label>
-      <select id="groupTags" class="select-group select-element">
-        <option value=""></option>
-      </select>
-    </div>
-      <!-- <div class="filters-area">
+      <div class="content-area">
+        <div class="filters-area">
           <label for="categoryTags" class="label-cat">Category:</label>
-          <div id="categoryTags" class="select-cat select-element">Dropdown for categories</div>            
+          <select id="categoryTags" class="select-cat select-element">
+            <option value=""></option>
+          </select>
+
           <label for="groupTags" class="label-group">Groups:</label>
-          <div id="groupTags" class="select-group select-element">Dropdown for groups</div>
-      </div>       -->
-      
-      <div id="event-list"></div>
-      <!-- Event list and other main content here -->
-      <p></p>
+          <select id="groupTags" class="select-group select-element">
+            <option value=""></option>
+          </select>
+        </div>
+        <div id="event-list"></div>
+        <!-- Event list and other main content here -->
+        <p></p>
+      </div>
     </div>
-  </div>
-  <div id="loginModal" class="modal" style="display:none;">
-    <div class="modal-content">
-      <span class="close" id="closeLogin">&times;</span>
-      <h2>Login</h2>
-      <form id="loginForm">
-        <label for="loginUsername">Username:</label>
-        <input type="text" id="loginUsername" name="username" required><br>
-        <label for="loginPassword">Password:</label>
-        <input type="password" id="loginPassword" name="password" required><br>
-        <button type="submit" id="loginBtn">Login</button>
-      </form>
+    <div id="loginModal" class="modal" style="display: none">
+      <div class="modal-content">
+        <span class="close" id="closeLogin">&times;</span>
+        <h2>Login</h2>
+        <form id="loginForm">
+          <label for="loginUsername">Username:</label>
+          <input type="text" id="loginUsername" name="username" required /><br />
+          <label for="loginPassword">Password:</label>
+          <input type="password" id="loginPassword" name="password" required /><br />
+          <button type="submit" id="loginBtn">Login</button>
+        </form>
+      </div>
     </div>
-  </div>
-  <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
-  <script src="functions.js"></script>
-  <script src="main.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
-</body>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+    <script src="functions.js"></script>
+    <script src="main.js"></script>
+  </body>
 </html>
