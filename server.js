@@ -12,19 +12,20 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Session setup
-app.use(session({
-  secret: '50eea2c0fd8c', // update this sometimes
-  resave: false,
-  saveUninitialized: false,
-  cookie: { secure: false } // Set to true if using HTTPS
-}));
+app.use(
+  session({
+    secret: '50eea2c0fd8c', // update this sometimes
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false }, // Set to true if using HTTPS
+  })
+);
 
 // Serve static files from the public directory
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Create an instance of the API class on app startup
-const api = new Api({ csvDir: __dirname + "/data" });
-
+const api = new Api({ csvDir: __dirname + '/data' });
 
 // Endpoint to check if a username exists
 app.get('/api/username-exists', async (req, res) => {
@@ -33,7 +34,7 @@ app.get('/api/username-exists', async (req, res) => {
     if (!username) {
       return res.status(400).json({ success: false, message: 'Missing username' });
     }
-    api.usernameExists(username).then(exists => {
+    api.usernameExists(username).then((exists) => {
       res.json({ exists });
     });
   } catch (err) {
@@ -41,7 +42,6 @@ app.get('/api/username-exists', async (req, res) => {
     res.status(500).json({ success: false, message: 'Error checking username' });
   }
 });
-
 
 // Create user endpoint
 app.post('/api/createUser', async (req, res) => {
@@ -53,7 +53,7 @@ app.post('/api/createUser', async (req, res) => {
     if (!password) {
       return res.status(400).json({ success: false, message: 'Set password' });
     }
-    await api.usernameExists(username).then(exists => {
+    await api.usernameExists(username).then((exists) => {
       if (exists) {
         return res.status(409).json({ success: false, message: 'User already exists' });
       }
@@ -86,11 +86,12 @@ app.post('/api/login', (req, res) => {
   function getDetailsFromCredentials(userCredentials) {
     return new Promise((resolve, reject) => {
       if (userCredentials) {
-        api.getUserDetailsByFilename(userCredentials.filename)
-          .then(user => {
+        api
+          .getUserDetailsByFilename(userCredentials.filename)
+          .then((user) => {
             resolve(user);
           })
-          .catch(err => {
+          .catch((err) => {
             reject(new Error('Error fetching user details'));
           });
       } else {
@@ -98,10 +99,11 @@ app.post('/api/login', (req, res) => {
       }
     });
   }
-  api.tryLogin(username, password)
+  api
+    .tryLogin(username, password)
     .then(getDetailsFromCredentials)
     .then(setDetailsOnSession)
-    .catch(err => {
+    .catch((err) => {
       console.error('Error during login:', err);
       res.status(500).json({ success: false, message: 'Internal server error' });
     });
@@ -113,7 +115,6 @@ app.post('/api/logout', (req, res) => {
     res.json({ success: true, message: 'Logged out' });
   });
 });
-
 
 // Session info endpoint
 app.get('/api/userName', (req, res) => {
@@ -143,9 +144,9 @@ app.get('/api/events', async (req, res) => {
     }
     const events = await api.getEvents({
       startDate: startDate || new Date(Date.now()), // default: today`
-      endDate: endDate || new Date(Date.now() + 60*24*60*60*1000),    // default: 2 months ahead
+      endDate: endDate || new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // default: 2 months ahead
       location,
-      distance: distance ? parseFloat(distance) : undefined
+      distance: distance ? parseFloat(distance) : undefined,
     });
     res.json(events);
   } catch (err) {
@@ -181,25 +182,11 @@ app.post('/api/createEvent', requireLogin, async (req, res) => {
   if (!req.session.user || String(req.session.user.userType).toUpperCase() !== 'ADMIN') {
     return res.status(403).json({ success: false, message: 'Forbidden: Admins only' });
   }
+  // call api.createEvent
   try {
-    const eventData = { ...req.body };
-    eventData.addedBy = req.session.user.userID; // Set the user who added    
-    eventData.lastEdited = Date.now(); // Set the time when the event was last edited
-    const event = Event.fromDict(eventData);
-    // Check if event.date is set
-    if (!event.date) {
-      return res.status(400).json({ success: false, message: 'The event date must be set before it can be saved.' });
-    }
-    // Save event as JSON in /data/{year}/{month}/
-    const eventDate = new Date(event.date);
-    const year = eventDate.getFullYear();
-    const month = String(eventDate.getMonth() + 1).padStart(2, '0');
-    const dirPath = path.join(__dirname, 'data', String(year), String(month));
-    const filePath = path.join(dirPath, `${event.eventId}.json`);
-    fs.mkdirSync(dirPath, { recursive: true });
-    fs.writeFileSync(filePath, JSON.stringify(event, null, 2), 'utf8');
-
-    res.json({ success: true, event });
+    const event = new Event(req.body);
+    const createdEvent = await api.createEvent(event);
+    res.json({ success: true, event: createdEvent });
   } catch (err) {
     console.error('Error creating event:', err);
     res.status(500).json({ success: false, message: 'Error creating event' });
@@ -233,16 +220,17 @@ app.get('/eventForm', requireLogin, (req, res) => {
 });
 
 // Serve user profile form only to logged in users from private directory
-app.get('/userProfileForm', /*requireLogin,*/ (req, res) => {
-  res.sendFile(path.join(__dirname, 'private', 'userProfileForm.html'));
-});
+app.get(
+  '/userProfileForm',
+  /*requireLogin,*/ (req, res) => {
+    res.sendFile(path.join(__dirname, 'private', 'userProfileForm.html'));
+  }
+);
 
 // Fallback to index.html for all other routes (SPA support)
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
-
-
 
 let serverInstance;
 function startServer(port = PORT) {
@@ -258,7 +246,7 @@ function closeServer(done) {
   if (serverInstance) {
     console.log('Closing server...');
     // Close the server and reset the instance
-    serverInstance.close(err => {
+    serverInstance.close((err) => {
       serverInstance = null;
       if (done) done(err);
     });
@@ -267,7 +255,6 @@ function closeServer(done) {
     done();
   }
 }
-
 
 if (require.main === module) {
   startServer();

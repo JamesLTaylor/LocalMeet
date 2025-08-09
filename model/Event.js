@@ -5,14 +5,14 @@ const EventSize = Object.freeze({
   SMALL: '10-20',
   MEDIUM: '20-50',
   LARGE: '50-100',
-  HUGE: '100+'
+  HUGE: '100+',
 });
 
 const ContactVisibility = Object.freeze({
   NOBODY: 'NOBODY',
   LOCAL_MEET_DIRECT: 'LOCAL_MEET_DIRECT',
   LOGGED_IN: 'LOGGED_IN',
-  PUBLIC: 'PUBLIC'
+  PUBLIC: 'PUBLIC',
 });
 
 const Duration = Object.freeze({
@@ -20,7 +20,7 @@ const Duration = Object.freeze({
   ONE_TO_TWO: '1_to_2',
   TWO_TO_THREE: '2_to_3',
   THREE_TO_FOUR: '3_to_4',
-  MORE_THAN_FOUR: 'more_than_4'
+  MORE_THAN_FOUR: 'more_than_4',
 });
 
 class Event {
@@ -37,7 +37,7 @@ class Event {
       duration: Duration.ONE_HOUR_OR_LESS,
       locationAddress: '123 Example St',
       locationPostcode: 'SG12 0DE',
-      location: new Location(51.811892, -0.037170),
+      location: new Location(51.811892, -0.03717),
       memberOnly: false,
       externalRegister: '',
       localMeetRegister: true,
@@ -55,7 +55,7 @@ class Event {
       registeredUsers: [1],
       interestedUsers: [2],
       isCancelled: false,
-      isDeleted: false
+      isDeleted: false,
     });
   }
   /**
@@ -87,6 +87,7 @@ class Event {
    * @param {string[]} [options.interestedUsers]
    * @param {boolean} [options.isCancelled]
    * @param {boolean} [options.isDeleted]
+   * @param {string} [options.originalFilePath] // Original filename for event data source
    */
   constructor({
     eventId,
@@ -116,6 +117,7 @@ class Event {
     interestedUsers = [],
     isCancelled = false,
     isDeleted = false,
+    originalFilePath = null,
   }) {
     this.eventId = eventId;
     this.title = title;
@@ -144,6 +146,7 @@ class Event {
     this.interestedUsers = interestedUsers;
     this.isCancelled = isCancelled;
     this.isDeleted = isDeleted;
+    this.originalFilePath = originalFilePath;
   }
 
   /**
@@ -160,14 +163,23 @@ class Event {
       duration: dict.duration || Duration.ONE_HOUR_OR_LESS,
       locationAddress: dict.locationAddress || '',
       locationPostcode: dict.locationPostcode || '',
-      location: dict.location && typeof dict.location === 'string' && dict.location.includes(',')
-        ? new Location(...dict.location.split(',').map(Number))
-        : dict.location,
+      location:
+        dict.location && typeof dict.location === 'string' && dict.location.includes(',')
+          ? new Location(...dict.location.split(',').map(Number))
+          : dict.location,
       memberOnly: dict.memberOnly === 'true' || dict.memberOnly === true,
       externalRegister: dict.externalRegister || '',
       localMeetRegister: dict.localMeetRegister === 'true' || dict.localMeetRegister === true,
-      groupTags: Array.isArray(dict.groupTags) ? dict.groupTags : (dict.groupTags ? String(dict.groupTags).split(';') : []),
-      categoryTags: Array.isArray(dict.categoryTags) ? dict.categoryTags : (dict.categoryTags ? String(dict.categoryTags).split(';') : []),
+      groupTags: Array.isArray(dict.groupTags)
+        ? dict.groupTags
+        : dict.groupTags
+        ? String(dict.groupTags).split(';')
+        : [],
+      categoryTags: Array.isArray(dict.categoryTags)
+        ? dict.categoryTags
+        : dict.categoryTags
+        ? String(dict.categoryTags).split(';')
+        : [],
       contactPerson: dict.contactPerson || '',
       contactDetails: dict.contactDetails || '',
       contactVisibility: dict.contactVisibility || ContactVisibility.NOBODY,
@@ -178,10 +190,19 @@ class Event {
       addedBy: dict.addedBy || null,
       addedAt: dict.addedAt ? new Date(dict.addedAt) : null,
       lastEdited: dict.lastEdited ? new Date(dict.lastEdited) : null,
-      registeredUsers: Array.isArray(dict.registeredUsers) ? dict.registeredUsers : (dict.registeredUsers ? String(dict.registeredUsers).split(';') : []),
-      interestedUsers: Array.isArray(dict.interestedUsers) ? dict.interestedUsers : (dict.interestedUsers ? String(dict.interestedUsers).split(';') : []),
+      registeredUsers: Array.isArray(dict.registeredUsers)
+        ? dict.registeredUsers
+        : dict.registeredUsers
+        ? String(dict.registeredUsers).split(';')
+        : [],
+      interestedUsers: Array.isArray(dict.interestedUsers)
+        ? dict.interestedUsers
+        : dict.interestedUsers
+        ? String(dict.interestedUsers).split(';')
+        : [],
       isCancelled: dict.isCancelled === 'true' || dict.isCancelled === true,
-      isDeleted: dict.isDeleted === 'true' || dict.isDeleted === true
+      isDeleted: dict.isDeleted === 'true' || dict.isDeleted === true,
+      originalFilename: dict.originalFilename || null,
     });
   }
 }

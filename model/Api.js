@@ -33,7 +33,7 @@ class Api {
     // Serialize user object (remove circular refs if any)
     const userObj = typeof user.toJSON === 'function' ? user.toJSON() : user;
     return new Promise((resolve, reject) => {
-      fs.writeFile(filePath, JSON.stringify(userObj, null, 2), 'utf8', err => {
+      fs.writeFile(filePath, JSON.stringify(userObj, null, 2), 'utf8', (err) => {
         if (err) reject(err);
         else resolve();
       });
@@ -61,7 +61,9 @@ class Api {
       !/[0-9]/.test(password) ||
       !/[^A-Za-z0-9]/.test(password)
     ) {
-      throw new Error('Password must be at least 8 characters long and contain uppercase, lowercase, number, and special character');
+      throw new Error(
+        'Password must be at least 8 characters long and contain uppercase, lowercase, number, and special character'
+      );
     }
     const filePath = path.join(this.csvDir, './users/_user_lookup.csv');
     // Check if username exists and find lastId in one pass
@@ -98,16 +100,10 @@ class Api {
     // Compose row
     const filename = `${username.toLowerCase()}.json`;
     // Only passwordHash is quoted, all other fields are unquoted
-    const row = [
-      nextId,
-      username,
-      salt,
-      `"${String(passwordHash).replace(/"/g, '""')}"`,
-      filename
-    ].join(',') + '\n';
+    const row = [nextId, username, salt, `"${String(passwordHash).replace(/"/g, '""')}"`, filename].join(',') + '\n';
     // Append to file and return userID
     return new Promise((resolve, reject) => {
-      fs.appendFile(filePath, row, 'utf8', err => {
+      fs.appendFile(filePath, row, 'utf8', (err) => {
         if (err) reject(err);
         else resolve(nextId);
       });
@@ -156,7 +152,7 @@ class Api {
               username: row.username,
               passwordHash: row.passwordHash,
               salt: row.salt,
-              filename: row.filename
+              filename: row.filename,
             });
           }
         })
@@ -164,7 +160,6 @@ class Api {
         .on('error', reject);
     });
   }
-
 
   /**
    * Get userID, username, and filename for a given userID from _user_lookup.csv
@@ -181,7 +176,7 @@ class Api {
             resolve({
               userID: row.UserID,
               username: row.username,
-              filename: row.filename
+              filename: row.filename,
             });
           }
         })
@@ -191,32 +186,32 @@ class Api {
   }
 
   /**
- * Get an instance of the user class given the filename for the user.
- * @param {string} filename
- * @returns {Promise<Object|null>}
- */
-async getUserDetailsByFilename(filename) {
-  const filePath = path.join(this.csvDir, './users', filename);
-  return new Promise((resolve, reject) => {
-    fs.readFile(filePath, 'utf8', (err, data) => {
-      if (err) {
-        if (err.code === 'ENOENT') {
-          resolve(null);
-        } else {
+   * Get an instance of the user class given the filename for the user.
+   * @param {string} filename
+   * @returns {Promise<Object|null>}
+   */
+  async getUserDetailsByFilename(filename) {
+    const filePath = path.join(this.csvDir, './users', filename);
+    return new Promise((resolve, reject) => {
+      fs.readFile(filePath, 'utf8', (err, data) => {
+        if (err) {
+          if (err.code === 'ENOENT') {
+            resolve(null);
+          } else {
+            reject(err);
+          }
+          return;
+        }
+        try {
+          const userObj = JSON.parse(data);
+          const user = new User(userObj);
+          resolve(user);
+        } catch (err) {
           reject(err);
         }
-        return;
-      }
-      try {
-        const userObj = JSON.parse(data);
-        const user = new User(userObj);
-        resolve(user);
-      } catch (err) {
-        reject(err);
-      }
+      });
     });
-  });
-}
+  }
 
   /**
    * Check if a username exists in _user_lookup.csv
@@ -242,34 +237,73 @@ async getUserDetailsByFilename(filename) {
     });
   }
 
-
   // EVENT METHODS
   /**
    * Write an Event instance to a JSON file. The will be saved in the format /data/events/{year}/{month}/{day}_{eventTitle}.json
    * @param {Event} event - The Event instance to write
+   * @param {User} user - The User instance who created the event (for ownership)
    * @returns {Promise<void>}
    */
-  async writeEventToFile(event) {
+  async writeEventToFile(event, user) {
     if (!event || !event.title) {
       throw new Error('Event instance with title required');
     }
+    if (!user || !user.username) {
+      throw new Error('User instance with username required');
+    }
+    // ensure the event has a date
+    if (!event.date || !(event.date instanceof Date)) {
+      throw new Error('Event must have a valid date');
+    }
+
     const eventsDir = path.join(this.csvDir, './events');
     const eventDate = new Date(event.date);
     const year = eventDate.getFullYear();
     const month = String(eventDate.getMonth() + 1).padStart(2, '0');
     const day = String(eventDate.getDate()).padStart(2, '0');
     const filename = `${day}_${event.title.toLowerCase().replace(/[^a-z0-9]/g, '_')}.json`;
-    const filePath = path.join(eventsDir, year.toString(), month, filename);
-    // Ensure directory exists
-    await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
-    // Serialize event object (remove circular refs if any)
-    const eventObj = typeof event.toJSON === 'function' ? event.toJSON() : event;
-    return new Promise((resolve, reject) => {
-      fs.writeFile(filePath, JSON.stringify(eventObj, null, 2), 'utf8', err => {
-        if (err) reject(err);
-        else resolve();
+    const relativePath = path.join(year.toString(), month, filename);
+    const filePath = path.join(eventsDir, relativePath);
+    // if the original file path is set, update it
+    if (event.originalFilePath != undefined && event.originalFilePath !== '') {
+      event.originalFilePath = filePath;
+    } else if (event.originalFilePath !== filePath) {
+      {
+        // delete the old file if it exists
+        const oldFilePath = path.join(eventsDir, event.originalFilePath);
+        if (fs.existsSync(oldFilePath)) {
+          fs.unlinkSync(oldFilePath);
+          logger.info(`Deleted old event file: ${oldFilePath}`);
+        }
+      }
+      if (!user.eventFilesCreated || !Array.isArray(user.eventFilesCreated)) {
+        user.eventFilesCreated = [];
+      }
+      // Check if the user already has this event file
+      if (!user.eventFilesCreated.includes(relativePath)) {
+        logger.info('updating user with new event file');
+        user.eventFilesCreated.push(relativePath); // Track created files for the user
+        self.writeUserJson(user);
+      }
+      // if the relativePath is already in the user's eventFilesCreated then ensure it is the last entry in the array
+      else {
+        const index = user.eventFilesCreated.indexOf(relativePath);
+        user.eventFilesCreated.splice(index, 1);
+        user.eventFilesCreated.push(relativePath);
+        self.writeUserJson(user);
+      }
+
+      // Ensure directory exists
+      await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
+      // Serialize event object (remove circular refs if any)
+      const eventObj = typeof event.toJSON === 'function' ? event.toJSON() : event;
+      return new Promise((resolve, reject) => {
+        fs.writeFile(filePath, JSON.stringify(eventObj, null, 2), 'utf8', (err) => {
+          if (err) reject(err);
+          else resolve();
+        });
       });
-    });
+    }
   }
 
   /**
@@ -281,14 +315,14 @@ async getUserDetailsByFilename(filename) {
    * @param {number} [options.distance] - Max distance in kilometers
    * @returns {Promise<Event[]>}
    */
-  async getEvents({startDate, endDate, location, distance}={}) {
+  async getEvents({ startDate, endDate, location, distance } = {}) {
     const Event = require('./Event');
     const events = [];
     if (!startDate) {
       startDate = new Date();
     }
     if (!endDate) {
-      endDate = startDate + 60 * 24 * 60 * 60 * 1000; // Default to 2 months ahead 
+      endDate = startDate + 60 * 24 * 60 * 60 * 1000; // Default to 2 months ahead
     }
     // get all months and years from startDate to endDate, inclusive.
     const currentYear = startDate.getFullYear();
@@ -296,22 +330,22 @@ async getUserDetailsByFilename(filename) {
     const endYear = endDate.getFullYear();
     const endMonth = endDate.getMonth() + 1;
     const monthsToLoad = [];
-    let year = currentYear
+    let year = currentYear;
     let month = currentMonth;
-    // Generate all months from start to end  
+    // Generate all months from start to end
     while (year < endYear || (year === endYear && month <= endMonth)) {
       monthsToLoad.push({ year, month: String(month).padStart(2, '0') });
       month++;
       if (month > 12) {
         month = 1;
         year++;
-      } 
+      }
     }
     const eventsDir = path.join(this.csvDir, 'events');
     for (const { year, month } of monthsToLoad) {
       const monthDir = path.join(eventsDir, year.toString(), month);
       if (fs.existsSync(monthDir)) {
-        const files = fs.readdirSync(monthDir).filter(f => f.endsWith('.json'));
+        const files = fs.readdirSync(monthDir).filter((f) => f.endsWith('.json'));
         for (const file of files) {
           const filePath = path.join(monthDir, file);
           try {
@@ -320,8 +354,10 @@ async getUserDetailsByFilename(filename) {
             let include = true;
             if (location && distance && data.location && typeof data.location === 'object') {
               const d = haversine(
-                Number(data.location.latitude), Number(data.location.longitude),
-                location.latitude, location.longitude
+                Number(data.location.latitude),
+                Number(data.location.longitude),
+                location.latitude,
+                location.longitude
               );
               if (d > distance) include = false;
             }
@@ -337,28 +373,28 @@ async getUserDetailsByFilename(filename) {
     return events;
   }
 
-/**
- * Get a list of CategoryTags from categoryTags.csv
- * @returns {Promise<CategoryTag[]>}
- */
-async getCategoryTags() {    
+  /**
+   * Get a list of CategoryTags from categoryTags.csv
+   * @returns {Promise<CategoryTag[]>}
+   */
+  async getCategoryTags() {
     return this.getTags('./tags/categoryTags.csv');
-}
+  }
 
-/**
- * Get a list of group tags from groupTags.csv
- * @returns {Promise<CategoryTag[]>}
- */ 
-async getGroupTags() {
+  /**
+   * Get a list of group tags from groupTags.csv
+   * @returns {Promise<CategoryTag[]>}
+   */
+  async getGroupTags() {
     return this.getTags('./tags/groupTags.csv');
-  } 
+  }
 
   /**
    * Get a list of tags from a CSV file
    * @param {string} tagPath - Path to the CSV file
    * @returns {Promise<CategoryTag[]>}
    */
-async getTags(tagPath) {
+  async getTags(tagPath) {
     const fullPath = path.join(this.csvDir, tagPath);
     const tags = [];
     return new Promise((resolve, reject) => {
@@ -371,10 +407,12 @@ async getTags(tagPath) {
         .pipe(csv())
         .on('data', (row) => {
           if (row.name) {
-            tags.push(new CategoryTag({
-              name: row.name,
-              description: row.description || ''
-            }));
+            tags.push(
+              new CategoryTag({
+                name: row.name,
+                description: row.description || '',
+              })
+            );
           }
         })
         .on('end', () => resolve(tags))
