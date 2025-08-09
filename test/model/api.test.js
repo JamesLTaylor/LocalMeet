@@ -5,21 +5,34 @@ const Api = require('../../model/Api');
 const Event = require('../../model/Event');
 const { User, UserType } = require('../../model/User');
 const fs = require('fs');
-  const { resetUserLookupCsv } = require('../testUtils');
+const { resetUserLookupCsv } = require('../testUtils');
 
-describe('Logging in user API', function() {
+// A function to create a an instance of a user for testing
+function createTestUser() {
+  return new User({
+    userID: 'test_user_id',
+    username: 'username',
+    email: 'test@example.com',
+    password: 'password',
+    userType: UserType.REGULAR,
+    firstName: 'Test',
+    lastName: 'User',
+    location: { latitude: 51.5, longitude: -0.1 },
+  });
+}
+
+describe('Logging in user API', function () {
   let api;
   const testUsername = 'TestUser';
   const testPassword = 'TestPass123!';
 
-  beforeEach(function() {
+  beforeEach(function () {
     resetUserLookupCsv();
     const csvDir = path.join(__dirname, '../test_data');
     api = new Api({ csvDir });
   });
 
-
-  it('should fail to log in as TestUser before user is created', async function() {
+  it('should fail to log in as TestUser before user is created', async function () {
     try {
       await api.tryLogin(testUsername, testPassword);
       throw new Error('Login should have failed but succeeded');
@@ -28,14 +41,14 @@ describe('Logging in user API', function() {
     }
   });
 
-  it('should return false for a username that does not exist', async function() {
+  it('should return false for a username that does not exist', async function () {
     const exists = await api.usernameExists('testUser');
     expect(exists).to.be.false;
   });
 
-  it('should append a user to _user_lookup.csv and be able to log in as that user', async function() {
+  it('should append a user to _user_lookup.csv and be able to log in as that user', async function () {
     const userID = await api.appendUserToLookup(testUsername, testPassword);
-    await api.getUserCredentialsById(userID).then(user => {
+    await api.getUserCredentialsById(userID).then((user) => {
       expect(user.username).to.equal(testUsername);
       expect(user.filename).to.equal(`${testUsername.toLowerCase()}.json`);
     });
@@ -53,23 +66,21 @@ describe('Logging in user API', function() {
     expect(loginUser).to.have.property('userID');
     expect(loginUser).to.have.property('filename');
 
-    await api.getUserDetailsByFilename(loginUser.filename).then(user => {
+    await api.getUserDetailsByFilename(loginUser.filename).then((user) => {
       expect(user).to.not.be.null;
       expect(user.username).to.equal(testUsername);
     });
   });
-
 });
 
-describe('Event file operations', function() {
+describe('Event file operations', function () {
   let api;
-  before(function() {
+  before(function () {
     const csvDir = path.join(__dirname, '../test_data');
     api = new Api({ csvDir });
   });
 
-
-  it('should create, save, load, and delete an event file', async function() {
+  it('should create, save, load, and delete an event file', async function () {
     // Create event for current month
     const now = new Date(2025, 6, 25); // July 25, 2025
     const event = new Event({
@@ -85,16 +96,17 @@ describe('Event file operations', function() {
       memberOnly: false,
       localMeetRegister: true,
       isCancelled: false,
-      isDeleted: false
+      isDeleted: false,
     });
-    await api.writeEventToFile(event);
+    const testUser = createTestUser();
+    await api.writeEventToFile(event, testUser);
     // Get events for this month
     const query = {
       startDate: new Date(2025, 6, 1),
-      endDate: new Date(2025, 7, 31)
+      endDate: new Date(2025, 7, 31),
     };
     const events = await api.getEvents(query);
-    const found = events.some(e => e.eventId === 'evt_test');
+    const found = events.some((e) => e.eventId === 'evt_test');
     expect(found).to.be.true;
     // Delete the event file
     const year = now.getFullYear();
@@ -109,18 +121,18 @@ describe('Event file operations', function() {
 });
 
 // Test for writing an event to a JSON file
-describe('Event Api', function() {
+describe('Event Api', function () {
   let api;
   const fs = require('fs');
-  before(function() {
+  before(function () {
     const csvDir = path.join(__dirname, '../test_data');
     api = new Api({ csvDir });
   });
 
-  it('should write an event to a JSON file', async function() {
+  it('should write an event to a JSON file', async function () {
     const testEvent = new Event({
       eventId: 'evt1',
-      date: '2025-07-25',
+      date: new Date('2025-07-25T18:00:00Z'),
       title: 'Test Event',
       locationDescription: 'Test Location',
       location: 'Test Location',
@@ -138,9 +150,10 @@ describe('Event Api', function() {
       interestedUsers: [],
       expectedAttendees: 10,
       isCancelled: false,
-      isDeleted: false
+      isDeleted: false,
     });
-    await api.writeEventToFile(testEvent);
+    testUser = createTestUser();
+    await api.writeEventToFile(testEvent, testUser);
     // Check file exists
     const eventsDir = path.join(api.csvDir, 'events');
     const eventDate = new Date(testEvent.date);
@@ -156,28 +169,52 @@ describe('Event Api', function() {
 });
 
 // Tests for category and group tags
-describe('Category and Group Tags', function() {
+describe('Category and Group Tags', function () {
   let api;
-  before(function() {
+  before(function () {
     const csvDir = path.join(__dirname, '../test_data');
     api = new Api({ csvDir });
   });
 
   // Test for getting a list of category tags
-  it('should return a list of category tags', async function() {
+  it('should return a list of category tags', async function () {
     const categoryTags = await api.getCategoryTags();
     expect(categoryTags).to.be.an('array');
     // Collect the names of the tags into a new array
-    const tagNames = categoryTags.map(tag => tag.name);
+    const tagNames = categoryTags.map((tag) => tag.name);
     expect(tagNames).to.include('Gaming'); // Assuming 'Gaming' is a tag in the test data
   });
 
   // Test for getting a list of group tags
-  it('should return a list of group tags', async function() {
+  it('should return a list of group tags', async function () {
     const groupTags = await api.getGroupTags();
     expect(groupTags).to.be.an('array');
     // Collect the names of the tags into a new array
-    const tagNames = groupTags.map(tag => tag.name);
+    const tagNames = groupTags.map((tag) => tag.name);
     expect(tagNames).to.include('Everyone'); // Assuming 'Everyone' is a tag in the test data
+  });
+});
+
+// Test that writing an event with no date or title throws an error
+describe('Event Validation', function () {
+  let api;
+  before(function () {
+    const csvDir = path.join(__dirname, '../test_data');
+    api = new Api({ csvDir });
+  });
+
+  it('should throw an error when trying to write an event with no date or title', async function () {
+    const invalidEvent = new Event({
+      eventId: 'invalid_event',
+      date: null, // No date
+      title: null, // No title
+    });
+    try {
+      const testUser = createTestUser();
+      await api.writeEventToFile(invalidEvent, testUser);
+      throw new Error('Expected error not thrown');
+    } catch (err) {
+      expect(err.message).to.include('Event must have a valid title');
+    }
   });
 });

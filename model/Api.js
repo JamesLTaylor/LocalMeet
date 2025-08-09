@@ -258,11 +258,11 @@ class Api {
    * @returns {Promise<void>}
    */
   async writeEventToFile(event, user) {
-    if (!event || !event.title) {
-      throw new Error('Event instance with title required');
+    if (!event || !event.title || event.title.length < 5) {
+      throw new Error('Event must have a valid title');
     }
     if (!user || !user.username) {
-      throw new Error('User instance with username required');
+      throw new Error('Current username is not not known');
     }
     // ensure the event has a date
     if (!event.date || !(event.date instanceof Date)) {
@@ -277,46 +277,45 @@ class Api {
     const filename = `${day}_${event.title.toLowerCase().replace(/[^a-z0-9]/g, '_')}.json`;
     const relativePath = path.join(year.toString(), month, filename);
     const filePath = path.join(eventsDir, relativePath);
-    // if the original file path is set, update it
-    if (event.originalFilePath != undefined && event.originalFilePath !== '') {
-      event.originalFilePath = filePath;
+    // Check if the originalFilePath is set, if not set it to the current filePath
+    if (!event.originalFilePath || event.originalFilePath === '') {
+      event.originalFilePath = relativePath; // Store relative path for the event
     } else if (event.originalFilePath !== filePath) {
-      {
-        // delete the old file if it exists
-        const oldFilePath = path.join(eventsDir, event.originalFilePath);
-        if (fs.existsSync(oldFilePath)) {
-          fs.unlinkSync(oldFilePath);
-          logger.info(`Deleted old event file: ${oldFilePath}`);
-        }
+      // delete the old file if it exists
+      const oldFilePath = path.join(eventsDir, event.originalFilePath);
+      if (fs.existsSync(oldFilePath)) {
+        fs.unlinkSync(oldFilePath);
+        console.log(`Deleted old event file: ${oldFilePath}`);
       }
-      if (!user.eventFilesCreated || !Array.isArray(user.eventFilesCreated)) {
-        user.eventFilesCreated = [];
-      }
-      // Check if the user already has this event file
-      if (!user.eventFilesCreated.includes(relativePath)) {
-        logger.info('updating user with new event file');
-        user.eventFilesCreated.push(relativePath); // Track created files for the user
-        self.writeUserJson(user);
-      }
-      // if the relativePath is already in the user's eventFilesCreated then ensure it is the last entry in the array
-      else {
-        const index = user.eventFilesCreated.indexOf(relativePath);
-        user.eventFilesCreated.splice(index, 1);
-        user.eventFilesCreated.push(relativePath);
-        self.writeUserJson(user);
-      }
-
-      // Ensure directory exists
-      await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
-      // Serialize event object (remove circular refs if any)
-      const eventObj = typeof event.toJSON === 'function' ? event.toJSON() : event;
-      return new Promise((resolve, reject) => {
-        fs.writeFile(filePath, JSON.stringify(eventObj, null, 2), 'utf8', (err) => {
-          if (err) reject(err);
-          else resolve();
-        });
-      });
     }
+    if (!user.eventFilesCreated || !Array.isArray(user.eventFilesCreated)) {
+      user.eventFilesCreated = [];
+    }
+    // Check if the user already has this event file
+    if (!user.eventFilesCreated.includes(relativePath)) {
+      console.log('updating user with new event file');
+      user.eventFilesCreated.push(relativePath); // Track created files for the user
+      // Call writeUserJson to update the user's eventFilesCreated
+      await this.writeUserJson(user);
+    }
+    // if the relativePath is already in the user's eventFilesCreated then ensure it is the last entry in the array
+    else {
+      const index = user.eventFilesCreated.indexOf(relativePath);
+      user.eventFilesCreated.splice(index, 1);
+      user.eventFilesCreated.push(relativePath);
+      await this.writeUserJson(user);
+    }
+
+    // Ensure directory exists
+    await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
+    // Serialize event object (remove circular refs if any)
+    const eventObj = typeof event.toJSON === 'function' ? event.toJSON() : event;
+    return new Promise((resolve, reject) => {
+      fs.writeFile(filePath, JSON.stringify(eventObj, null, 2), 'utf8', (err) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
   }
 
   /**

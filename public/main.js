@@ -1,11 +1,11 @@
 /*
- * main.js - LocalMeet frontend logic
+ * main.js - WareToMeet frontend logic
  *
  * DOMContentLoaded and event listeners are at the bottom.
  */
 
 // --- Event listeners and initialization ---
-document.addEventListener('DOMContentLoaded', async function() {
+document.addEventListener('DOMContentLoaded', async function () {
   setupMenuHandlers();
   setUserName();
   setupLogoutHandler();

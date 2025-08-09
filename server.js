@@ -260,4 +260,4 @@ if (require.main === module) {
   startServer();
 }
 
-module.exports = { app, startServer, closeServer };
+module.exports = { app, startServer, closeServer, api };

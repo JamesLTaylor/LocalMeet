@@ -1,5 +1,6 @@
 const { expect } = require('chai');
-const { User, Location } = require('../model/User');
+const { User, UserType } = require('../model/User');
+const { Location } = require('../model/utils');
 
 describe('User', () => {
   it('should create a user with name, location, and preferred tags', () => {
@@ -8,7 +9,7 @@ describe('User', () => {
       userID: 'user1',
       name: 'Alice',
       location: loc,
-      searchCategoryTags: ['music', 'sports']
+      searchCategoryTags: ['music', 'sports'],
     });
     expect(user.name).to.equal('Alice');
     expect(user.location).to.deep.equal(loc);
