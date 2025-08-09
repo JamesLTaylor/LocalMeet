@@ -44,7 +44,7 @@ app.get('/api/username-exists', async (req, res) => {
 });
 
 // Create user endpoint
-app.post('/api/createUser', async (req, res) => {
+app.post('/api/create-user', async (req, res) => {
   try {
     const { username, password, extraInfo } = req.body;
     if (!username) {
@@ -117,7 +117,7 @@ app.post('/api/logout', (req, res) => {
 });
 
 // Session info endpoint
-app.get('/api/userName', (req, res) => {
+app.get('/api/current_username', (req, res) => {
   if (req.session && req.session.user) {
     res.json({ name: req.session.user.username });
   } else {
@@ -126,7 +126,7 @@ app.get('/api/userName', (req, res) => {
 });
 
 // Session info endpoint
-app.get('/api/userType', (req, res) => {
+app.get('/api/current_user_type', (req, res) => {
   if (req.session && req.session.user) {
     res.json({ userType: req.session.user.userType });
   } else {
@@ -156,7 +156,7 @@ app.get('/api/events', async (req, res) => {
 });
 
 // Category tags endpoint
-app.get('/api/getCategoryTags', async (req, res) => {
+app.get('/api/get-category-tags', async (req, res) => {
   try {
     const tags = await api.getCategoryTags();
     res.json(tags);
@@ -167,7 +167,7 @@ app.get('/api/getCategoryTags', async (req, res) => {
 });
 
 // Group tags endpoint
-app.get('/api/getGroupTags', async (req, res) => {
+app.get('/api/get-group-tags', async (req, res) => {
   try {
     const tags = await api.getGroupTags();
     res.json(tags);
@@ -178,7 +178,7 @@ app.get('/api/getGroupTags', async (req, res) => {
 });
 
 // Endpoint to create a new event (admin only)
-app.post('/api/createEvent', requireLogin, async (req, res) => {
+app.post('/api/create-event', requireLogin, async (req, res) => {
   if (!req.session.user || String(req.session.user.userType).toUpperCase() !== 'ADMIN') {
     return res.status(403).json({ success: false, message: 'Forbidden: Admins only' });
   }
@@ -215,15 +215,15 @@ function requireLogin(req, res, next) {
 }
 
 // Serve event form only to logged in users from private directory
-app.get('/eventForm', requireLogin, (req, res) => {
-  res.sendFile(path.join(__dirname, 'private', 'eventForm.html'));
+app.get('/event-form', requireLogin, (req, res) => {
+  res.sendFile(path.join(__dirname, 'private', 'event-form.html'));
 });
 
 // Serve user profile form only to logged in users from private directory
 app.get(
-  '/userProfileForm',
+  '/user-profile-form',
   /*requireLogin,*/ (req, res) => {
-    res.sendFile(path.join(__dirname, 'private', 'userProfileForm.html'));
+    res.sendFile(path.join(__dirname, 'private', 'user-profile-form.html'));
   }
 );
 

@@ -11,14 +11,14 @@ function setupMenuHandlers() {
       menu.style.display = 'none';
     }
   });
-  loginMenuItem.querySelector('a').addEventListener('click', function(e) {
+  loginMenuItem.querySelector('a').addEventListener('click', function (e) {
     if (e.target.textContent === 'Login') {
       e.preventDefault();
       document.getElementById('loginModal').style.display = 'block';
       menu.style.display = 'none';
     }
   });
-  document.getElementById('closeLogin').onclick = function() {
+  document.getElementById('closeLogin').onclick = function () {
     document.getElementById('loginModal').style.display = 'none';
   };
 }
@@ -33,10 +33,10 @@ async function setUserName() {
   const signupMenuItem = document.getElementById('signupMenuItem');
   const addEventMenuItem = document.getElementById('addEventMenuItem');
 
-  const res = await fetch('/api/userName');
+  const res = await fetch('/api/current_username');
   const data = await res.json();
   const name = data.name;
-  const typeRes = await fetch('/api/userType');
+  const typeRes = await fetch('/api/current_user_type');
   const typeData = await typeRes.json();
   const userType = typeData.userType;
   if (name && name !== null) {
@@ -64,7 +64,7 @@ async function setUserName() {
 
 function setupLogoutHandler() {
   const menu = document.getElementById('menu');
-  document.getElementById('logoutMenuLink').onclick = async function(e) {
+  document.getElementById('logoutMenuLink').onclick = async function (e) {
     e.preventDefault();
     await fetch('/api/logout', { method: 'POST' });
     setUserName();
@@ -75,7 +75,7 @@ function setupLogoutHandler() {
 function setupLoginFormHandler() {
   const loginForm = document.getElementById('loginForm');
   if (loginForm) {
-      loginForm.addEventListener('submit', async (e) => {
+    loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const username = document.getElementById('loginUsername').value;
       const password = document.getElementById('loginPassword').value;
@@ -83,7 +83,7 @@ function setupLoginFormHandler() {
         const res = await fetch('/api/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password })
+          body: JSON.stringify({ username, password }),
         });
         const data = await res.json();
         if (data.success) {
@@ -107,11 +107,11 @@ async function fetchCalendarEvents() {
     const res = await fetch('/api/events');
     if (res.ok) {
       const data = await res.json();
-      events = data.map(event => ({
+      events = data.map((event) => ({
         id: event.eventId,
         title: event.title,
         start: event.date,
-        extendedProps: event
+        extendedProps: event,
       }));
     }
   } catch {}
@@ -125,31 +125,37 @@ function setupFullCalendar(events) {
     height: 'auto',
     events,
     selectable: true,
-    select: function(info) {
-      window.dispatchEvent(new CustomEvent('calendar-range-select', {
-        detail: {
-          start: info.startStr,
-          end: info.endStr
-        }
-      }));
+    select: function (info) {
+      window.dispatchEvent(
+        new CustomEvent('calendar-range-select', {
+          detail: {
+            start: info.startStr,
+            end: info.endStr,
+          },
+        })
+      );
     },
-    eventClick: function(info) {
-      window.dispatchEvent(new CustomEvent('calendar-day-click', {
-        detail: {
-          date: info.event.startStr.split('T')[0],
-          events: [info.event.extendedProps]
-        }
-      }));
+    eventClick: function (info) {
+      window.dispatchEvent(
+        new CustomEvent('calendar-day-click', {
+          detail: {
+            date: info.event.startStr.split('T')[0],
+            events: [info.event.extendedProps],
+          },
+        })
+      );
     },
-    dateClick: function(info) {
-      const dayEvents = events.filter(e => e.start.split('T')[0] === info.dateStr);
-      window.dispatchEvent(new CustomEvent('calendar-day-click', {
-        detail: {
-          date: info.dateStr,
-          events: dayEvents.map(e => e.extendedProps)
-        }
-      }));
-    }
+    dateClick: function (info) {
+      const dayEvents = events.filter((e) => e.start.split('T')[0] === info.dateStr);
+      window.dispatchEvent(
+        new CustomEvent('calendar-day-click', {
+          detail: {
+            date: info.dateStr,
+            events: dayEvents.map((e) => e.extendedProps),
+          },
+        })
+      );
+    },
   });
   calendar.render();
 }
@@ -172,7 +178,9 @@ function renderEventList(events) {
         <span>${new Date(event.date).toLocaleString()}</span><br>
         <span>${event.locationDescription || ''}</span>`;
       li.onclick = () => {
-        window.dispatchEvent(new CustomEvent('calendar-day-click', { detail: { date: event.date.split('T')[0], events: [event] } }));
+        window.dispatchEvent(
+          new CustomEvent('calendar-day-click', { detail: { date: event.date.split('T')[0], events: [event] } })
+        );
       };
       ul.appendChild(li);
     }
@@ -182,12 +190,11 @@ function renderEventList(events) {
 }
 
 async function populateGroupTags() {
-  await populateTags('groupTags', '/api/getGroupTags', "Select groups...");
-  
+  await populateTags('groupTags', '/api/get-group-tags', 'Select groups...');
 }
 
 async function populateCategoryTags() {
-  await populateTags('categoryTags', '/api/getCategoryTags', "Select categories...");
+  await populateTags('categoryTags', '/api/get-category-tags', 'Select categories...');
 }
 
 // --- Category Filter functions ---
@@ -217,7 +224,7 @@ async function populateTags(elementId, apiCall, msg) {
         placeholder: msg,
         searchField: ['text'],
         closeAfterSelect: false,
-        allowEmptyOption: true
+        allowEmptyOption: true,
       });
     }
   } catch (err) {
@@ -227,7 +234,7 @@ async function populateTags(elementId, apiCall, msg) {
 
 function filterEventsByCategory(events, selectedCategory) {
   if (!selectedCategory) return events;
-  return events.filter(event => {
+  return events.filter((event) => {
     if (!event.categoryTags) return false;
     const tags = Array.isArray(event.categoryTags) ? event.categoryTags : String(event.categoryTags).split(';');
     return tags.includes(selectedCategory);
@@ -256,87 +263,87 @@ async function fetchAndRenderEventList() {
 
 // Functions for Event Form
 async function populateFormWithRecentEvent() {
-    try {
+  try {
     const res = await fetch('/api/my-most-recent-event');
     const result = await res.json();
     if (result.success && result.event) {
-        const event = result.event;
-        for (const key in event) {
+      const event = result.event;
+      for (const key in event) {
         const el = document.getElementById(key);
         if (!el) continue;
         if (el.type === 'checkbox') {
-            el.checked = event[key] === true || event[key] === 'true';
+          el.checked = event[key] === true || event[key] === 'true';
         } else if (el.type === 'date' && event[key]) {
-            // Convert to yyyy-mm-dd for input[type=date]
-            const d = new Date(event[key]);
-            if (!isNaN(d)) {
+          // Convert to yyyy-mm-dd for input[type=date]
+          const d = new Date(event[key]);
+          if (!isNaN(d)) {
             el.value = d.toISOString().slice(0, 10);
             // Also set time field if present
             const timeEl = document.getElementById('startTime');
             if (timeEl && d instanceof Date && !isNaN(d)) {
-                // Pad hours/minutes to 2 digits
-                const hh = String(d.getHours()).padStart(2, '0');
-                const mm = String(d.getMinutes()).padStart(2, '0');
-                timeEl.value = `${hh}:${mm}`;
+              // Pad hours/minutes to 2 digits
+              const hh = String(d.getHours()).padStart(2, '0');
+              const mm = String(d.getMinutes()).padStart(2, '0');
+              timeEl.value = `${hh}:${mm}`;
             }
-            } else {
+          } else {
             el.value = '';
-            }
+          }
         } else {
-            el.value = event[key] || '';
+          el.value = event[key] || '';
         }
-        }
-        // Set eventId display
-        document.getElementById('eventIdText').textContent = event.eventId || '';
+      }
+      // Set eventId display
+      document.getElementById('eventIdText').textContent = event.eventId || '';
     } else {
-        // If no recent event, set eventId to current timestamp
-        document.getElementById('eventIdText').textContent = Date.now();
-        console.warn('No recent event found, setting eventId to current timestamp');
+      // If no recent event, set eventId to current timestamp
+      document.getElementById('eventIdText').textContent = Date.now();
+      console.warn('No recent event found, setting eventId to current timestamp');
     }
-    } catch (err) {
+  } catch (err) {
     // On error, set eventId to current timestamp if not already set
-    }
+  }
 }
 async function setupForm() {
-    console.log('Setting up event form');
-    await populateCategoryTags();
-    await populateGroupTags();
-    await populateFormWithRecentEvent();
-    // Ensure eventId is set on form creation if not populated
-    if (!document.getElementById('eventIdText').textContent) {
+  console.log('Setting up event form');
+  await populateCategoryTags();
+  await populateGroupTags();
+  await populateFormWithRecentEvent();
+  // Ensure eventId is set on form creation if not populated
+  if (!document.getElementById('eventIdText').textContent) {
     document.getElementById('eventIdText').textContent = Date.now();
-    }
+  }
 }
 
 async function saveEvent() {
-    const form = document.getElementById('eventForm');
-    const formData = new FormData(form);
-    const data = {};
-    formData.forEach((value, key) => {
+  const form = document.getElementById('eventForm');
+  const formData = new FormData(form);
+  const data = {};
+  formData.forEach((value, key) => {
     // Convert checkboxes to boolean
     if (form.elements[key] && form.elements[key].type === 'checkbox') {
-        data[key] = form.elements[key].checked;
+      data[key] = form.elements[key].checked;
     } else {
-        data[key] = value;
+      data[key] = value;
     }
-    });
-    // POST to backend
-    try {
+  });
+  // POST to backend
+  try {
     // Add eventId to data
     data.eventId = document.getElementById('eventIdText').textContent;
-    const res = await fetch('/api/createEvent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
+    const res = await fetch('/api/create-event', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
     });
     const result = await res.json();
     if (result.success) {
-        alert('Event saved successfully!');
-        // Optionally redirect or reset form
+      alert('Event saved successfully!');
+      // Optionally redirect or reset form
     } else {
-        alert(result.message || 'Error saving event');
+      alert(result.message || 'Error saving event');
     }
-    } catch (err) {
+  } catch (err) {
     alert('Error saving event');
-    }
+  }
 }
