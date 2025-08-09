@@ -1,4 +1,4 @@
-const { Location } = require('./User');
+const { Location } = require('./utils');
 
 const EventSize = Object.freeze({
   TINY: '5-10',
@@ -29,11 +29,16 @@ class Event {
    * @returns {Event}
    */
   static example() {
+    // example date is 19:00, 3 weeks from now
+    const exampleDate = new Date();
+    exampleDate.setDate(exampleDate.getDate() + 21);
+    exampleDate.setHours(19);
+    exampleDate.setMinutes(0);
     return new Event({
       eventId: 'evt_example',
       title: 'Example Event',
       description: 'This is an example event.',
-      date: new Date('2025-07-25T18:00:00Z'),
+      date: exampleDate,
       duration: Duration.ONE_HOUR_OR_LESS,
       locationAddress: '123 Example St',
       locationPostcode: 'SG12 0DE',

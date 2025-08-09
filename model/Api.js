@@ -217,8 +217,6 @@ class Api {
     if (!user || !user.username) {
       throw new Error('User instance with username required');
     }
-    // Get the last event file created by the user
-    user.eventFilesCreated.sort(); // Ensure the array is sorted
     const lastEventFile = user.eventFilesCreated[user.eventFilesCreated.length - 1];
     if (!lastEventFile) {
       return Event.example();
@@ -316,6 +314,16 @@ class Api {
         else resolve();
       });
     });
+  }
+
+  // Get event details by filename
+  async getEventDetailsByFilename(filename) {
+    const filePath = path.join(this.csvDir, './events', filename);
+    if (!fs.existsSync(filePath)) {
+      throw new Error('Event not found');
+    }
+    const data = fs.readFileSync(filePath, 'utf8');
+    return new Event(JSON.parse(data));
   }
 
   /**

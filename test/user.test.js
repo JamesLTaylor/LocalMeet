@@ -24,3 +24,15 @@ describe('Location', () => {
     expect(loc.longitude).to.equal(-74.0);
   });
 });
+
+// Test that we can get an example event from the static method
+describe('Event', () => {
+  const Event = require('../model/Event');
+  it('should return an example event with default values', () => {
+    const event = Event.example();
+    expect(event).to.have.property('eventId', 'evt_example');
+    expect(event).to.have.property('title', 'Example Event');
+    expect(event).to.have.property('description', 'This is an example event.');
+    expect(event).to.have.property('date').that.is.a('date');
+  });
+});

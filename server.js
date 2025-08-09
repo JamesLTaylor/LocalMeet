@@ -184,6 +184,14 @@ app.post('/api/create-event', requireLogin, async (req, res) => {
   }
   // call api.createEvent
   try {
+    // combine date and startTime into a single date object
+    if (req.body.date && req.body.startTime) {
+      const date = new Date(req.body.date);
+      const [hours, minutes] = req.body.startTime.split(':');
+      date.setHours(hours);
+      date.setMinutes(minutes);
+      req.body.date = date;
+    }
     const event = new Event(req.body);
     const createdEvent = await api.writeEventToFile(event, req.session.user);
     res.json({ success: true, event: createdEvent });
@@ -196,8 +204,7 @@ app.post('/api/create-event', requireLogin, async (req, res) => {
 // Endpoint to get the most recent event added by the current user
 app.get('/api/my-most-recent-event', requireLogin, async (req, res) => {
   try {
-    const userID = req.session.user.userID;
-    const event = await api.getMostRecentEventByUser(userID);
+    const event = await api.getMostRecentEventByUser(req.session.user);
     res.json({ success: true, event });
   } catch (err) {
     console.error('Error fetching most recent event:', err);
