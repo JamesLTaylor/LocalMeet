@@ -113,6 +113,7 @@ app.post('/api/login', (req, res) => {
 // Logout endpoint
 app.post('/api/logout', (req, res) => {
   req.session.destroy(() => {
+    console.log('User logged out. Session destroyed.');
     res.json({ success: true, message: 'Logged out' });
   });
 });

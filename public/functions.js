@@ -3,9 +3,11 @@ function setupMenuHandlers() {
   const menuBtn = document.getElementById('menuBtn');
   const menu = document.getElementById('menu');
   const loginMenuItem = document.getElementById('loginMenuItem');
+  // toggle visibility of menu
   menuBtn.addEventListener('click', () => {
     menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
   });
+  // dismiss menu if clicked outside
   document.addEventListener('click', (e) => {
     if (!menu.contains(e.target) && e.target !== menuBtn) {
       menu.style.display = 'none';
