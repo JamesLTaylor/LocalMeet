@@ -217,11 +217,27 @@ class Api {
     if (!user || !user.username) {
       throw new Error('User instance with username required');
     }
+    if (!user.eventFilesCreated || !Array.isArray(user.eventFilesCreated) || user.eventFilesCreated.length === 0) {
+      return Event.example();
+    }
     const lastEventFile = user.eventFilesCreated[user.eventFilesCreated.length - 1];
     if (!lastEventFile) {
       return Event.example();
     }
-    return this.getEventDetailsByFilename(lastEventFile);
+    try {
+      const event = await this.getEventDetailsByFilename(lastEventFile);
+      return event;
+    } catch (err) {
+      // if the event is not found then delete it from the user's eventFilesCreated
+      const index = user.eventFilesCreated.indexOf(lastEventFile);
+      if (index !== -1) {
+        user.eventFilesCreated.splice(index, 1);
+      }
+      // save updated user to file
+      await this.saveUserToFile(user);
+      console.error(`Error fetching most recent event (${lastEventFile}), removed from user and trying again:`, err);
+      return this.getMostRecentEventByUser(user);
+    }
   }
 
   /**
@@ -260,7 +276,7 @@ class Api {
       throw new Error('Event must have a valid title');
     }
     if (!user || !user.username) {
-      throw new Error('Current username is not not known');
+      throw new Error('Current username is not known');
     }
     // ensure the event has a date
     if (!event.date || !(event.date instanceof Date)) {
@@ -275,6 +291,11 @@ class Api {
     const filename = `${day}_${event.title.toLowerCase().replace(/[^a-z0-9]/g, '_')}.json`;
     const relativePath = path.join(year.toString(), month, filename);
     const filePath = path.join(eventsDir, relativePath);
+    // if the new filePath already exists throw an error and the oldFilePath is different from the current filePath
+    if (fs.existsSync(filePath) && event.originalFilePath !== relativePath) {
+      throw new Error('An event with this title and date already exists');
+    }
+
     // Check if the originalFilePath is set, if not set it to the current filePath
     if (!event.originalFilePath || event.originalFilePath === '') {
       event.originalFilePath = relativePath; // Store relative path for the event
@@ -285,26 +306,29 @@ class Api {
         fs.unlinkSync(oldFilePath);
         console.log(`Deleted old event file: ${oldFilePath}`);
       }
+      // remove this file from the user's eventFilesCreated
+      const index = user.eventFilesCreated.indexOf(event.originalFilePath);
+      if (index !== -1) {
+        user.eventFilesCreated.splice(index, 1);
+      }
+      console.log(`Removed from user: ${event.originalFilePath}`);
     }
     if (!user.eventFilesCreated || !Array.isArray(user.eventFilesCreated)) {
       user.eventFilesCreated = [];
     }
     // Check if the user already has this event file
     if (!user.eventFilesCreated.includes(relativePath)) {
-      console.log('updating user with new event file');
+      console.log(`updating user with new event file: ${relativePath}`);
       user.eventFilesCreated.push(relativePath); // Track created files for the user
-      // Call writeUserJson to update the user's eventFilesCreated
-      await this.writeUserJson(user);
     }
     // if the relativePath is already in the user's eventFilesCreated then ensure it is the last entry in the array
     else {
       const index = user.eventFilesCreated.indexOf(relativePath);
       user.eventFilesCreated.splice(index, 1);
       user.eventFilesCreated.push(relativePath);
-      await this.writeUserJson(user);
     }
-
-    // Ensure directory exists
+    await this.writeUserJson(user);
+    event.originalFilePath = relativePath;
     await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
     // Serialize event object (remove circular refs if any)
     const eventObj = typeof event.toJSON === 'function' ? event.toJSON() : event;

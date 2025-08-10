@@ -4,10 +4,7 @@
   "name": "James Taylor",
   "email": "james@cogn.co.za",
   "dateJoined": "2025-01-01",
-  "location": [
-    50,
-    -1
-  ],
+  "location": [50, -1],
   "searchGroupTags": [],
   "searchCategoryTags": [],
   "daysTimesOfInterest": [],
@@ -18,7 +15,8 @@
   "userType": "admin",
   "eventFilesCreated": [
     "2025\\08\\30_example_event.json",
-    "2025\\08\\30_games.json"
+    "2025\\08\\30_games.json",
+    "2025\\09\\27_east_herts_gamers_charity_day.json"
   ],
   "eventFilesEdited": []
 }

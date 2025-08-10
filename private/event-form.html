@@ -118,9 +118,9 @@
       </tr>
     </table>
     <div class="event-form-actions">
-      <button type="button" id="btnSaveEvent">Save Event</button>
-      <button type="button" id="btnSaveCreateAnother">Save Event &amp; Create Another</button>
-      <button type="button" id="btnCancel">Cancel</button>
+      <button type="button" id="btnEventSave">Save</button>
+      <button type="button" id="btnEventSaveAndClose">Save &amp; Close</button>
+      <button type="button" id="btnEventCancel">Cancel</button>
     </div>
   </form>
   <div id="eventIdDisplay" style="position: fixed; bottom: 10px; right: 20px; font-size: 0.85em; color: #888; background: #f9f9f9; padding: 4px 10px; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.04);">
@@ -130,12 +130,20 @@
   <script src="functions.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', setupForm);
-    document.getElementById('btnSaveEvent').addEventListener('click', function(e) {
+    document.getElementById('btnEventSave').addEventListener('click', function(e) {
       e.preventDefault();
       saveEvent();
     });
 
-    document.getElementById('btnCancel').addEventListener('click', function(e) {
+    document.getElementById('btnEventSaveAndClose').addEventListener('click', function(e) {
+      e.preventDefault();
+      saveEvent();
+      removeEventFromSession();
+      window.location.href = '/';
+    });
+
+    document.getElementById('btnEventCancel').addEventListener('click', function(e) {
+      removeEventFromSession();
       window.location.href = '/';
     });
   </script>

@@ -71,8 +71,22 @@ button {
   color: #222;
   text-decoration: none;
 }
+.disabled a {
+  pointer-events: none;
+  cursor: default;
+  color: gray;
+}
 .menu-dropdown a:hover {
   background: #f0f0f0;
+}
+.menu-signed-out {
+  display: block;
+}
+.menu-user-signed-in {
+  display: none;
+}
+.menu-moderator-signed-in {
+  display: none;
 }
 .modal {
   display: none;

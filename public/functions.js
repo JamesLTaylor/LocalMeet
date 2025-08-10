@@ -23,15 +23,26 @@ function setupMenuHandlers() {
   };
 }
 
+async function setMenuVisibility(signedInState, signedOutState, userType) {
+  const userSignedInItems = document.querySelectorAll('.menu-user-signed-in');
+  const userSignedOutItems = document.querySelectorAll('.menu-signed-out');
+  const moderatorSignedInItems = document.querySelectorAll('.menu-moderator-signed-in');
+
+  userSignedInItems.forEach((item) => {
+    item.style.display = signedInState;
+  });
+  userSignedOutItems.forEach((item) => {
+    item.style.display = signedOutState;
+  });
+  moderatorSignedInItems.forEach((item) => {
+    item.style.display = ['MODERATOR', 'ADMIN'].includes(userType) ? signedInState : 'none';
+  });
+}
+
 // Set the username and update what menu items are visible
 // This is called on page load and after login/logout
 async function setUserName() {
   const userNameDisplay = document.getElementById('userNameDisplay');
-  const profileMenuItem = document.getElementById('profileMenuItem');
-  const logoutMenuItem = document.getElementById('logoutMenuItem');
-  const loginMenuItem = document.getElementById('loginMenuItem');
-  const signupMenuItem = document.getElementById('signupMenuItem');
-  const addEventMenuItem = document.getElementById('addEventMenuItem');
 
   const res = await fetch('/api/current_username');
   const data = await res.json();
@@ -42,23 +53,9 @@ async function setUserName() {
   if (name && name !== null) {
     userNameDisplay.textContent = name;
     userNameDisplay.style.display = 'inline-block';
-    profileMenuItem.style.display = 'block';
-    logoutMenuItem.style.display = 'block';
-    loginMenuItem.style.display = 'none';
-    signupMenuItem.style.display = 'none';
-    if (userType && String(userType).toUpperCase() === 'ADMIN') {
-      addEventMenuItem.style.display = 'block';
-    } else {
-      addEventMenuItem.style.display = 'none';
-    }
+    setMenuVisibility('block', 'none', userType);
   } else {
-    userNameDisplay.textContent = '';
-    userNameDisplay.style.display = 'none';
-    profileMenuItem.style.display = 'none';
-    logoutMenuItem.style.display = 'none';
-    loginMenuItem.style.display = 'block';
-    signupMenuItem.style.display = 'block';
-    addEventMenuItem.style.display = 'none';
+    setMenuVisibility('none', 'block', userType);
   }
 }
 
@@ -345,5 +342,21 @@ async function saveEvent() {
     }
   } catch (err) {
     alert('Error saving event');
+  }
+}
+
+// remove event from session
+async function removeEventFromSession() {
+  try {
+    const res = await fetch('/api/remove-current-event', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const result = await res.json();
+    if (result.success) {
+      console.log('Event removed from session');
+    }
+  } catch (err) {
+    console.error('Error removing event from session', err);
   }
 }

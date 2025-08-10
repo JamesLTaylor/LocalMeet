@@ -92,6 +92,7 @@ app.post('/api/login', (req, res) => {
             resolve(user);
           })
           .catch((err) => {
+            console.error('Error fetching user details:', err);
             reject(new Error('Error fetching user details'));
           });
       } else {
@@ -193,12 +194,28 @@ app.post('/api/create-event', requireLogin, async (req, res) => {
       req.body.date = date;
     }
     const event = new Event(req.body);
-    const createdEvent = await api.writeEventToFile(event, req.session.user);
-    res.json({ success: true, event: createdEvent });
+    if (req.session.event) {
+      event.originalFilePath = req.session.event.originalFilePath;
+    }
+    await api.writeEventToFile(event, req.session.user);
+    res.json({ success: true });
+    // put the created event on the session for this user
+    req.session.event = event;
+    req.session.save();
   } catch (err) {
     console.error('Error creating event:', err);
-    res.status(500).json({ success: false, message: 'Error creating event' });
+    res.status(500).json({ success: false, message: err.message || 'Error creating event' });
   }
+});
+
+// remove the current event from the session
+app.post('/api/remove-current-event', requireLogin, (req, res) => {
+  // log the date and title of the event being removed
+  if (req.session.event) {
+    console.log(`Removing event from session: ${req.session.event.title} on ${req.session.event.date}`);
+    delete req.session.event;
+  }
+  res.json({ success: true });
 });
 
 // Endpoint to get the most recent event added by the current user
