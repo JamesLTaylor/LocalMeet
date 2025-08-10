@@ -1,3 +1,5 @@
+const postCodes = require('../data/location/postCodes');
+
 // Utility functions for WareToMeet
 /**
  * Calculate the distance between two lat/lon points in kilometers using the Haversine formula
@@ -35,4 +37,15 @@ class Location {
   }
 }
 
-module.exports.Location = Location;
+function locationFromPostcode(postcode) {
+  postcode = postcode.replace(/\s+/g, '').toUpperCase();
+  // if the length of the postcode is not 7 throw
+  if (postcode.length !== 7) {
+    throw new Error('Invalid postcode');
+  }
+  const key = postcode.slice(0, 4) + ' ' + postcode.slice(4);
+  coordinates = postCodes[key];
+  return coordinates ? new Location(coordinates[0], coordinates[1]) : null;
+}
+
+module.exports = { Location, locationFromPostcode };

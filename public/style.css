@@ -157,7 +157,7 @@ button {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
   padding: 1rem;
   min-width: 260px;
-  max-width: 340px;
+  max-width: 360px;
 }
 #calendar {
   width: 100%;
