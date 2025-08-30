@@ -144,8 +144,8 @@ app.get('/api/get-location-from-postcode', async (req, res) => {
     const location = utils.locationFromPostcode(postcode);
     res.json({ success: true, location });
   } catch (err) {
-    console.error('Error fetching location from postcode:', err);
-    res.status(500).json({ success: false, message: err.message || 'Error fetching location from postcode' });
+    console.log('Error fetching location from postcode:', err);
+    res.json({ success: false, message: err.message || 'Error fetching location from postcode' });
   }
 });
 

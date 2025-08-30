@@ -101,12 +101,31 @@ function setupLoginFormHandler() {
 // an async function to fetch location from postcode
 async function lookupPostcode(postcode) {
   try {
+    // remove any elements with the tooltip class
+    const locationPostcodeInput = document.getElementById('locationPostcode');
+    const existingTooltip = locationPostcodeInput.parentNode.querySelector('.tooltip');
+    if (existingTooltip) {
+      existingTooltip.parentNode.removeChild(existingTooltip);
+    }
+    if (!postcode || postcode.trim() == '') return null;
     const res = await fetch(`/api/get-location-from-postcode?postcode=${postcode}`);
     const data = await res.json();
+    const span = document.createElement('span');
+    span.className = 'tooltip';
+    span.style.backgroundSize = '20px';
+    span.style.width = '20px';
+    span.style.height = '20px';
+
+    locationPostcodeInput.parentNode.insertBefore(span, locationPostcodeInput.nextSibling);
     if (data.success) {
+      span.style.backgroundImage = "url('/resources/icons8-checkmark-40.png')";
+      span.title = data.location.latitude + ', ' + data.location.longitude;
       return data.location;
     } else {
-      throw new Error(data.message || 'Error fetching location');
+      // span.innerHTML = ' ❌';
+      span.style.backgroundImage = "url('/resources/icons8-error-40.png')";
+      span.title = data.message || 'Error fetching location';
+      return null;
     }
   } catch (err) {
     console.error(err);

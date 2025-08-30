@@ -124,6 +124,7 @@
       <button type="button" id="btnEventDelete">Delete</button>
     </div>
   </form>
+  <a target="_blank" href="https://icons8.com/icon/21344/error">Error</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
   <div id="eventIdDisplay" style="position: fixed; bottom: 10px; right: 20px; font-size: 0.85em; color: #888; background: #f9f9f9; padding: 4px 10px; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.04);">
     Event ID: <span id="eventIdText"></span>
   </div>
@@ -155,12 +156,7 @@
 
     // respond to the user pressing enter or clicking off the locationPostcode input.
     document.getElementById('locationPostcode').addEventListener('blur', function() {
-      console.log('Postcode lookup for ' + this.value);
-      const postCode = this.value;
-      if (postCode) {
-        // Perform postcode lookup
-        result = lookupPostcode(postCode);
-      }
+      lookupPostcode(this.value);
     });
 
     function showDeleteConfirmation() {
