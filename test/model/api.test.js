@@ -76,6 +76,9 @@ describe('Logging in user API', function () {
 describe('Event file operations', function () {
   let api;
   before(function () {
+    // delete all events in test_data
+    const eventsDir = path.join(__dirname, '../test_data/events');
+    fs.rmSync(eventsDir, { recursive: true, force: true });
     const csvDir = path.join(__dirname, '../test_data');
     api = new Api({ csvDir });
   });
@@ -125,6 +128,9 @@ describe('Event Api', function () {
   let api;
   const fs = require('fs');
   before(function () {
+    // delete all events in test_data
+    const eventsDir = path.join(__dirname, '../test_data/events');
+    fs.rmSync(eventsDir, { recursive: true, force: true });
     const csvDir = path.join(__dirname, '../test_data');
     api = new Api({ csvDir });
   });
