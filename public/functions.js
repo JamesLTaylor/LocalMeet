@@ -115,6 +115,9 @@ async function lookupPostcode(postcode) {
     span.style.backgroundSize = '20px';
     span.style.width = '20px';
     span.style.height = '20px';
+    span.style.display = 'inline-block';
+    span.style.verticalAlign = 'middle';
+    span.style.marginLeft = '8px';
 
     locationPostcodeInput.parentNode.insertBefore(span, locationPostcodeInput.nextSibling);
     if (data.success) {
