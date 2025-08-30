@@ -119,7 +119,7 @@ app.post('/api/logout', (req, res) => {
 });
 
 // Session info endpoint
-app.get('/api/current_username', (req, res) => {
+app.get('/api/current-username', (req, res) => {
   if (req.session && req.session.user) {
     res.json({ name: req.session.user.username });
   } else {
@@ -128,7 +128,7 @@ app.get('/api/current_username', (req, res) => {
 });
 
 // Session info endpoint
-app.get('/api/current_user_type', (req, res) => {
+app.get('/api/current-user-type', (req, res) => {
   if (req.session && req.session.user) {
     res.json({ userType: req.session.user.userType });
   } else {

@@ -46,10 +46,10 @@ async function setMenuVisibility(signedInState, signedOutState, userType) {
 async function setUserName() {
   const userNameDisplay = document.getElementById('userNameDisplay');
 
-  const res = await fetch('/api/current_username');
+  const res = await fetch('/api/current-username');
   const data = await res.json();
   const name = data.name;
-  const typeRes = await fetch('/api/current_user_type');
+  const typeRes = await fetch('/api/current-user-type');
   const typeData = await typeRes.json();
   const userType = typeData.userType;
   if (name && name !== null) {
