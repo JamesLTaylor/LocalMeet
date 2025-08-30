@@ -98,6 +98,21 @@ function setupLoginFormHandler() {
     });
   }
 }
+// an async function to fetch location from postcode
+async function lookupPostcode(postcode) {
+  try {
+    const res = await fetch(`/api/get-location-from-postcode?postcode=${postcode}`);
+    const data = await res.json();
+    if (data.success) {
+      return data.location;
+    } else {
+      throw new Error(data.message || 'Error fetching location');
+    }
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
+}
 
 // --- Calendar and Event List functions ---
 async function fetchCalendarEvents() {

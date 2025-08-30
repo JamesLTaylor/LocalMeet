@@ -4,6 +4,7 @@ const session = require('express-session');
 const fs = require('fs');
 const Api = require('./model/Api');
 const Event = require('./model/Event');
+const utils = require('./model/utils');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -133,6 +134,18 @@ app.get('/api/current-user-type', (req, res) => {
     res.json({ userType: req.session.user.userType });
   } else {
     res.json({ userType: null });
+  }
+});
+
+//Get location from postcode
+app.get('/api/get-location-from-postcode', async (req, res) => {
+  try {
+    const { postcode } = req.query;
+    const location = utils.locationFromPostcode(postcode);
+    res.json({ success: true, location });
+  } catch (err) {
+    console.error('Error fetching location from postcode:', err);
+    res.status(500).json({ success: false, message: err.message || 'Error fetching location from postcode' });
   }
 });
 

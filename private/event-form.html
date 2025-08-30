@@ -153,6 +153,16 @@
       showDeleteConfirmation();
     });
 
+    // respond to the user pressing enter or clicking off the locationPostcode input.
+    document.getElementById('locationPostcode').addEventListener('blur', function() {
+      console.log('Postcode lookup for ' + this.value);
+      const postCode = this.value;
+      if (postCode) {
+        // Perform postcode lookup
+        result = lookupPostcode(postCode);
+      }
+    });
+
     function showDeleteConfirmation() {
       // Create modal
       const modal = document.createElement('div');

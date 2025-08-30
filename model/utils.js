@@ -1,4 +1,4 @@
-const postCodes = require('../data/location/postCodes');
+const { postCodes, postCodeAreas } = require('../data/location/postCodes');
 
 // Utility functions for WareToMeet
 /**
@@ -36,16 +36,22 @@ class Location {
     this.longitude = longitude;
   }
 }
-
+/**
+ * Get location from postcode
+ * @param {*} postcode
+ * @returns {Location}
+ */
 function locationFromPostcode(postcode) {
   postcode = postcode.replace(/\s+/g, '').toUpperCase();
-  // if the length of the postcode is not 7 throw
   if (postcode.length !== 7) {
-    throw new Error('Invalid postcode');
+    throw new Error('Incorrect postcode format');
   }
   const key = postcode.slice(0, 4) + ' ' + postcode.slice(4);
   coordinates = postCodes[key];
-  return coordinates ? new Location(coordinates[0], coordinates[1]) : null;
+  if (!coordinates) {
+    throw new Error('Postcode not found, please enter a valid postcode in one of ' + postCodeAreas.join(', '));
+  }
+  return new Location(coordinates[0], coordinates[1]);
 }
 
 module.exports = { Location, locationFromPostcode };
