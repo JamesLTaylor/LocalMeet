@@ -1,4 +1,4 @@
-# East Herts Local Meet
+# Ware to Meet
 
 WareToMeet is a human first community building site. Helping people meet each other, spend time doing what they enjoy and flourishing as human beings.
 
@@ -8,11 +8,14 @@ Event organizers can charge for events in which case it is vital that they make 
 
 The mission is to:
 
-- Facilitate wholesome community events and meetups
+- Facilitate community events and meetups
 - Never charge for anything
 - Never show ads
 - Have no commercial interests
 - Not offer freemium gimmicks
-- Not platform sleazy money making meetups
 
-Organizers can let WareToMeet handle the attendees, or they can use other websites, are charge at the door, or anything else they like.
+Organizers can let WareToMeet handle the attendees, or they can use other websites, or charge at the door, or anything else they like.
+
+# Alternatives:
+
+https://github.com/coderbyheart/open-source-meetup-alternatives
