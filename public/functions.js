@@ -293,6 +293,11 @@ function setupCategoryTags(events) {
 
 async function fetchAndRenderEventList() {
   try {
+    const userRes = await fetch('/api/current-user');
+    if (userRes.ok) {
+      const user = await userRes.json();
+      console.log('Current user:', user);
+    }
     const res = await fetch('/api/events');
     if (res.ok) {
       const events = await res.json();

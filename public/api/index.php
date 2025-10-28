@@ -1,6 +1,4 @@
 <?php
-// Simple router for /api and /api/current-user
-
 
 // Determine path in a robust way (PATH_INFO preferred)
 $path = '/';
@@ -40,6 +38,57 @@ if ($path === '/current-user') {
         'userId' => 1,
     ];
     echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    exit;
+}
+
+/*
+/api/events                                    # Get all events (default 2 months from now)
+/api/events?startDate=2025-11-01              # Get events from November 1st
+/api/events?startDate=2025-11-01&endDate=2025-12-31  # Get events for specific date range
+/api/events?latitude=51.8&longitude=-0.03&distance=10 # Get events within 10km of location
+*/
+if ($path === '/events') {
+    require_once(__DIR__ . '/../../model_php/file_api.php');
+    
+    header('Content-Type: application/json; charset=utf-8');
+    
+    $options = [];
+    
+    // Handle date filters
+    if (!empty($_GET['startDate'])) {
+        $options['startDate'] = $_GET['startDate'];
+    }
+    if (!empty($_GET['endDate'])) {
+        $options['endDate'] = $_GET['endDate'];
+    }
+    
+    // Handle location filters
+    if (!empty($_GET['latitude']) && !empty($_GET['longitude'])) {
+        $options['location'] = [
+            'latitude' => floatval($_GET['latitude']),
+            'longitude' => floatval($_GET['longitude'])
+        ];
+        
+        if (!empty($_GET['distance'])) {
+            $options['distance'] = floatval($_GET['distance']);
+        }
+    }
+    
+    try {
+        $events = getEvents($options);
+        // Convert events to array for JSON serialization
+        $eventsArray = array_map(function($event) {
+            return (array)$event;
+        }, $events);
+        
+        echo json_encode($eventsArray, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode([
+            'error' => 'Internal Server Error',
+            'message' => $e->getMessage()
+        ]);
+    }
     exit;
 }
 
