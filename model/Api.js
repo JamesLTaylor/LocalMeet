@@ -1,4 +1,4 @@
-// API class to connect to MySQL or local CSV files
+// javascript API class to connect to local files
 // const mysql = require('mysql2');
 const fs = require('fs');
 const path = require('path');
