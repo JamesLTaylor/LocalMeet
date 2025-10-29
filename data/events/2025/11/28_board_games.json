@@ -1,0 +1,39 @@
+{
+    "eventId": "459595801",
+    "title": "Board Games",
+    "description": "An evening of relaxed boardgames. Bring your own games or join a table with others, all skill levels welcome.",
+    "eventLink": "https://www.easthertsgamers.co.uk/",
+    "date": "2025-11-28T19:00:00",
+    "time": "19:00",
+    "duration": "3_to_4",
+    "organiser": "East Herts Gamers",
+    "organiserInfo": "https://www.easthertsgamers.co.uk/",
+    "locationAddress": "Leaside Church",
+    "locationPostcode": "SG12 9BT",
+    "locationLat": "51.811017",
+    "locationLong": "-0.030476",
+    "groupWithMembership": "FALSE",
+    "externalRegister": "FALSE",
+    "localMeetRegister": " false",
+    "groupTags": [
+        "Everyone"
+    ],
+    "categoryTags": [
+        "Gaming",
+        "Social"
+    ],
+    "contactPerson": " ",
+    "contactDetails": " ",
+    "contactVisibility": " NOBODY",
+    "costIntroductory": "0",
+    "costRegular": "5",
+    "size": "TINY",
+    "addedBy": "James",
+    "addedAt": "2025-10-29T16:34:11.620902",
+    "lastEdited": "2025-10-29T16:34:11.620918",
+    "registeredUsers": [],
+    "interestedUsers": [],
+    "isCancelled": false,
+    "isDeleted": false,
+    "originalFilePath": "28_board_games.json"
+}

@@ -1,0 +1,39 @@
+{
+    "eventId": "459595811",
+    "title": "Crochet Workshop",
+    "description": "Learn to make beautiful Christmas Baubles in tapestry crochet.",
+    "eventLink": "https://cratesofwool.co.uk/collections/workshops/products/crochet-christmas-baubles-02dec",
+    "date": "2025-11-29T10:00:00",
+    "time": "10:00",
+    "duration": "2_to_3",
+    "organiser": "Crates of Wool",
+    "organiserInfo": "https://cratesofwool.co.uk/",
+    "locationAddress": "8A East Street, Ware",
+    "locationPostcode": "SG12 9HJ",
+    "locationLat": "51.810798",
+    "locationLong": "-0.029863",
+    "groupWithMembership": "FALSE",
+    "externalRegister": "FALSE",
+    "localMeetRegister": " false",
+    "groupTags": [
+        "Everyone"
+    ],
+    "categoryTags": [
+        "Crafts",
+        "Learning"
+    ],
+    "contactPerson": "",
+    "contactDetails": "",
+    "contactVisibility": " NOBODY",
+    "costIntroductory": "40",
+    "costRegular": "40",
+    "size": "TINY",
+    "addedBy": "James",
+    "addedAt": "2025-10-29T16:34:11.636542",
+    "lastEdited": "2025-10-29T16:34:11.636555",
+    "registeredUsers": [],
+    "interestedUsers": [],
+    "isCancelled": false,
+    "isDeleted": false,
+    "originalFilePath": "29_crochet_workshop.json"
+}

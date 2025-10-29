@@ -47,3 +47,6 @@ coverage/
 
 # Test data files that may get created while testing
 test/test_data/
+~$EventBulkLoader.xlsx
+EventBulkLoader.xlsx
+python/events.csv

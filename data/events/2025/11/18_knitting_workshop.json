@@ -1,0 +1,39 @@
+{
+    "eventId": "459595810",
+    "title": "Knitting Workshop",
+    "description": "Log cabin knitting. You will learn how to construct the log cabin stitches, how to pick up stitches consistently and how to work variations on the basic layout.",
+    "eventLink": "https://cratesofwool.co.uk/collections/workshops/products/knitting-lesson-log-cabin",
+    "date": "2025-11-18T13:00:00",
+    "time": "13:00",
+    "duration": "1_to_2",
+    "organiser": "Crates of Wool",
+    "organiserInfo": "https://cratesofwool.co.uk/",
+    "locationAddress": "8A East Street, Ware",
+    "locationPostcode": "SG12 9HJ",
+    "locationLat": "51.810798",
+    "locationLong": "-0.029863",
+    "groupWithMembership": "FALSE",
+    "externalRegister": "FALSE",
+    "localMeetRegister": " false",
+    "groupTags": [
+        "Everyone"
+    ],
+    "categoryTags": [
+        "Crafts",
+        "Learning"
+    ],
+    "contactPerson": "",
+    "contactDetails": "",
+    "contactVisibility": " NOBODY",
+    "costIntroductory": "40",
+    "costRegular": "40",
+    "size": "TINY",
+    "addedBy": "James",
+    "addedAt": "2025-10-29T16:34:11.635073",
+    "lastEdited": "2025-10-29T16:34:11.635088",
+    "registeredUsers": [],
+    "interestedUsers": [],
+    "isCancelled": false,
+    "isDeleted": false,
+    "originalFilePath": "18_knitting_workshop.json"
+}

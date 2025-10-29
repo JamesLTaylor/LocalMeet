@@ -1,0 +1,39 @@
+{
+    "eventId": "459595809",
+    "title": "Discussion group",
+    "description": "Relaxed informal discussion about current affairs",
+    "eventLink": "",
+    "date": "2025-12-15T20:00:00",
+    "time": "20:00",
+    "duration": "1_to_2",
+    "organiser": "Lea Valley Discussion Group",
+    "organiserInfo": "https://leavalleydiscussiongroup.wordpress.com/",
+    "locationAddress": "Methodist Church Hall in Middlefield Road",
+    "locationPostcode": "EN11 9ED",
+    "locationLat": "51.767854",
+    "locationLong": "-0.009644",
+    "groupWithMembership": "TRUE",
+    "externalRegister": "FALSE",
+    "localMeetRegister": " false",
+    "groupTags": [
+        "Everyone"
+    ],
+    "categoryTags": [
+        "Discussion",
+        "Social"
+    ],
+    "contactPerson": "",
+    "contactDetails": "",
+    "contactVisibility": " NOBODY",
+    "costIntroductory": "0",
+    "costRegular": "1",
+    "size": "TINY",
+    "addedBy": "James",
+    "addedAt": "2025-10-29T16:34:11.633465",
+    "lastEdited": "2025-10-29T16:34:11.633473",
+    "registeredUsers": [],
+    "interestedUsers": [],
+    "isCancelled": false,
+    "isDeleted": false,
+    "originalFilePath": "15_discussion_group.json"
+}
