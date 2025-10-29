@@ -159,18 +159,42 @@ button {
 }
 .main-content {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   gap: 2rem;
   margin-top: 2rem;
 }
-.calendar-container {
-  flex: 0 0 32%;
+.calendar-section {
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+.calendar-header {
   padding: 1rem;
-  min-width: 260px;
-  max-width: 360px;
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+.calendar-header h2 {
+  margin: 0;
+  flex: 1;
+}
+.calendar-toggle {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: transform 0.3s;
+}
+.calendar-toggle.collapsed {
+  transform: rotate(-90deg);
+}
+.calendar-container {
+  padding: 1rem;
+  background: #fff;
 }
 #calendar {
   width: 100%;
