@@ -107,7 +107,7 @@ class Event {
         $this->duration = $options['duration'] ?? self::DURATION['ONE_HOUR_OR_LESS'];
         $this->locationAddress = $options['locationAddress'] ?? '';
         $this->locationPostcode = $options['locationPostcode'] ?? '';
-        $this->location = $options['location'];
+        $this->location = $options['location'] ?? null;
         $this->memberOnly = $options['memberOnly'] ?? false;
         $this->externalRegister = $options['externalRegister'] ?? '';
         $this->localMeetRegister = $options['localMeetRegister'] ?? false;

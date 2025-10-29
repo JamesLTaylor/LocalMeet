@@ -1,4 +1,5 @@
 <?php
+require_once(__DIR__ . '/../../model_php/file_api.php');
 
 // Determine path in a robust way (PATH_INFO preferred)
 $path = '/';
@@ -48,7 +49,7 @@ if ($path === '/current-user') {
 /api/events?latitude=51.8&longitude=-0.03&distance=10 # Get events within 10km of location
 */
 if ($path === '/events') {
-    require_once(__DIR__ . '/../../model_php/file_api.php');
+    
     
     header('Content-Type: application/json; charset=utf-8');
     
@@ -82,6 +83,54 @@ if ($path === '/events') {
         }, $events);
         
         echo json_encode($eventsArray, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode([
+            'error' => 'Internal Server Error',
+            'message' => $e->getMessage()
+        ]);
+    }
+    exit;
+}
+
+if ($path === '/get-category-tags') {
+    header('Content-Type: application/json; charset=utf-8');
+    
+    try {
+        $tags = getCategoryTags();
+        // Convert CategoryTag objects to arrays for JSON serialization
+        $tagsArray = array_map(function($tag) {
+            return [
+                'name' => $tag->name,
+                'description' => $tag->description
+            ];
+        }, $tags);
+        
+        echo json_encode($tagsArray, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode([
+            'error' => 'Internal Server Error',
+            'message' => $e->getMessage()
+        ]);
+    }
+    exit;
+}
+
+if ($path === '/get-group-tags') {
+    header('Content-Type: application/json; charset=utf-8');
+    
+    try {
+        $tags = getGroupTags();
+        // Convert CategoryTag objects to arrays for JSON serialization
+        $tagsArray = array_map(function($tag) {
+            return [
+                'name' => $tag->name,
+                'description' => $tag->description
+            ];
+        }, $tags);
+        
+        echo json_encode($tagsArray, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode([
