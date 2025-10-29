@@ -1,31 +1,3 @@
-// --- DOMContentLoaded and UI setup functions ---
-function setupCalendarCollapse() {
-  const calendarSection = document.querySelector('.calendar-section');
-  const calendarContainer = document.querySelector('.calendar-container');
-  const toggleButton = document.querySelector('.calendar-toggle');
-  const calendar = document.querySelector('#calendar');
-
-  // Set initial state
-  let isCollapsed = localStorage.getItem('calendarCollapsed') === 'true';
-  if (isCollapsed) {
-    calendarContainer.style.display = 'none';
-    toggleButton.classList.add('collapsed');
-  }
-
-  // Add click handler
-  document.querySelector('.calendar-header').addEventListener('click', () => {
-    isCollapsed = !isCollapsed;
-    calendarContainer.style.display = isCollapsed ? 'none' : 'block';
-    toggleButton.classList.toggle('collapsed');
-    localStorage.setItem('calendarCollapsed', isCollapsed);
-
-    // Trigger a resize event so FullCalendar can adjust
-    if (!isCollapsed) {
-      window.dispatchEvent(new Event('resize'));
-    }
-  });
-}
-
 function setupMenuHandlers() {
   const menuBtn = document.getElementById('menuBtn');
   const menu = document.getElementById('menu');
@@ -250,7 +222,8 @@ function renderEventList(events) {
         hour: '2-digit',
         minute: '2-digit',
       })}</span><br>
-        <span>${event.locationDescription || ''}</span>`;
+        <span>${event.locationAddress || ''}</span>
+        <span>${event.locationPostcode || ''}</span>`;
       li.onclick = () => {
         window.dispatchEvent(
           new CustomEvent('calendar-day-click', { detail: { date: event.date.split('T')[0], events: [event] } })

@@ -31,12 +31,17 @@ class Event {
     public $eventId;
     public $title;
     public $description;
+    public $eventLink;
     public $date;
+    public $time;
     public $duration;
+    public $organiser;
+    public $organiserInfo;
     public $locationAddress;
     public $locationPostcode;
-    public $location;
-    public $memberOnly;
+    public $locationLat;
+    public $locationLong;
+    public $groupWithMembership;
     public $externalRegister;
     public $localMeetRegister;
     public $groupTags;
@@ -70,29 +75,35 @@ class Event {
             'eventId' => 'evt_example',
             'title' => 'Example Event',
             'description' => 'This is an example event.',
-            'date' => $exampleDate,
-            'duration' => self::DURATION['ONE_HOUR_OR_LESS'],
+            'eventLink' => 'https://example.com/event',
+            'date' => $exampleDate->format('Y-m-d\TH:i:s'),
+            'time' => '19:00',
+            'duration' => self::DURATION['ONE_TO_TWO'],
+            'organiser' => 'Example Group',
+            'organiserInfo' => 'https://example.com/group',
             'locationAddress' => '123 Example St',
             'locationPostcode' => 'SG12 0DE',
-            'location' => new Location(51.811892, -0.03717),
-            'memberOnly' => false,
-            'externalRegister' => '',
-            'localMeetRegister' => true,
+            'locationLat' => '51.811892',
+            'locationLong' => '-0.03717',
+            'groupWithMembership' => 'FALSE',
+            'externalRegister' => 'FALSE',
+            'localMeetRegister' => 'false',
             'groupTags' => ['exampleGroup'],
             'categoryTags' => ['exampleCategory'],
             'contactPerson' => 'Jane Doe',
             'contactDetails' => 'jane@example.com',
-            'contactVisibility' => self::CONTACT_VISIBILITY['LOGGED_IN'],
-            'costIntroductory' => 0,
-            'costRegular' => 0,
-            'size' => self::EVENT_SIZE['SMALL'],
+            'contactVisibility' => self::CONTACT_VISIBILITY['NOBODY'],
+            'costIntroductory' => '0',
+            'costRegular' => '0',
+            'size' => 'TINY',
             'addedBy' => 'user1',
-            'addedAt' => time(),
-            'lastEdited' => time(),
-            'registeredUsers' => [1],
-            'interestedUsers' => [2],
+            'addedAt' => date('Y-m-d\TH:i:s.u'),
+            'lastEdited' => date('Y-m-d\TH:i:s.u'),
+            'registeredUsers' => [],
+            'interestedUsers' => [],
             'isCancelled' => false,
-            'isDeleted' => false
+            'isDeleted' => false,
+            'originalFilePath' => null
         ]);
     }
 
@@ -103,21 +114,26 @@ class Event {
         $this->eventId = $options['eventId'];
         $this->title = $options['title'];
         $this->description = $options['description'] ?? '';
+        $this->eventLink = $options['eventLink'] ?? '';
         $this->date = $options['date'];
+        $this->time = $options['time'] ?? '';
         $this->duration = $options['duration'] ?? self::DURATION['ONE_HOUR_OR_LESS'];
+        $this->organiser = $options['organiser'] ?? '';
+        $this->organiserInfo = $options['organiserInfo'] ?? '';
         $this->locationAddress = $options['locationAddress'] ?? '';
         $this->locationPostcode = $options['locationPostcode'] ?? '';
-        $this->location = $options['location'] ?? null;
-        $this->memberOnly = $options['memberOnly'] ?? false;
-        $this->externalRegister = $options['externalRegister'] ?? '';
-        $this->localMeetRegister = $options['localMeetRegister'] ?? false;
+        $this->locationLat = $options['locationLat'] ?? '';
+        $this->locationLong = $options['locationLong'] ?? '';
+        $this->groupWithMembership = $options['groupWithMembership'] ?? 'FALSE';
+        $this->externalRegister = $options['externalRegister'] ?? 'FALSE';
+        $this->localMeetRegister = $options['localMeetRegister'] ?? 'false';
         $this->groupTags = $options['groupTags'] ?? [];
         $this->categoryTags = $options['categoryTags'] ?? [];
         $this->contactPerson = $options['contactPerson'] ?? '';
         $this->contactDetails = $options['contactDetails'] ?? '';
         $this->contactVisibility = $options['contactVisibility'] ?? self::CONTACT_VISIBILITY['NOBODY'];
-        $this->costIntroductory = $options['costIntroductory'] ?? 0;
-        $this->costRegular = $options['costRegular'] ?? 0;
+        $this->costIntroductory = $options['costIntroductory'] ?? '0';
+        $this->costRegular = $options['costRegular'] ?? '0';
         $this->size = $options['size'] ?? self::EVENT_SIZE['SMALL'];
         $this->addedBy = $options['addedBy'] ?? null;
         $this->addedAt = $options['addedAt'] ?? null;
@@ -135,56 +151,42 @@ class Event {
      * @return Event
      */
     public static function fromDict($dict) {
-        $location = null;
-        if (isset($dict['location'])) {
-            if (is_string($dict['location']) && strpos($dict['location'], ',') !== false) {
-                list($lat, $lon) = array_map('floatval', explode(',', $dict['location']));
-                $location = new Location($lat, $lon);
-            } else {
-                $location = $dict['location'];
-            }
+        // Convert date strings to DateTime objects if needed
+        if (isset($dict['date']) && is_string($dict['date'])) {
+            $dict['date'] = new DateTime($dict['date']);
+        }
+        if (isset($dict['addedAt']) && is_string($dict['addedAt'])) {
+            $dict['addedAt'] = new DateTime($dict['addedAt']);
+        }
+        if (isset($dict['lastEdited']) && is_string($dict['lastEdited'])) {
+            $dict['lastEdited'] = new DateTime($dict['lastEdited']);
         }
 
-        $date = isset($dict['date']) ? new DateTime($dict['date']) : null;
-        $addedAt = isset($dict['addedAt']) ? new DateTime($dict['addedAt']) : null;
-        $lastEdited = isset($dict['lastEdited']) ? new DateTime($dict['lastEdited']) : null;
+        // Handle arrays
+        $dict['groupTags'] = is_array($dict['groupTags'] ?? null) ? 
+            $dict['groupTags'] : 
+            (isset($dict['groupTags']) ? explode(';', (string)$dict['groupTags']) : []);
 
-        return new self([
-            'eventId' => $dict['eventId'],
-            'title' => $dict['title'],
-            'description' => $dict['description'] ?? '',
-            'date' => $date,
-            'duration' => $dict['duration'] ?? self::DURATION['ONE_HOUR_OR_LESS'],
-            'locationAddress' => $dict['locationAddress'] ?? '',
-            'locationPostcode' => $dict['locationPostcode'] ?? '',
-            'location' => $location,
-            'memberOnly' => filter_var($dict['memberOnly'] ?? false, FILTER_VALIDATE_BOOLEAN),
-            'externalRegister' => $dict['externalRegister'] ?? '',
-            'localMeetRegister' => filter_var($dict['localMeetRegister'] ?? false, FILTER_VALIDATE_BOOLEAN),
-            'groupTags' => is_array($dict['groupTags'] ?? null) ? 
-                $dict['groupTags'] : 
-                (isset($dict['groupTags']) ? explode(';', (string)$dict['groupTags']) : []),
-            'categoryTags' => is_array($dict['categoryTags'] ?? null) ? 
-                $dict['categoryTags'] : 
-                (isset($dict['categoryTags']) ? explode(';', (string)$dict['categoryTags']) : []),
-            'contactPerson' => $dict['contactPerson'] ?? '',
-            'contactDetails' => $dict['contactDetails'] ?? '',
-            'contactVisibility' => $dict['contactVisibility'] ?? self::CONTACT_VISIBILITY['NOBODY'],
-            'costIntroductory' => floatval($dict['costIntroductory'] ?? 0),
-            'costRegular' => floatval($dict['costRegular'] ?? 0),
-            'size' => $dict['size'] ?? self::EVENT_SIZE['SMALL'],
-            'addedBy' => $dict['addedBy'] ?? null,
-            'addedAt' => $addedAt,
-            'lastEdited' => $lastEdited,
-            'registeredUsers' => is_array($dict['registeredUsers'] ?? null) ?
-                $dict['registeredUsers'] :
-                (isset($dict['registeredUsers']) ? explode(';', (string)$dict['registeredUsers']) : []),
-            'interestedUsers' => is_array($dict['interestedUsers'] ?? null) ?
-                $dict['interestedUsers'] :
-                (isset($dict['interestedUsers']) ? explode(';', (string)$dict['interestedUsers']) : []),
-            'isCancelled' => filter_var($dict['isCancelled'] ?? false, FILTER_VALIDATE_BOOLEAN),
-            'isDeleted' => filter_var($dict['isDeleted'] ?? false, FILTER_VALIDATE_BOOLEAN),
-            'originalFilePath' => $dict['originalFilename'] ?? null
-        ]);
+        $dict['categoryTags'] = is_array($dict['categoryTags'] ?? null) ? 
+            $dict['categoryTags'] : 
+            (isset($dict['categoryTags']) ? explode(';', (string)$dict['categoryTags']) : []);
+
+        $dict['registeredUsers'] = is_array($dict['registeredUsers'] ?? null) ?
+            $dict['registeredUsers'] :
+            (isset($dict['registeredUsers']) ? explode(';', (string)$dict['registeredUsers']) : []);
+
+        $dict['interestedUsers'] = is_array($dict['interestedUsers'] ?? null) ?
+            $dict['interestedUsers'] :
+            (isset($dict['interestedUsers']) ? explode(';', (string)$dict['interestedUsers']) : []);
+
+        // Keep boolean values as strings where needed
+        $dict['groupWithMembership'] = isset($dict['groupWithMembership']) ? 
+            strtoupper((string)$dict['groupWithMembership']) : 'FALSE';
+        $dict['externalRegister'] = isset($dict['externalRegister']) ? 
+            strtoupper((string)$dict['externalRegister']) : 'FALSE';
+        $dict['localMeetRegister'] = isset($dict['localMeetRegister']) ? 
+            (string)$dict['localMeetRegister'] : 'false';
+
+        return new self($dict);
     }
 }

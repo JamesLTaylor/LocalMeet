@@ -23,7 +23,6 @@ document.addEventListener('DOMContentLoaded', async function () {
   fetchAndRenderEventList();
   populateCategoryTags();
   populateGroupTags();
-  setupCalendarCollapse();
 });
 
 // Listen for calendar day clicks

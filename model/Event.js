@@ -38,13 +38,18 @@ class Event {
       eventId: 'evt_example',
       title: 'Example Event',
       description: 'This is an example event.',
+      eventLink: 'https://example.com/event',
       date: exampleDate,
+      time: '19:00',
       duration: Duration.ONE_HOUR_OR_LESS,
+      organiser: 'Example Group',
+      organiserInfo: 'https://example.com/group',
       locationAddress: '123 Example St',
       locationPostcode: 'SG12 0DE',
-      location: new Location(51.811892, -0.03717),
-      memberOnly: false,
-      externalRegister: '',
+      locationLat: '51.811892',
+      locationLong: '-0.03717',
+      groupWithMembership: false,
+      externalRegister: 'FALSE',
       localMeetRegister: true,
       groupTags: ['exampleGroup'],
       categoryTags: ['exampleCategory'],
@@ -57,10 +62,11 @@ class Event {
       addedBy: 'user1',
       addedAt: Date.now(),
       lastEdited: Date.now(),
-      registeredUsers: [1],
-      interestedUsers: [2],
+      registeredUsers: [],
+      interestedUsers: [],
       isCancelled: false,
       isDeleted: false,
+      originalFilePath: null,
     });
   }
   /**
@@ -68,13 +74,18 @@ class Event {
    * @param {string} options.eventId
    * @param {string} options.title
    * @param {string} [options.description]
+   * @param {string} [options.eventLink]
    * @param {Date} options.date
+   * @param {string} [options.time]
    * @param {string} [options.duration] // One of Duration
+   * @param {string} [options.organiser]
+   * @param {string} [options.organiserInfo]
    * @param {string} [options.locationAddress]
    * @param {string} [options.locationPostcode]
-   * @param {Location} options.location // Location object
-   * @param {boolean} [options.memberOnly]
-   * @param {string} [options.externalRegister]  // URL for external registration
+   * @param {string} [options.locationLat]
+   * @param {string} [options.locationLong]
+   * @param {boolean} [options.groupWithMembership]
+   * @param {string} [options.externalRegister]  // TRUE/FALSE for external registration
    * @param {boolean} [options.localMeetRegister]
    * @param {string[]} [options.groupTags]
    * @param {string[]} [options.categoryTags]
@@ -84,10 +95,9 @@ class Event {
    * @param {number} [options.costIntroductory]
    * @param {number} [options.costRegular]
    * @param {string} [options.size] // One of EventSize
-   * @param {boolean} [options.directContact]
    * @param {string} [options.addedBy]
-   * @param {Date} [options.addedAt]
-   * @param {Date} [options.lastEdited]
+   * @param {Date|string} [options.addedAt]
+   * @param {Date|string} [options.lastEdited]
    * @param {string[]} [options.registeredUsers]
    * @param {string[]} [options.interestedUsers]
    * @param {boolean} [options.isCancelled]
@@ -98,12 +108,17 @@ class Event {
     eventId,
     title,
     description = '',
+    eventLink = '',
     date,
+    time = '',
     duration = Duration.ONE_HOUR_OR_LESS,
+    organiser = '',
+    organiserInfo = '',
     locationAddress = '',
     locationPostcode = '',
-    location,
-    memberOnly = false,
+    locationLat = '',
+    locationLong = '',
+    groupWithMembership = false,
     externalRegister = '',
     localMeetRegister = false,
     groupTags = [],
@@ -127,12 +142,17 @@ class Event {
     this.eventId = eventId;
     this.title = title;
     this.description = description;
+    this.eventLink = eventLink;
     this.date = date;
+    this.time = time;
     this.duration = duration;
+    this.organiser = organiser;
+    this.organiserInfo = organiserInfo;
     this.locationAddress = locationAddress;
     this.locationPostcode = locationPostcode;
-    this.location = location;
-    this.memberOnly = memberOnly;
+    this.locationLat = locationLat;
+    this.locationLong = locationLong;
+    this.groupWithMembership = groupWithMembership;
     this.externalRegister = externalRegister;
     this.localMeetRegister = localMeetRegister;
     this.groupTags = groupTags;
