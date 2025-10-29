@@ -158,6 +158,92 @@ async function fetchCalendarEvents() {
   return events;
 }
 
+function showEventPopup(event, x, y) {
+  const popup = document.getElementById('eventPopup');
+  const title = popup.querySelector('.event-popup-title');
+  const content = popup.querySelector('.event-popup-content');
+
+  // Set title
+  title.textContent = event.title;
+
+  // Format the event details
+  const eventDate = new Date(event.date);
+  const formattedDate = eventDate.toLocaleDateString('en-GB', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
+  // Build the content HTML
+  let contentHTML = `
+    <div class="event-popup-field">
+      <span class="event-popup-label">Date:</span> ${formattedDate}
+    </div>`;
+
+  if (event.locationAddress) {
+    contentHTML += `
+      <div class="event-popup-field">
+        <span class="event-popup-label">Location:</span> ${event.locationAddress}
+        ${event.locationPostcode ? `<br>${event.locationPostcode}` : ''}
+      </div>`;
+  }
+
+  if (event.description) {
+    contentHTML += `
+      <div class="event-popup-field">
+        <span class="event-popup-label">Description:</span><br>
+        ${event.description}
+      </div>`;
+  }
+
+  if (event.groupTags && event.groupTags.length > 0) {
+    contentHTML += `
+      <div class="event-popup-field">
+        <span class="event-popup-label">Groups:</span> ${
+          Array.isArray(event.groupTags) ? event.groupTags.join(', ') : event.groupTags
+        }
+      </div>`;
+  }
+
+  if (event.categoryTags && event.categoryTags.length > 0) {
+    contentHTML += `
+      <div class="event-popup-field">
+        <span class="event-popup-label">Categories:</span> ${
+          Array.isArray(event.categoryTags) ? event.categoryTags.join(', ') : event.categoryTags
+        }
+      </div>`;
+  }
+
+  if (event.contactPerson && !event.memberOnly) {
+    contentHTML += `
+      <div class="event-popup-field">
+        <span class="event-popup-label">Contact:</span> ${event.contactPerson}
+        ${event.contactDetails ? `<br>${event.contactDetails}` : ''}
+      </div>`;
+  }
+
+  content.innerHTML = contentHTML;
+
+  // Position the popup
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+  const popupWidth = 350; // Approximate width of popup
+  const popupHeight = popup.offsetHeight;
+
+  // Calculate position ensuring popup stays within viewport
+  let left = Math.min(x, viewportWidth - popupWidth - 20);
+  let top = Math.min(y, viewportHeight - popupHeight - 20);
+  left = Math.max(10, left); // Ensure minimum 10px from left
+  top = Math.max(10, top); // Ensure minimum 10px from top
+
+  popup.style.left = left + 'px';
+  popup.style.top = top + 'px';
+  popup.classList.add('active');
+}
+
 function setupFullCalendar(events) {
   const calendarEl = document.getElementById('calendar');
   const calendar = new FullCalendar.Calendar(calendarEl, {
@@ -176,6 +262,11 @@ function setupFullCalendar(events) {
       );
     },
     eventClick: function (info) {
+      // Show popup with event details
+      const rect = info.el.getBoundingClientRect();
+      showEventPopup(info.event.extendedProps, rect.left, rect.bottom);
+
+      // Also dispatch the original event
       window.dispatchEvent(
         new CustomEvent('calendar-day-click', {
           detail: {
@@ -224,7 +315,8 @@ function renderEventList(events) {
       })}</span><br>
         <span>${event.locationAddress || ''}</span>
         <span>${event.locationPostcode || ''}</span>`;
-      li.onclick = () => {
+      li.onclick = (e) => {
+        showEventPopup(event, e.clientX, e.clientY);
         window.dispatchEvent(
           new CustomEvent('calendar-day-click', { detail: { date: event.date.split('T')[0], events: [event] } })
         );

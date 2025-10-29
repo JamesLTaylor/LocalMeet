@@ -5,11 +5,30 @@
  */
 
 // --- Event listeners and initialization ---
+// Setup event popup close handlers
+function setupEventPopupHandlers() {
+  const popup = document.getElementById('eventPopup');
+  const closeBtn = popup.querySelector('.event-popup-close');
+
+  // Close on X button click
+  closeBtn.addEventListener('click', () => {
+    popup.classList.remove('active');
+  });
+
+  // Close on escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && popup.classList.contains('active')) {
+      popup.classList.remove('active');
+    }
+  });
+}
+
 document.addEventListener('DOMContentLoaded', async function () {
   setupMenuHandlers();
   setUserName();
   setupLogoutHandler();
   setupLoginFormHandler();
+  setupEventPopupHandlers();
 
   window.addEventListener('user-logged-in', () => {
     setUserName();
