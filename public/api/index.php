@@ -25,23 +25,6 @@ if (!empty($_SERVER['PATH_INFO'])) {
 $path = '/' . ltrim($path, '/');
 $path = rtrim($path, '/');
 
-if ($path === '' || $path === '/') {
-    header('Content-Type: text/plain; charset=utf-8');
-    echo 'hello world';
-    exit;
-}
-
-if ($path === '/current-user') {
-    header('Content-Type: application/json; charset=utf-8');
-    $payload = [
-        'name' => 'James',
-        'surname' => 'Taylor',
-        'userId' => 1,
-    ];
-    echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-    exit;
-}
-
 /*
 /api/events                                    # Get all events (default 2 months from now)
 /api/events?startDate=2025-11-01              # Get events from November 1st

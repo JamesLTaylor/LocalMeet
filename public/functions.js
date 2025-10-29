@@ -243,7 +243,13 @@ function renderEventList(events) {
       const li = document.createElement('li');
       li.className = 'event-list-item';
       li.innerHTML = `<strong>${event.title}</strong><br>
-        <span>${new Date(event.date).toLocaleString()}</span><br>
+      <span>${new Date(event.date).toLocaleDateString('en-US', {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit',
+      })}</span><br>
         <span>${event.locationDescription || ''}</span>`;
       li.onclick = () => {
         window.dispatchEvent(
@@ -320,11 +326,6 @@ function setupCategoryTags(events) {
 
 async function fetchAndRenderEventList() {
   try {
-    const userRes = await fetch('/api/current-user');
-    if (userRes.ok) {
-      const user = await userRes.json();
-      console.log('Current user:', user);
-    }
     const res = await fetch('/api/events');
     if (res.ok) {
       const events = await res.json();
