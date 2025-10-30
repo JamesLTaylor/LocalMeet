@@ -2,6 +2,8 @@ function setupMenuHandlers() {
   const menuBtn = document.getElementById('menuBtn');
   const menu = document.getElementById('menu');
   const loginMenuItem = document.getElementById('loginMenuItem');
+  const signupMenuItem = document.getElementById('signupMenuItem');
+  
   // toggle visibility of menu
   menuBtn.addEventListener('click', () => {
     menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
@@ -18,6 +20,13 @@ function setupMenuHandlers() {
       document.getElementById('loginModal').style.display = 'block';
       menu.style.display = 'none';
     }
+  });
+  
+  // Add signup handler
+  signupMenuItem.querySelector('a').addEventListener('click', function (e) {
+    e.preventDefault();
+    document.getElementById('signupModal').style.display = 'block';
+    menu.style.display = 'none';
   });
   document.getElementById('closeLogin').onclick = function () {
     document.getElementById('loginModal').style.display = 'none';
@@ -93,6 +102,53 @@ function setupLoginFormHandler() {
         }
       } catch (err) {
         alert('Error logging in');
+      }
+    });
+  }
+}
+
+function setupSignupFormHandler() {
+  const signupForm = document.getElementById('signupForm');
+  const closeSignup = document.getElementById('closeSignup');
+  
+  if (closeSignup) {
+    closeSignup.onclick = function() {
+      document.getElementById('signupModal').style.display = 'none';
+    }
+  }
+  
+  if (signupForm) {
+    signupForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('signupUsername').value;
+      const password = document.getElementById('signupPassword').value;
+      const email = document.getElementById('signupEmail').value;
+      
+      try {
+        const res = await fetch('/api/create-user', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            username, 
+            password,
+            email: email || undefined // only include email if it's not empty
+          }),
+        });
+        
+        const data = await res.json();
+        
+        if (res.status === 201) {
+          alert('Account created successfully! You can now log in.');
+          document.getElementById('signupModal').style.display = 'none';
+          // Clear the form
+          signupForm.reset();
+          // Show login modal
+          document.getElementById('loginModal').style.display = 'block';
+        } else {
+          alert(data.message || 'Error creating account');
+        }
+      } catch (err) {
+        alert('Error creating account: ' + err.message);
       }
     });
   }

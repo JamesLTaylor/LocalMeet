@@ -1,3 +1,4 @@
-UserID,username,salt,passwordHash,filename
-1,James,tnjN4O3v,"$argon2id$v=19$m=65536,t=3,p=4$av6sextGKUEo3DI7Xts6dg$sx/koLLfnheFASJi9aVPxaSHI70kXbT8NrO6cnesvOY",james.json
-2,John,kKIUNBly,"$argon2id$v=19$m=65536,t=3,p=4$Pxrw0W6kbEuHvfR87JJamQ$sQb+qMjD2Edg87NAC5w+JwPKmdNfnQWiMzpxLwQDTa8",john.json
+UserID,username,passwordHash,filename
+1,James,"$argon2id$v=19$m=65536,t=3,p=4$av6sextGKUEo3DI7Xts6dg$sx/koLLfnheFASJi9aVPxaSHI70kXbT8NrO6cnesvOY",james.json
+2,John,"$argon2id$v=19$m=65536,t=3,p=4$Pxrw0W6kbEuHvfR87JJamQ$sQb+qMjD2Edg87NAC5w+JwPKmdNfnQWiMzpxLwQDTa8",john.json
+3,James2,"$argon2id$v=19$m=65536,t=4,p=1$WU1PVUZhbXhha3VaRGhhOQ$nQ8MtW/OAWt6UDLO3H7fXSO8MqbpzfZ1WOvLNZRcDfQ",james2.json

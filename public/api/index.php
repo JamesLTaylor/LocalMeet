@@ -124,6 +124,56 @@ if ($path === '/get-group-tags') {
     exit;
 }
 
+if ($path === '/create-user') {
+    header('Content-Type: application/json; charset=utf-8');
+    
+    // Only allow POST requests
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405);
+        echo json_encode([
+            'error' => 'Method Not Allowed',
+            'message' => 'Only POST requests are allowed for this endpoint'
+        ]);
+        exit;
+    }
+
+    // Get JSON data from request body
+    $json = file_get_contents('php://input');
+    $data = json_decode($json, true);
+
+    if (!$data || !isset($data['username']) || !isset($data['password'])) {
+        http_response_code(400);
+        echo json_encode([
+            'error' => 'Bad Request',
+            'message' => 'Username and password are required'
+        ]);
+        exit;
+    }
+
+    try {
+        $userId = appendUserToLookup($data['username'], $data['password']);
+        http_response_code(201); // Created
+        echo json_encode([
+            'success' => true,
+            'userId' => $userId,
+            'message' => 'User created successfully'
+        ]);
+    } catch (Exception $e) {
+        $statusCode = 500;
+        if (strpos($e->getMessage(), 'Username already exists') !== false) {
+            $statusCode = 409; // Conflict
+        } else if (strpos($e->getMessage(), 'must be') !== false) {
+            $statusCode = 400; // Bad Request
+        }
+        http_response_code($statusCode);
+        echo json_encode([
+            'error' => $statusCode === 409 ? 'Conflict' : ($statusCode === 400 ? 'Bad Request' : 'Internal Server Error'),
+            'message' => $e->getMessage()
+        ]);
+    }
+    exit;
+}
+
 http_response_code(404);
 header('Content-Type: text/plain; charset=utf-8');
 echo 'Not Found';

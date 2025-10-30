@@ -28,6 +28,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   setUserName();
   setupLogoutHandler();
   setupLoginFormHandler();
+  setupSignupFormHandler();
   setupEventPopupHandlers();
 
   window.addEventListener('user-logged-in', () => {

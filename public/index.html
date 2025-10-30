@@ -72,12 +72,41 @@
       <div class="modal-content">
         <span class="close" id="closeLogin">&times;</span>
         <h2>Login</h2>
-        <form id="loginForm">
+        <form id="loginForm" class="loginForm">
           <label for="loginUsername">Username:</label>
           <input type="text" id="loginUsername" name="username" required /><br />
           <label for="loginPassword">Password:</label>
           <input type="password" id="loginPassword" name="password" required /><br />
           <button type="submit" id="loginBtn">Login</button>
+        </form>
+      </div>
+    </div>
+    <div id="signupModal" class="modal" style="display: none">
+      <div class="modal-content">
+        <span class="close" id="closeSignup">&times;</span>
+        <h2>Sign Up</h2>
+        <form id="signupForm" class="loginForm">
+          <label for="signupUsername">Username:</label>
+          <input
+            type="text"
+            id="signupUsername"
+            name="username"
+            required
+            pattern="[a-zA-Z0-9]+"
+            title="Username must be alphanumeric with no spaces"
+          /><br />
+          <label for="signupPassword">Password:</label>
+          <input
+            type="password"
+            id="signupPassword"
+            name="password"
+            required
+            pattern="(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}"
+            title="Password must be at least 8 characters long and contain uppercase, lowercase, number, and special character"
+          /><br />
+          <label for="signupEmail">Email (optional):</label>
+          <input type="email" id="signupEmail" name="email" /><br />
+          <button type="submit" id="signupBtn">Sign Up</button>
         </form>
       </div>
     </div>

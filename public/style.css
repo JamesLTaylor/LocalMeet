@@ -134,17 +134,17 @@ button {
 .close:hover {
   color: #222;
 }
-#loginForm label {
+.loginForm label {
   display: block;
   margin-top: 1rem;
 }
-#loginForm input {
+.loginForm input {
   width: 100%;
   padding: 0.5rem;
   margin-top: 0.25rem;
   box-sizing: border-box;
 }
-#loginForm button {
+.loginForm button {
   margin-top: 1rem;
   width: 100%;
   padding: 0.5rem;
@@ -154,7 +154,7 @@ button {
   border-radius: 4px;
   cursor: pointer;
 }
-#loginForm button:hover {
+.loginForm button:hover {
   background: #005fa3;
 }
 .main-content {

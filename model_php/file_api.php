@@ -130,6 +130,88 @@ function getGroupTags() {
  * @return array Array of CategoryTag objects
  * @throws Exception if file is not found or not readable
  */
+/**
+ * Append a new user to _user_lookup.csv and return the new userID.
+ * Validates username and password before appending.
+ * @param string $username
+ * @param string $password
+ * @return int The new user ID
+ * @throws Exception if validation fails or username exists
+ */
+function appendUserToLookup($username, $password) {
+    // Validate username: only alphanumeric, no spaces
+    if (!preg_match('/^[a-zA-Z0-9]+$/', $username)) {
+        throw new Exception('Username must be alphanumeric with no spaces');
+    }
+
+    // Validate password: at least 8 chars, mix of upper, lower, number, special
+    if (!is_string($password) ||
+        strlen($password) < 8 ||
+        !preg_match('/[A-Z]/', $password) ||
+        !preg_match('/[a-z]/', $password) ||
+        !preg_match('/[0-9]/', $password) ||
+        !preg_match('/[^A-Za-z0-9]/', $password)) {
+        throw new Exception(
+            'Password must be at least 8 characters long and contain uppercase, lowercase, number, and special character'
+        );
+    }
+
+    $filePath = __DIR__ . '/../data/users/_user_lookup.csv';
+    
+    // Check if username exists and find lastId in one pass
+    $usernameExists = false;
+    $lastId = 0;
+    
+    if (file_exists($filePath)) {
+        if (($handle = fopen($filePath, "r")) !== false) {
+            while (($row = fgetcsv($handle)) !== false) {
+                if (isset($row[1]) && strtolower($row[1]) === strtolower($username)) {
+                    $usernameExists = true;
+                    break;
+                }
+                if (isset($row[0]) && is_numeric($row[0])) {
+                    $id = (int)$row[0];
+                    if ($id > $lastId) {
+                        $lastId = $id;
+                    }
+                }
+            }
+            fclose($handle);
+        }
+    }
+
+    if ($usernameExists) {
+        throw new Exception('Username already exists');
+    }
+
+    // Generate hash
+    $passwordHash = password_hash($password, PASSWORD_ARGON2ID);
+
+    $nextId = $lastId + 1;
+    // Compose row
+    $filename = strtolower($username) . '.json';
+    
+    // Create CSV row with password hash properly quoted
+    $row = [
+        $nextId,
+        $username,
+        $passwordHash,
+        $filename
+    ];
+
+    // Append to file and return userID
+    if (($handle = fopen($filePath, "a")) !== false) {
+        if (fputcsv($handle, $row) === false) {
+            fclose($handle);
+            throw new Exception('Failed to write to user lookup file');
+        }
+        fclose($handle);
+        return $nextId;
+    }
+    
+    throw new Exception('Could not open user lookup file for writing');
+}
+
 function getTags($tagPath) {
     if (!is_readable($tagPath)) {
         throw new Exception("$tagPath not found or not readable");
@@ -164,3 +246,4 @@ function getTags($tagPath) {
     
     return $tags;
 }
+
