@@ -25,6 +25,52 @@ if (!empty($_SERVER['PATH_INFO'])) {
 $path = '/' . ltrim($path, '/');
 $path = rtrim($path, '/');
 
+// Start PHP session so requireLogin can check session user
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+/**
+ * Require a logged-in user, otherwise redirect to site root.
+ */
+function requireLogin() {
+    if (empty($_SESSION['user'])) {
+        // Redirect to the SPA root (frontend will show login)
+        header('Location: /');
+        exit;
+    }
+}
+
+// Serve private HTML files (from project root /private) via this API script
+if ($path === '/event-form') {
+    // Only allow access to logged-in users
+    requireLogin();
+
+    $file = __DIR__ . '/../../private/event-form.html';
+    if (is_readable($file)) {
+        header('Content-Type: text/html; charset=utf-8');
+        readfile($file);
+        exit;
+    }
+    http_response_code(404);
+    echo 'Not Found';
+    exit;
+}
+
+if ($path === '/user-profile-form') {    
+    requireLogin();
+
+    $file = __DIR__ . '/../../private/user-profile-form.html';
+    if (is_readable($file)) {
+        header('Content-Type: text/html; charset=utf-8');
+        readfile($file);
+        exit;
+    }
+    http_response_code(404);
+    echo 'Not Found';
+    exit;
+}
+
 /*
 /api/events                                    # Get all events (default 2 months from now)
 /api/events?startDate=2025-11-01              # Get events from November 1st
@@ -170,6 +216,63 @@ if ($path === '/create-user') {
             'error' => $statusCode === 409 ? 'Conflict' : ($statusCode === 400 ? 'Bad Request' : 'Internal Server Error'),
             'message' => $e->getMessage()
         ]);
+    }
+    exit;
+}
+
+if ($path === '/login') {
+    header('Content-Type: application/json; charset=utf-8');
+
+    // Only allow POST
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405);
+        echo json_encode(['error' => 'Method Not Allowed', 'message' => 'Only POST allowed']);
+        exit;
+    }
+
+    $json = file_get_contents('php://input');
+    $data = json_decode($json, true);
+    if (!$data || empty($data['username']) || empty($data['password'])) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'Username and password are required']);
+        exit;
+    }
+
+    try {
+        // tryLogin will throw on invalid credentials
+        $creds = tryLogin($data['username'], $data['password']);
+
+        // Load full user details if possible
+        $userObj = null;
+        if (!empty($creds['filename'])) {
+            $userObj = getUserDetailsByFilename($creds['filename']);
+        }
+
+        if ($userObj !== null) {
+            // store user array in session
+            $_SESSION['user'] = $userObj->toArray();
+        } else {
+            // raise exception if no user found
+            throw new Exception('User details not found');
+
+        }
+
+        // Persist session
+        session_write_close();
+
+        echo json_encode(['success' => true, 'message' => 'Login successful']);
+    } catch (Exception $e) {
+        $msg = $e->getMessage();
+        if (stripos($msg, 'required') !== false) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => $msg]);
+        } elseif (stripos($msg, 'not found') !== false || stripos($msg, 'invalid password') !== false) {
+            http_response_code(401);
+            echo json_encode(['success' => false, 'message' => $msg]);
+        } else {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => $msg]);
+        }
     }
     exit;
 }

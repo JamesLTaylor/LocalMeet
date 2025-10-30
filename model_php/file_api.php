@@ -3,6 +3,7 @@
 require_once(__DIR__ . '/Event.php');
 require_once(__DIR__ . '/utils.php');
 require_once(__DIR__ . '/CategoryTag.php');
+require_once(__DIR__ . '/User.php');
 
 /**
  * Get a list of events filtered by date range and location.
@@ -124,12 +125,23 @@ function getGroupTags() {
     return getTags(__DIR__ . '/../data/tags/groupTags.csv');
 }
 
-/**
- * Get a list of tags from a CSV file
- * @param string $tagPath Path to the CSV file
- * @return array Array of CategoryTag objects
- * @throws Exception if file is not found or not readable
- */
+function checkUserNameExists($username) {
+    $filePath = __DIR__ . '/../data/users/_user_lookup.csv';
+    
+    if (file_exists($filePath)) {
+        if (($handle = fopen($filePath, "r")) !== false) {
+            while (($row = fgetcsv($handle)) !== false) {
+                if (isset($row[1]) && strtolower($row[1]) === strtolower($username)) {
+                    fclose($handle);
+                    return true;
+                }
+            }
+            fclose($handle);
+        }
+    }
+    return false;
+}
+
 /**
  * Append a new user to _user_lookup.csv and return the new userID.
  * Validates username and password before appending.
@@ -212,6 +224,114 @@ function appendUserToLookup($username, $password) {
     throw new Exception('Could not open user lookup file for writing');
 }
 
+/**
+ * Try to login with username and password. Throws an Exception on failure.
+ * Returns an associative array with keys: userID, username, passwordHash, filename
+ * @param string $username
+ * @param string $password
+ * @return array|null
+ * @throws Exception
+ */
+function tryLogin($username, $password) {
+    if (!$username || !$password) {
+        throw new Exception('Username and password are required');
+    }
+
+    $user = getUserCredentialsByName($username);
+    if (!$user) {
+        throw new Exception('User not found');
+    }
+
+    if (!isset($user['passwordHash'])) {
+        throw new Exception('Invalid user record');
+    }
+
+    // Verify password using PHP's password_verify (supports Argon2)
+    if (!password_verify($password, $user['passwordHash'])) {
+        throw new Exception('Invalid password');
+    }
+
+    return $user;
+}
+
+/**
+ * Get user credentials by username from _user_lookup.csv
+ * Returns associative array with keys: userID, username, passwordHash, filename
+ * @param string $username
+ * @return array|null
+ * @throws Exception
+ */
+function getUserCredentialsByName($username) {
+    if (!$username) {
+        throw new Exception('Username is required');
+    }
+    // Normalize username to lowercase
+    $username = strtolower(trim($username));
+
+    $filePath = __DIR__ . '/../data/users/_user_lookup.csv';
+    if (($handle = fopen($filePath, 'r')) === false) {
+        return null;
+    }
+
+    $header = fgetcsv($handle);    
+    $headerMap = [];    
+    foreach ($header as $i => $col) {
+        $headerMap[$i] = strtolower(trim($col));
+    }
+
+    while (($row = fgetcsv($handle)) !== false) {
+        $assoc = [];
+        foreach ($row as $i => $val) {
+            $key = isset($headerMap[$i]) ? $headerMap[$i] : $i;
+            $assoc[$key] = $val;
+        }
+        if (isset($assoc['username']) && strtolower($assoc['username']) === strtolower($username)) {
+            fclose($handle);
+            return [
+                'userID' => $assoc['userid'] ?? ($assoc['userID'] ?? null),
+                'username' => $assoc['username'],
+                'passwordHash' => $assoc['passwordhash'] ?? ($assoc['passwordHash'] ?? null),
+                'filename' => $assoc['filename'] ?? null,
+            ];
+        }        
+    }
+
+    fclose($handle);
+    return null;
+}
+
+/**
+ * Get an instance of User given a JSON filename (located in data/users)
+ * @param string $filename
+ * @return User|null
+ */
+function getUserDetailsByFilename($filename) {
+    if (!$filename) return null;
+
+    $filePath = __DIR__ . '/../data/users/' . $filename;
+    if (!is_readable($filePath)) {
+        return null;
+    }
+
+    $json = file_get_contents($filePath);
+    if ($json === false) return null;
+
+    $data = json_decode($json, true);
+    if ($data === null) return null;
+
+    // Use User::fromArray to construct a User instance
+    return User::fromArray($data);
+}
+
+
+
+
+/**
+ * Get a list of tags from a CSV file
+ * @param string $tagPath Path to the CSV file
+ * @return array Array of CategoryTag objects
+ * @throws Exception if file is not found or not readable
+ */
 function getTags($tagPath) {
     if (!is_readable($tagPath)) {
         throw new Exception("$tagPath not found or not readable");

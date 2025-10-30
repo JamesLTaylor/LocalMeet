@@ -5,26 +5,6 @@
  * Provides a User class with similar shape and behavior.
  */
 
-class Location {
-    public $latitude;
-    public $longitude;
-
-    public function __construct($latitude = null, $longitude = null) {
-        $this->latitude = $latitude;
-        $this->longitude = $longitude;
-    }
-
-    public static function fromArray($arr) {
-        if ($arr === null) return null;
-        $lat = isset($arr['latitude']) ? $arr['latitude'] : null;
-        $lon = isset($arr['longitude']) ? $arr['longitude'] : null;
-        return new Location($lat, $lon);
-    }
-
-    public function toArray() {
-        return ['latitude' => $this->latitude, 'longitude' => $this->longitude];
-    }
-}
 
 class User {
     // User types
