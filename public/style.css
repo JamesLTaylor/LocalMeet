@@ -357,6 +357,7 @@ button {
 /* Event popup styles */
 .event-popup {
   display: none;
+  visibility: hidden;
   position: fixed;
   background: white;
   border: 1px solid #ccc;
@@ -368,8 +369,14 @@ button {
   min-width: 300px;
 }
 
+.event-popup.get-size {
+  display: block;
+  visibility: hidden;
+}
+
 .event-popup.active {
   display: block;
+  visibility: visible;
 }
 
 .event-popup-header {
@@ -408,4 +415,17 @@ button {
 .event-popup-label {
   font-weight: bold;
   color: #555;
+}
+
+.event-popup-label.note {
+  color: #d32f2f;
+}
+
+.event-popup-field a {
+  color: #0078d7;
+  text-decoration: none;
+}
+
+.event-popup-field a:hover {
+  text-decoration: underline;
 }

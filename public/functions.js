@@ -162,6 +162,7 @@ function showEventPopup(event, x, y) {
   const popup = document.getElementById('eventPopup');
   const title = popup.querySelector('.event-popup-title');
   const content = popup.querySelector('.event-popup-content');
+  popup.classList.add('get-size'); // Create but hide the popup to measure its size
 
   // Set title
   title.textContent = event.title;
@@ -183,19 +184,56 @@ function showEventPopup(event, x, y) {
       <span class="event-popup-label">Date:</span> ${formattedDate}
     </div>`;
 
-  if (event.locationAddress) {
-    contentHTML += `
-      <div class="event-popup-field">
-        <span class="event-popup-label">Location:</span> ${event.locationAddress}
-        ${event.locationPostcode ? `<br>${event.locationPostcode}` : ''}
-      </div>`;
-  }
-
   if (event.description) {
     contentHTML += `
       <div class="event-popup-field">
         <span class="event-popup-label">Description:</span><br>
         ${event.description}
+      </div>`;
+  }
+
+  if (event.organiser) {
+    contentHTML += `
+      <div class="event-popup-field">
+        <span class="event-popup-label">Organiser:</span> ${event.organiser}
+        ${event.organiserInfo ? `<br><a href="${event.organiserInfo}" target="_blank">More about organiser</a>` : ''}
+      </div>`;
+  }
+
+  if (event.eventLink) {
+    contentHTML += `
+      <div class="event-popup-field">
+        <span class="event-popup-label">Event Link:</span><br>
+        <a href="${event.eventLink}" target="_blank">More event details</a>
+      </div>`;
+  }
+
+  if (event.costRegular || event.costIntroductory) {
+    contentHTML += `
+      <div class="event-popup-field">
+        <span class="event-popup-label">Cost:</span><br>`;
+
+    if (event.costIntroductory && event.costIntroductory !== event.costRegular) {
+      contentHTML += `First time: £${event.costIntroductory}<br>`;
+    }
+    if (event.costRegular) {
+      contentHTML += `Regular price: £${event.costRegular}`;
+    }
+    contentHTML += '</div>';
+
+    if (event.groupWithMembership && event.groupWithMembership.toString().toUpperCase() === 'TRUE') {
+      contentHTML += `
+        <div class="event-popup-field">
+          <span class="event-popup-label note">Note:</span> Regular attendance requires group membership
+        </div>`;
+    }
+  }
+
+  if (event.locationAddress) {
+    contentHTML += `
+      <div class="event-popup-field">
+        <span class="event-popup-label">Location:</span> ${event.locationAddress}
+        ${event.locationPostcode ? `<br>${event.locationPostcode}` : ''}
       </div>`;
   }
 
@@ -241,6 +279,7 @@ function showEventPopup(event, x, y) {
 
   popup.style.left = left + 'px';
   popup.style.top = top + 'px';
+  popup.classList.remove('get-size');
   popup.classList.add('active');
 }
 
