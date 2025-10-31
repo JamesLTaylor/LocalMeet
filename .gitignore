@@ -50,3 +50,4 @@ test/test_data/
 ~$EventBulkLoader.xlsx
 EventBulkLoader.xlsx
 python/events.csv
+data/users/

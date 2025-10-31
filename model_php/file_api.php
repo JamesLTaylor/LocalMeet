@@ -238,7 +238,9 @@ function tryLogin($username, $password) {
     }
 
     $user = getUserCredentialsByName($username);
+    echo "User fetched: " . json_encode($user) . "\n"; // Debug line
     if (!$user) {
+        echo "User not found\n"; // Debug line
         throw new Exception('User not found');
     }
 
@@ -281,18 +283,24 @@ function getUserCredentialsByName($username) {
 
     while (($row = fgetcsv($handle)) !== false) {
         $assoc = [];
+        echo "Row: " . implode(", ", $row) . "\n"; // Debug line
         foreach ($row as $i => $val) {
             $key = isset($headerMap[$i]) ? $headerMap[$i] : $i;
             $assoc[$key] = $val;
         }
-        if (isset($assoc['username']) && strtolower($assoc['username']) === strtolower($username)) {
-            fclose($handle);
-            return [
+        echo "Checking username: " . $assoc['username'] . "\n"; // Debug line
+        echo "Against: " . $username . "\n"; // Debug line
+        echo "Result: " . (strtolower($assoc['username']) === $username) . "\n"; // Debug line
+        if (isset($assoc['username']) && strtolower($assoc['username']) === $username) {
+            fclose($handle);            
+            $result =  [
                 'userID' => $assoc['userid'] ?? ($assoc['userID'] ?? null),
                 'username' => $assoc['username'],
                 'passwordHash' => $assoc['passwordhash'] ?? ($assoc['passwordHash'] ?? null),
                 'filename' => $assoc['filename'] ?? null,
             ];
+            echo "returning user: " . json_encode($result) . "\n"; // Debug line
+            return $result;
         }        
     }
 

@@ -1,4 +1,0 @@
-UserID,username,passwordHash,filename
-1,james,"$argon2id$v=19$m=65536,t=3,p=4$av6sextGKUEo3DI7Xts6dg$sx/koLLfnheFASJi9aVPxaSHI70kXbT8NrO6cnesvOY",james.json
-2,john,"$argon2id$v=19$m=65536,t=3,p=4$Pxrw0W6kbEuHvfR87JJamQ$sQb+qMjD2Edg87NAC5w+JwPKmdNfnQWiMzpxLwQDTa8",john.json
-3,james2,"$argon2id$v=19$m=65536,t=4,p=1$WU1PVUZhbXhha3VaRGhhOQ$nQ8MtW/OAWt6UDLO3H7fXSO8MqbpzfZ1WOvLNZRcDfQ",james2.json
