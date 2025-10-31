@@ -3,6 +3,7 @@
 // php .\test\model_php\test_file_api.php
 
 require_once __DIR__ . '/../../model_php/file_api.php';
+setDataDirectory(__DIR__ . '/../test_data');
 
 function assertTrue($cond, $message = '') {
     if (!$cond) {
@@ -11,8 +12,16 @@ function assertTrue($cond, $message = '') {
     }
 }
 
+// Test 0: create a user and save it to a test file
+$location = new Location(50, 0);
+$userData = [];
+$user = new User();
+$user->setUsername('James');
+$user->setEmail('james@example.com');
+saveUserDetailsToFile($user);
+
 // Test 1: existing file
-$existing = 'james.json';
+$existing = 'username.json';
 $user = getUserDetailsByFilename($existing);
 assertTrue($user !== null, "Expected user object for $existing");
 assertTrue(method_exists($user, 'toArray'), "Returned object should be a User instance");

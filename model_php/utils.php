@@ -39,6 +39,22 @@ class Location {
         $this->latitude = $latitude;
         $this->longitude = $longitude;
     }
+
+    // method to create Location from array
+    public static function fromArray($arr) {
+        if (!is_array($arr) || !isset($arr['latitude']) || !isset($arr['longitude'])) {
+            return null;
+        }
+        return new Location(floatval($arr['latitude']), floatval($arr['longitude']));
+    }
+
+    // method to convert Location to array
+    public function toArray() {
+        return [
+            'latitude' => $this->latitude,
+            'longitude' => $this->longitude
+        ];
+    }
 }
 
 /**

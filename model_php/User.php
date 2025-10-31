@@ -38,37 +38,57 @@ class User {
      *
      * @param array|null $opts
      */
-    public function __construct($opts = null) {
-        if ($opts === null) return;
+    /**
+     * Construct a User using explicit positional arguments.
+     *
+     * @param mixed $userID
+     * @param string|null $username
+     * @param string|null $name
+     * @param string|null $email
+     * @param string|\DateTime|null $dateJoined
+     * @param array|Location|null $location
+     * @param array|null $searchGroupTags
+     * @param array|null $searchCategoryTags
+     * @param array|null $daysTimesOfInterest
+     * @param array|null $eventsReviewed
+     * @param array|null $eventsRegisteredInterest
+     * @param array|null $eventsSignedUpFor
+     * @param array|null $eventsAttended
+     * @param string|null $userType
+     * @param array|null $eventFilesCreated
+     * @param array|null $eventFilesEdited
+     */
+    public function __construct($userID = null, $username = null, $name = null, $email = null, $dateJoined = null, $location = null, $searchGroupTags = null, $searchCategoryTags = null, $daysTimesOfInterest = null, $eventsReviewed = null, $eventsRegisteredInterest = null, $eventsSignedUpFor = null, $eventsAttended = null, $userType = null, $eventFilesCreated = null, $eventFilesEdited = null) {
+        $this->userID = $userID;
+        $this->username = $username;
+        $this->name = $name;
+        $this->email = $email;
 
-        $this->userID = isset($opts['userID']) ? $opts['userID'] : null;
-        $this->username = isset($opts['username']) ? $opts['username'] : null;
-        $this->name = isset($opts['name']) ? $opts['name'] : null;
-        $this->email = isset($opts['email']) ? $opts['email'] : null;
-
-        if (isset($opts['dateJoined'])) {
+        if ($dateJoined !== null) {
             try {
-                $this->dateJoined = new DateTime($opts['dateJoined']);
+                $this->dateJoined = $dateJoined instanceof DateTime ? $dateJoined : new DateTime($dateJoined);
             } catch (Exception $e) {
-                // If it's not parseable, keep raw value as null
                 $this->dateJoined = null;
             }
         }
 
-        $this->location = isset($opts['location']) ? Location::fromArray($opts['location']) : null;
+        if (is_array($location)) {
+            $this->location = Location::fromArray($location);
+        } else {
+            $this->location = $location;
+        }
 
-        $this->searchGroupTags = isset($opts['searchGroupTags']) && is_array($opts['searchGroupTags']) ? $opts['searchGroupTags'] : [];
-        $this->searchCategoryTags = isset($opts['searchCategoryTags']) && is_array($opts['searchCategoryTags']) ? $opts['searchCategoryTags'] : [];
-        $this->daysTimesOfInterest = isset($opts['daysTimesOfInterest']) && is_array($opts['daysTimesOfInterest']) ? $opts['daysTimesOfInterest'] : [];
-        $this->eventsReviewed = isset($opts['eventsReviewed']) && is_array($opts['eventsReviewed']) ? $opts['eventsReviewed'] : [];
-        $this->eventsRegisteredInterest = isset($opts['eventsRegisteredInterest']) && is_array($opts['eventsRegisteredInterest']) ? $opts['eventsRegisteredInterest'] : [];
-        $this->eventsSignedUpFor = isset($opts['eventsSignedUpFor']) && is_array($opts['eventsSignedUpFor']) ? $opts['eventsSignedUpFor'] : [];
-        $this->eventsAttended = isset($opts['eventsAttended']) && is_array($opts['eventsAttended']) ? $opts['eventsAttended'] : [];
+        $this->searchGroupTags = is_array($searchGroupTags) ? $searchGroupTags : [];
+        $this->searchCategoryTags = is_array($searchCategoryTags) ? $searchCategoryTags : [];
+        $this->daysTimesOfInterest = is_array($daysTimesOfInterest) ? $daysTimesOfInterest : [];
+        $this->eventsReviewed = is_array($eventsReviewed) ? $eventsReviewed : [];
+        $this->eventsRegisteredInterest = is_array($eventsRegisteredInterest) ? $eventsRegisteredInterest : [];
+        $this->eventsSignedUpFor = is_array($eventsSignedUpFor) ? $eventsSignedUpFor : [];
+        $this->eventsAttended = is_array($eventsAttended) ? $eventsAttended : [];
 
-        $this->userType = isset($opts['userType']) ? $opts['userType'] : self::USER_TYPE_MEMBER;
-
-        $this->eventFilesCreated = isset($opts['eventFilesCreated']) && is_array($opts['eventFilesCreated']) ? $opts['eventFilesCreated'] : [];
-        $this->eventFilesEdited = isset($opts['eventFilesEdited']) && is_array($opts['eventFilesEdited']) ? $opts['eventFilesEdited'] : [];
+        $this->userType = $userType ?: self::USER_TYPE_MEMBER;
+        $this->eventFilesCreated = is_array($eventFilesCreated) ? $eventFilesCreated : [];
+        $this->eventFilesEdited = is_array($eventFilesEdited) ? $eventFilesEdited : [];
     }
 
     /**
@@ -77,25 +97,24 @@ class User {
      * @return User
      */
     public static function fromArray(array $data) {
-        $opts = [];
-        $opts['userID'] = isset($data['userID']) ? $data['userID'] : null;
-        $opts['username'] = isset($data['username']) ? $data['username'] : null;
-        $opts['name'] = isset($data['name']) ? $data['name'] : null;
-        $opts['email'] = isset($data['email']) ? $data['email'] : null;
-        $opts['dateJoined'] = isset($data['dateJoined']) ? $data['dateJoined'] : null;
-        $opts['location'] = isset($data['location']) ? $data['location'] : null;
-        $opts['searchGroupTags'] = isset($data['searchGroupTags']) ? $data['searchGroupTags'] : [];
-        $opts['searchCategoryTags'] = isset($data['searchCategoryTags']) ? $data['searchCategoryTags'] : [];
-        $opts['daysTimesOfInterest'] = isset($data['daysTimesOfInterest']) ? $data['daysTimesOfInterest'] : [];
-        $opts['eventsReviewed'] = isset($data['eventsReviewed']) ? $data['eventsReviewed'] : [];
-        $opts['eventsRegisteredInterest'] = isset($data['eventsRegisteredInterest']) ? $data['eventsRegisteredInterest'] : [];
-        $opts['eventsSignedUpFor'] = isset($data['eventsSignedUpFor']) ? $data['eventsSignedUpFor'] : [];
-        $opts['eventsAttended'] = isset($data['eventsAttended']) ? $data['eventsAttended'] : [];
-        $opts['userType'] = isset($data['userType']) ? $data['userType'] : self::USER_TYPE_MEMBER;
-        $opts['eventFilesCreated'] = isset($data['eventFilesCreated']) ? $data['eventFilesCreated'] : [];
-        $opts['eventFilesEdited'] = isset($data['eventFilesEdited']) ? $data['eventFilesEdited'] : [];
+        $userID = isset($data['userID']) ? $data['userID'] : null;
+        $username = isset($data['username']) ? $data['username'] : null;
+        $name = isset($data['name']) ? $data['name'] : null;
+        $email = isset($data['email']) ? $data['email'] : null;
+        $dateJoined = isset($data['dateJoined']) ? $data['dateJoined'] : null;
+        $location = isset($data['location']) ? Location::fromArray($data['location']) : null;
+        $searchGroupTags = isset($data['searchGroupTags']) ? $data['searchGroupTags'] : [];
+        $searchCategoryTags = isset($data['searchCategoryTags']) ? $data['searchCategoryTags'] : [];
+        $daysTimesOfInterest = isset($data['daysTimesOfInterest']) ? $data['daysTimesOfInterest'] : [];
+        $eventsReviewed = isset($data['eventsReviewed']) ? $data['eventsReviewed'] : [];
+        $eventsRegisteredInterest = isset($data['eventsRegisteredInterest']) ? $data['eventsRegisteredInterest'] : [];
+        $eventsSignedUpFor = isset($data['eventsSignedUpFor']) ? $data['eventsSignedUpFor'] : [];
+        $eventsAttended = isset($data['eventsAttended']) ? $data['eventsAttended'] : [];
+        $userType = isset($data['userType']) ? $data['userType'] : self::USER_TYPE_MEMBER;
+        $eventFilesCreated = isset($data['eventFilesCreated']) ? $data['eventFilesCreated'] : [];
+        $eventFilesEdited = isset($data['eventFilesEdited']) ? $data['eventFilesEdited'] : [];
 
-        return new User($opts);
+        return new User($userID, $username, $name, $email, $dateJoined, $location, $searchGroupTags, $searchCategoryTags, $daysTimesOfInterest, $eventsReviewed, $eventsRegisteredInterest, $eventsSignedUpFor, $eventsAttended, $userType, $eventFilesCreated, $eventFilesEdited);
     }
 
     /**
