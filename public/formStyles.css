@@ -17,9 +17,11 @@
   text-align: right;
   margin-right: 8px;
 }
-.event-form-table input,
-.event-form-table textarea,
-/* .event-form-table select {
+.event-form-table input {
+  text-align: left;
+}
+/*.event-form-table textarea,
+.event-form-table select {
     width: 100%;
     box-sizing: border-box;
 } */

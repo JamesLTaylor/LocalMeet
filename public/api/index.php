@@ -109,7 +109,7 @@ if ($path === '/events') {
         $events = getEvents($options);
         // Convert events to array for JSON serialization
         $eventsArray = array_map(function ($event) {
-            return (array)$event;
+            return $event->toArray();
         }, $events);
 
         echo json_encode($eventsArray, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);

@@ -79,7 +79,7 @@ class Event
             'title' => 'Example Event',
             'description' => 'This is an example event.',
             'eventLink' => 'https://example.com/event',
-            'date' => $exampleDate->format('Y-m-d\TH:i:s'),
+            'date' => $exampleDate->format('Y-m-d'),
             'time' => '19:00',
             'duration' => self::DURATION['ONE_TO_TWO'],
             'organiser' => 'Example Group',
@@ -91,22 +91,14 @@ class Event
             'groupWithMembership' => 'FALSE',
             'externalRegister' => 'FALSE',
             'localMeetRegister' => 'false',
-            'groupTags' => ['exampleGroup'],
-            'categoryTags' => ['exampleCategory'],
+            'groupTags' => ['Everyone'],
+            'categoryTags' => ['Social'],
             'contactPerson' => 'Jane Doe',
             'contactDetails' => 'jane@example.com',
             'contactVisibility' => self::CONTACT_VISIBILITY['NOBODY'],
             'costIntroductory' => '0',
             'costRegular' => '0',
             'size' => 'TINY',
-            'addedBy' => 'user1',
-            'addedAt' => date('Y-m-d\TH:i:s.u'),
-            'lastEdited' => date('Y-m-d\TH:i:s.u'),
-            'registeredUsers' => [],
-            'interestedUsers' => [],
-            'isCancelled' => false,
-            'isDeleted' => false,
-            'originalFilePath' => null
         ]);
     }
 
@@ -119,7 +111,12 @@ class Event
         $this->title = $options['title'];
         $this->description = $options['description'] ?? '';
         $this->eventLink = $options['eventLink'] ?? '';
-        $this->date = $options['date'];
+        $date = $options['date'];
+        if (is_string($date)) {
+            $this->date = new DateTime($date);
+        } else {
+            $this->date = $date;
+        }
         $this->time = $options['time'] ?? '';
         $this->duration = $options['duration'] ?? self::DURATION['ONE_HOUR_OR_LESS'];
         $this->organiser = $options['organiser'] ?? '';
@@ -202,7 +199,7 @@ class Event
             "title" => $this->title,
             "description" => $this->description,
             "eventLink" => $this->eventLink,
-            "date" => $this->date instanceof DateTime ? $this->date->format('Y-m-d\TH:i:s') : $this->date,
+            "date" => $this->date->format(DateTime::ATOM),
             "time" => $this->time,
             "duration" => $this->duration,
             "organiser" => $this->organiser,

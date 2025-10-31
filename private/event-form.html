@@ -22,6 +22,10 @@
         <td class="event-form-input"><textarea id="description" name="description"></textarea></td>
       </tr>
       <tr>
+        <td class="event-form-label"><label for="eventLink">Event Link:</label></td>
+        <td class="event-form-input"><input type="url" id="eventLink" name="eventLink"></td>
+      </tr>
+      <tr>
         <td class="event-form-label"><label for="date">Date</label></td>
         <td class="event-form-input"><input type="date" id="date" name="date" required></td>
       </tr>
@@ -42,17 +46,24 @@
         </td>
       </tr>
       <tr>
-        <td class="event-form-label"><label for="locationAddress">Location (address/description):</label></td>
-        <td class="event-form-input"><input type="text" id="locationAddress" name="locationAddress"></td>
+        <td class="event-form-label"><label for="organiser">Organiser (group/individual):</label></td>
+        <td class="event-form-input"><input type="text" id="organiser" name="organiser"></td>
+      </tr>
+      <tr></tr>
+      <tr>
+        <td class="event-form-label"><label for="organiserInfo">Organiser Info (URL):</label></td>
+        <td class="event-form-input"><input type="url" id="organiserInfo" name="organiserInfo"></td>
       </tr>
       <tr>
         <td class="event-form-label"><label for="locationPostcode">Location (postcode):</label></td>
         <td class="event-form-input"><input type="text" id="locationPostcode" name="locationPostcode"></td>
       </tr>
       <tr>
-        <td class="event-form-label"><label for="memberOnly">Regular attendance requires membership?</label></td>
-        <td class="event-form-input"><input type="checkbox" id="memberOnly" name="memberOnly"></td>
+        <td class="event-form-label"><label for="groupWithMembership">Regular attendance requires membership?</label></td>
+        <td class="event-form-input"><input type="checkbox" id="groupWithMembership" name="groupWithMembership"></td>
       </tr>
+
+      <!-- In future maybe handle registration internally
       <tr>
         <td class="event-form-label"><label for="externalRegister">Link/email to register:</label></td>
         <td class="event-form-input">
@@ -61,8 +72,8 @@
       </tr>
       <tr>
         <td class="event-form-label"><label for="localMeetRegister">Let users register via WareToMeet:</label></td>
-        <td class="event-form-input"><input type="checkbox" id="localMeetRegister" name="localMeetRegister"></td>
-      </tr>
+        <td class="event-form-input"><input type="checkbox" id="localMeetRegister" name="localMeetRegister" disabled></td>
+      </tr> -->
       <tr>
         <td class="event-form-label"><label for="groupTags">Who is this for?</label></td>
         <td class="event-form-input"><select id="groupTags" name="groupTags">
