@@ -8,6 +8,15 @@ require_once(__DIR__ . '/utils.php');
 require_once(__DIR__ . '/CategoryTag.php');
 require_once(__DIR__ . '/User.php');
 
+function setDataDirectory($dirPath) {
+    // This function can be used to set a custom data directory if needed.
+    $GLOBALS['dataDirectory'] = rtrim($dirPath, '/');
+    
+}
+function getDataDirectory() {
+    return $GLOBALS['dataDirectory'];
+}
+setDataDirectory(__DIR__ . '/../data');
 /**
  * Get a list of events filtered by date range and location.
  * @param array $options - Options array
@@ -58,9 +67,9 @@ function getEvents($options = []) {
             $year++;
         }
     }
-    
-    $eventsDir = __DIR__ . '/../data/events';
-    
+
+    $eventsDir = getDataDirectory() . '/events';
+
     foreach ($monthsToLoad as $monthData) {
         $year = $monthData['year'];
         $month = $monthData['month'];
@@ -117,7 +126,7 @@ function getEvents($options = []) {
  * @return array Array of CategoryTag objects
  */
 function getCategoryTags() {
-    return getTags(__DIR__ . '/../data/tags/categoryTags.csv');
+    return getTags(getDataDirectory() . '/tags/categoryTags.csv');
 }
 
 /**
@@ -125,12 +134,12 @@ function getCategoryTags() {
  * @return array Array of CategoryTag objects
  */
 function getGroupTags() {
-    return getTags(__DIR__ . '/../data/tags/groupTags.csv');
+    return getTags(getDataDirectory() . '/tags/groupTags.csv');
 }
 
 function checkUserNameExists($username) {
-    $filePath = __DIR__ . '/../data/users/_user_lookup.csv';
-    
+    $filePath = getDataDirectory() . '/users/_user_lookup.csv';
+
     if (file_exists($filePath)) {
         if (($handle = fopen($filePath, "r")) !== false) {
             while (($row = fgetcsv($handle)) !== false) {
@@ -171,7 +180,7 @@ function appendUserToLookup($username, $password) {
         );
     }
 
-    $filePath = __DIR__ . '/../data/users/_user_lookup.csv';
+    $filePath = getDataDirectory() . '/users/_user_lookup.csv';
     
     // Check if username exists and find lastId in one pass
     $usernameExists = false;
@@ -271,7 +280,7 @@ function getUserCredentialsByName($username) {
     // Normalize username to lowercase
     $username = strtolower(trim($username));
 
-    $filePath = __DIR__ . '/../data/users/_user_lookup.csv';
+    $filePath = getDataDirectory() . '/users/_user_lookup.csv';
     if (($handle = fopen($filePath, 'r')) === false) {
         return null;
     }
@@ -312,7 +321,7 @@ function getUserCredentialsByName($username) {
 function getUserDetailsByFilename($filename) {
     if (!$filename) return null;
 
-    $filePath = __DIR__ . '/../data/users/' . $filename;
+    $filePath = getDataDirectory() . '/users/' . $filename;
     if (!is_readable($filePath)) {
         return null;
     }
