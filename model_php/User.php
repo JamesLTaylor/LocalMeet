@@ -1,17 +1,14 @@
 <?php
 
 /**
- * PHP translation of model/User.js
- * Provides a User class with similar shape and behavior.
+ * User class representing a user in the LocalMeet system.
  */
 
 
+require_once(__DIR__ . '/UserType.php');
+
 class User {
-    // User types
-    const USER_TYPE_MEMBER = 'member';
-    const USER_TYPE_ORGANIZER = 'organizer';
-    const USER_TYPE_MODERATOR = 'moderator';
-    const USER_TYPE_ADMIN = 'admin';
+
 
     public $userID;
     public $username;
@@ -28,7 +25,8 @@ class User {
     public $eventsRegisteredInterest = [];
     public $eventsSignedUpFor = [];
     public $eventsAttended = [];
-    public $userType = self::USER_TYPE_MEMBER;
+        
+    public $userType;
     public $eventFilesCreated = [];
     public $eventFilesEdited = [];
 
@@ -86,7 +84,7 @@ class User {
         $this->eventsSignedUpFor = is_array($eventsSignedUpFor) ? $eventsSignedUpFor : [];
         $this->eventsAttended = is_array($eventsAttended) ? $eventsAttended : [];
 
-        $this->userType = $userType ?: self::USER_TYPE_MEMBER;
+    $this->userType = $userType ?: UserType::MEMBER->value;
         $this->eventFilesCreated = is_array($eventFilesCreated) ? $eventFilesCreated : [];
         $this->eventFilesEdited = is_array($eventFilesEdited) ? $eventFilesEdited : [];
     }
@@ -110,7 +108,7 @@ class User {
         $eventsRegisteredInterest = isset($data['eventsRegisteredInterest']) ? $data['eventsRegisteredInterest'] : [];
         $eventsSignedUpFor = isset($data['eventsSignedUpFor']) ? $data['eventsSignedUpFor'] : [];
         $eventsAttended = isset($data['eventsAttended']) ? $data['eventsAttended'] : [];
-        $userType = isset($data['userType']) ? $data['userType'] : self::USER_TYPE_MEMBER;
+    $userType = isset($data['userType']) ? $data['userType'] : UserType::MEMBER->value;
         $eventFilesCreated = isset($data['eventFilesCreated']) ? $data['eventFilesCreated'] : [];
         $eventFilesEdited = isset($data['eventFilesEdited']) ? $data['eventFilesEdited'] : [];
 
@@ -150,6 +148,12 @@ class User {
             'eventFilesCreated' => $this->eventFilesCreated,
             'eventFilesEdited' => $this->eventFilesEdited
         ];
+    }
+
+    public function writeToJsonFile($filepath) {
+        $data = $this->toArray();
+        $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+        file_put_contents($filepath, $json);
     }
 }
 
