@@ -65,6 +65,8 @@ async function setUserName() {
     userNameDisplay.style.display = 'inline-block';
     setMenuVisibility('block', 'none', userType);
   } else {
+    userNameDisplay.textContent = '';
+    userNameDisplay.style.display = 'none';
     setMenuVisibility('none', 'block', userType);
   }
 }

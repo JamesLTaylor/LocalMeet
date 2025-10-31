@@ -327,6 +327,7 @@ if ($path === '/current-user-type') {
         http_response_code(401);
         echo json_encode([
             'success' => false,
+            'userType' => null,
             'message' => 'Not logged in'
         ]);
     }

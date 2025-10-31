@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <title>Create Event</title>
   <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="../style.css">
-  <!-- <link rel="stylesheet" href="../formStyles.css"> -->
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="../formStyles.css" />
   <style>
   </style>
 </head>
@@ -124,12 +124,11 @@
       <button type="button" id="btnEventDelete">Delete</button>
     </div>
   </form>
-  <a target="_blank" href="https://icons8.com/icon/21344/error">Error</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
   <div id="eventIdDisplay" style="position: fixed; bottom: 10px; right: 20px; font-size: 0.85em; color: #888; background: #f9f9f9; padding: 4px 10px; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.04);">
     Event ID: <span id="eventIdText"></span>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
-  <script src="functions.js"></script>
+  <script src="../../functions.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', setupForm);
     document.getElementById('btnEventSave').addEventListener('click', function(e) {
