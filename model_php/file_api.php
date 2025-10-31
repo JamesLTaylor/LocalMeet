@@ -1,19 +1,21 @@
 <?php
+
 /** File&php API for LocalMeet logic. At some point this should probably be changed 
  * to rather use a MySQL database or similar for data storage.
-  */
+ */
 
 require_once(__DIR__ . '/Event.php');
 require_once(__DIR__ . '/utils.php');
 require_once(__DIR__ . '/CategoryTag.php');
 require_once(__DIR__ . '/User.php');
 
-function setDataDirectory($dirPath) {
+function setDataDirectory($dirPath)
+{
     // This function can be used to set a custom data directory if needed.
     $GLOBALS['dataDirectory'] = rtrim($dirPath, '/');
-    
 }
-function getDataDirectory() {
+function getDataDirectory()
+{
     return $GLOBALS['dataDirectory'];
 }
 setDataDirectory(__DIR__ . '/../data');
@@ -26,12 +28,13 @@ setDataDirectory(__DIR__ . '/../data');
  * @param float|null $options['distance'] - Max distance in kilometers
  * @return array Array of Event objects
  */
-function getEvents($options = []) {
+function getEvents($options = [])
+{
     $startDate = isset($options['startDate']) ? $options['startDate'] : new DateTime();
     if (is_string($startDate)) {
         $startDate = new DateTime($startDate);
     }
-    
+
     $endDate = isset($options['endDate']) ? $options['endDate'] : null;
     if (!$endDate) {
         $endDate = clone $startDate;
@@ -42,19 +45,19 @@ function getEvents($options = []) {
 
     $location = $options['location'] ?? null;
     $distance = $options['distance'] ?? null;
-    
+
     $events = [];
-    
+
     // Get all months and years from startDate to endDate, inclusive
     $currentYear = (int)$startDate->format('Y');
     $currentMonth = (int)$startDate->format('n');
     $endYear = (int)$endDate->format('Y');
     $endMonth = (int)$endDate->format('n');
-    
+
     $monthsToLoad = [];
     $year = $currentYear;
     $month = $currentMonth;
-    
+
     // Generate all months from start to end
     while ($year < $endYear || ($year === $endYear && $month <= $endMonth)) {
         $monthsToLoad[] = [
@@ -74,13 +77,13 @@ function getEvents($options = []) {
         $year = $monthData['year'];
         $month = $monthData['month'];
         $monthDir = $eventsDir . '/' . $year . '/' . $month;
-        
+
         if (is_dir($monthDir)) {
             $files = array_filter(
                 scandir($monthDir) ?: [],
                 fn($f) => substr($f, -5) === '.json'
             );
-            
+
             foreach ($files as $file) {
                 $filePath = $monthDir . '/' . $file;
                 try {
@@ -88,25 +91,27 @@ function getEvents($options = []) {
                     if (!$data) {
                         continue;
                     }
-                    
+
                     // Optionally filter by location/distance
                     $include = true;
-                    if ($location && $distance && 
-                        isset($data['location']) && 
-                        is_array($data['location'])) {
-                            
+                    if (
+                        $location && $distance &&
+                        isset($data['location']) &&
+                        is_array($data['location'])
+                    ) {
+
                         $d = haversine(
                             floatval($data['location']['latitude']),
                             floatval($data['location']['longitude']),
                             floatval($location['latitude']),
                             floatval($location['longitude'])
                         );
-                        
+
                         if ($d > $distance) {
                             $include = false;
                         }
                     }
-                    
+
                     if ($include) {
                         $events[] = new Event($data);
                     }
@@ -117,7 +122,7 @@ function getEvents($options = []) {
             }
         }
     }
-    
+
     return $events;
 }
 
@@ -125,7 +130,8 @@ function getEvents($options = []) {
  * Get a list of CategoryTags from categoryTags.csv
  * @return array Array of CategoryTag objects
  */
-function getCategoryTags() {
+function getCategoryTags()
+{
     return getTags(getDataDirectory() . '/tags/categoryTags.csv');
 }
 
@@ -133,11 +139,13 @@ function getCategoryTags() {
  * Get a list of group tags from groupTags.csv
  * @return array Array of CategoryTag objects
  */
-function getGroupTags() {
+function getGroupTags()
+{
     return getTags(getDataDirectory() . '/tags/groupTags.csv');
 }
 
-function checkUserNameExists($username) {
+function checkUserNameExists($username)
+{
     $filePath = getDataDirectory() . '/users/_user_lookup.csv';
 
     if (file_exists($filePath)) {
@@ -162,30 +170,33 @@ function checkUserNameExists($username) {
  * @return int The new user ID
  * @throws Exception if validation fails or username exists
  */
-function appendUserToLookup($username, $password) {
+function appendUserToLookup($username, $password)
+{
     // Validate username: only alphanumeric, no spaces
     if (!preg_match('/^[a-zA-Z0-9]+$/', $username)) {
         throw new Exception('Username must be alphanumeric with no spaces');
     }
 
     // Validate password: at least 8 chars, mix of upper, lower, number, special
-    if (!is_string($password) ||
+    if (
+        !is_string($password) ||
         strlen($password) < 8 ||
         !preg_match('/[A-Z]/', $password) ||
         !preg_match('/[a-z]/', $password) ||
         !preg_match('/[0-9]/', $password) ||
-        !preg_match('/[^A-Za-z0-9]/', $password)) {
+        !preg_match('/[^A-Za-z0-9]/', $password)
+    ) {
         throw new Exception(
             'Password must be at least 8 characters long and contain uppercase, lowercase, number, and special character'
         );
     }
 
     $filePath = getDataDirectory() . '/users/_user_lookup.csv';
-    
+
     // Check if username exists and find lastId in one pass
     $usernameExists = false;
     $lastId = 0;
-    
+
     if (file_exists($filePath)) {
         if (($handle = fopen($filePath, "r")) !== false) {
             while (($row = fgetcsv($handle)) !== false) {
@@ -214,7 +225,7 @@ function appendUserToLookup($username, $password) {
     $nextId = $lastId + 1;
     // Compose row
     $filename = strtolower($username) . '.json';
-    
+
     // Create CSV row with password hash properly quoted
     $row = [
         $nextId,
@@ -232,7 +243,7 @@ function appendUserToLookup($username, $password) {
         fclose($handle);
         return $nextId;
     }
-    
+
     throw new Exception('Could not open user lookup file for writing');
 }
 
@@ -244,7 +255,8 @@ function appendUserToLookup($username, $password) {
  * @return array|null
  * @throws Exception
  */
-function tryLogin($username, $password) {
+function tryLogin($username, $password)
+{
     if (!$username || !$password) {
         throw new Exception('Username and password are required');
     }
@@ -273,7 +285,8 @@ function tryLogin($username, $password) {
  * @return array|null
  * @throws Exception
  */
-function getUserCredentialsByName($username) {
+function getUserCredentialsByName($username)
+{
     if (!$username) {
         throw new Exception('Username is required');
     }
@@ -285,8 +298,8 @@ function getUserCredentialsByName($username) {
         return null;
     }
 
-    $header = fgetcsv($handle);    
-    $headerMap = [];    
+    $header = fgetcsv($handle);
+    $headerMap = [];
     foreach ($header as $i => $col) {
         $headerMap[$i] = strtolower(trim($col));
     }
@@ -298,7 +311,7 @@ function getUserCredentialsByName($username) {
             $assoc[$key] = $val;
         }
         if (isset($assoc['username']) && strtolower($assoc['username']) === $username) {
-            fclose($handle);            
+            fclose($handle);
             $result =  [
                 'userID' => $assoc['userid'] ?? ($assoc['userID'] ?? null),
                 'username' => $assoc['username'],
@@ -306,7 +319,7 @@ function getUserCredentialsByName($username) {
                 'filename' => $assoc['filename'] ?? null,
             ];
             return $result;
-        }        
+        }
     }
 
     fclose($handle);
@@ -318,7 +331,8 @@ function getUserCredentialsByName($username) {
  * @param string $filename
  * @return User|null
  */
-function getUserDetailsByFilename($filename) {
+function getUserDetailsByFilename($filename)
+{
     if (!$filename) return null;
 
     $filePath = getDataDirectory() . '/users/' . $filename;
@@ -339,7 +353,7 @@ function getUserDetailsByFilename($filename) {
 
 /**
  * Get the most recent event created by a user.
-  * - Requires a User instance with username
+ * - Requires a User instance with username
  * - If user has no created events, returns Event::example()
  * - Tries to load the last event file listed in $user->eventFilesCreated
  * - If the file is missing or invalid, removes it from the user's list, saves the user file and retries
@@ -348,7 +362,8 @@ function getUserDetailsByFilename($filename) {
  * @return Event
  * @throws Exception
  */
-function getMostRecentEventByUser($user) {
+function getMostRecentEventByUser($user)
+{
     if (!$user || empty($user->username)) {
         throw new Exception('User instance with username required');
     }
@@ -448,26 +463,27 @@ function getMostRecentEventByUser($user) {
  * @return array Array of CategoryTag objects
  * @throws Exception if file is not found or not readable
  */
-function getTags($tagPath) {
+function getTags($tagPath)
+{
     if (!is_readable($tagPath)) {
         throw new Exception("$tagPath not found or not readable");
     }
 
     $tags = [];
-    
+
     if (($handle = fopen($tagPath, "r")) !== false) {
         // Read and skip the header row
         $header = fgetcsv($handle);
-        
+
         // Get the column indices
         $nameIndex = array_search('name', array_map('strtolower', $header));
         $descIndex = array_search('description', array_map('strtolower', $header));
-        
+
         if ($nameIndex === false) {
             fclose($handle);
             throw new Exception("CSV file must have a 'name' column");
         }
-        
+
         while (($data = fgetcsv($handle)) !== false) {
             if (isset($data[$nameIndex]) && !empty($data[$nameIndex])) {
                 $description = ($descIndex !== false && isset($data[$descIndex])) ? $data[$descIndex] : '';
@@ -479,7 +495,6 @@ function getTags($tagPath) {
         }
         fclose($handle);
     }
-    
+
     return $tags;
 }
-
