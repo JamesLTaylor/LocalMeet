@@ -4,14 +4,10 @@
 
 require_once __DIR__ . '/../../model_php/file_api.php';
 require_once __DIR__ . '/../../model_php/UserType.php';
+require_once __DIR__ . "test_utils.php";
+
 setDataDirectory(__DIR__ . '/../test_data');
 
-function assertTrue($cond, $message = '') {
-    if (!$cond) {
-        fwrite(STDERR, "Assertion failed: $message\n");
-        exit(1);
-    }
-}
 
 // Test 0: create a user and save it to a test file
 $location = new Location(50, 0);

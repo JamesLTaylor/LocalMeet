@@ -155,6 +155,14 @@ class User {
         $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
         file_put_contents($filepath, $json);
     }
+
+    public function addCreatedEventFile(string $baseDir, string $filename, ?string $originalFilePath=null) {
+        if ($originalFilePath !== null) {
+            $this->eventFilesCreated = array_filter($this->eventFilesCreated, fn($path) => $path !== $originalFilePath);
+        }
+        $this->eventFilesCreated = array_filter($this->eventFilesCreated, fn($path) => $path !== $filename);
+        $this->eventFilesCreated[] = $filename;
+    }
 }
 
 // Optionally expose a simple alias for backward compatibility

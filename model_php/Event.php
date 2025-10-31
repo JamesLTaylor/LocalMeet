@@ -1,8 +1,10 @@
 <?php
 
 require_once(__DIR__ . '/utils.php');
+require_once(__DIR__ . '/User.php');
 
-class Event {
+class Event
+{
     // Constants
     const EVENT_SIZE = [
         'TINY' => '5-10',
@@ -65,7 +67,8 @@ class Event {
      * Create and return an example Event instance
      * @return Event
      */
-    public static function example() {
+    public static function example()
+    {
         // example date is 19:00, 3 weeks from now
         $exampleDate = new DateTime();
         $exampleDate->modify('+21 days');
@@ -110,7 +113,8 @@ class Event {
     /**
      * @param array $options Array of event properties
      */
-    public function __construct(array $options) {
+    public function __construct(array $options)
+    {
         $this->eventId = $options['eventId'];
         $this->title = $options['title'];
         $this->description = $options['description'] ?? '';
@@ -150,7 +154,8 @@ class Event {
      * @param array $dict
      * @return Event
      */
-    public static function fromDict($dict) {
+    public static function fromDict($dict)
+    {
         // Convert date strings to DateTime objects if needed
         if (isset($dict['date']) && is_string($dict['date'])) {
             $dict['date'] = new DateTime($dict['date']);
@@ -163,30 +168,99 @@ class Event {
         }
 
         // Handle arrays
-        $dict['groupTags'] = is_array($dict['groupTags'] ?? null) ? 
-            $dict['groupTags'] : 
-            (isset($dict['groupTags']) ? explode(';', (string)$dict['groupTags']) : []);
+        $dict['groupTags'] = is_array($dict['groupTags'] ?? null) ?
+            $dict['groupTags'] : (isset($dict['groupTags']) ? explode(';', (string)$dict['groupTags']) : []);
 
-        $dict['categoryTags'] = is_array($dict['categoryTags'] ?? null) ? 
-            $dict['categoryTags'] : 
-            (isset($dict['categoryTags']) ? explode(';', (string)$dict['categoryTags']) : []);
+        $dict['categoryTags'] = is_array($dict['categoryTags'] ?? null) ?
+            $dict['categoryTags'] : (isset($dict['categoryTags']) ? explode(';', (string)$dict['categoryTags']) : []);
 
         $dict['registeredUsers'] = is_array($dict['registeredUsers'] ?? null) ?
-            $dict['registeredUsers'] :
-            (isset($dict['registeredUsers']) ? explode(';', (string)$dict['registeredUsers']) : []);
+            $dict['registeredUsers'] : (isset($dict['registeredUsers']) ? explode(';', (string)$dict['registeredUsers']) : []);
 
         $dict['interestedUsers'] = is_array($dict['interestedUsers'] ?? null) ?
-            $dict['interestedUsers'] :
-            (isset($dict['interestedUsers']) ? explode(';', (string)$dict['interestedUsers']) : []);
+            $dict['interestedUsers'] : (isset($dict['interestedUsers']) ? explode(';', (string)$dict['interestedUsers']) : []);
 
         // Keep boolean values as strings where needed
-        $dict['groupWithMembership'] = isset($dict['groupWithMembership']) ? 
+        $dict['groupWithMembership'] = isset($dict['groupWithMembership']) ?
             strtoupper((string)$dict['groupWithMembership']) : 'FALSE';
-        $dict['externalRegister'] = isset($dict['externalRegister']) ? 
+        $dict['externalRegister'] = isset($dict['externalRegister']) ?
             strtoupper((string)$dict['externalRegister']) : 'FALSE';
-        $dict['localMeetRegister'] = isset($dict['localMeetRegister']) ? 
+        $dict['localMeetRegister'] = isset($dict['localMeetRegister']) ?
             (string)$dict['localMeetRegister'] : 'false';
 
         return new self($dict);
+    }
+
+    /**
+     * Return array representation (useful for JSON encoding)
+     * @return array
+     */
+    public function toArray()
+    {
+        return [
+            "eventId" => $this->eventId,
+            "title" => $this->title,
+            "description" => $this->description,
+            "eventLink" => $this->eventLink,
+            "date" => $this->date instanceof DateTime ? $this->date->format('Y-m-d\TH:i:s') : $this->date,
+            "time" => $this->time,
+            "duration" => $this->duration,
+            "organiser" => $this->organiser,
+            "organiserInfo" => $this->organiserInfo,
+            "locationAddress" => $this->locationAddress,
+            "locationPostcode" => $this->locationPostcode,
+            "locationLat" => $this->locationLat,
+            "locationLong" => $this->locationLong,
+            "groupWithMembership" => $this->groupWithMembership,
+            "externalRegister" => $this->externalRegister,
+            "localMeetRegister" => $this->localMeetRegister,
+            "groupTags" => $this->groupTags,
+            "categoryTags" => $this->categoryTags,
+            "contactPerson" => $this->contactPerson,
+            "contactDetails" => $this->contactDetails,
+            "contactVisibility" => $this->contactVisibility,
+            "costIntroductory" => $this->costIntroductory,
+            "costRegular" => $this->costRegular,
+            "size" => $this->size,
+            "addedBy" => $this->addedBy,
+            "addedAt" => $this->addedAt instanceof DateTime ? $this->addedAt->format('Y-m-d\TH:i:s.u') : $this->addedAt,
+            "lastEdited" => $this->lastEdited instanceof DateTime ? $this->lastEdited->format('Y-m-d\TH:i:s.u') : $this->lastEdited,
+            "registeredUsers" => $this->registeredUsers,
+            "interestedUsers" => $this->interestedUsers,
+            "isCancelled" => $this->isCancelled,
+            "isDeleted" => $this->isDeleted,
+            "originalFilePath" => $this->originalFilePath
+        ];
+    }
+
+    /*
+    Write the event to a JSON file. If the new filename already exists, throw an exception. If
+    it does not exits then update the latest event in the user's created events list.
+    */
+    public function writeToJsonFile(string $baseDir, User $user)
+    {
+        $year = $this->date->format('Y');
+        $month = $this->date->format('m');
+        $day = $this->date->format('d');
+        // replace spaces in title with underscores for filename
+        $fname = $year . "/" . $month . "/" . $day . "_" . strtolower(str_replace(' ', '_', $this->title)) . ".json";
+        $pth = $baseDir . "/events/" . $fname;
+        if ($fname !== $this->originalFilePath) {
+            $this->originalFilePath = $fname;
+            $user->addCreatedEventFile($baseDir, $fname, $this->originalFilePath);
+        }
+        $data = $this->toArray();
+        $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+        makeDirsAndWriteFile($pth, $json);
+    }
+
+    public static function fromJsonFile($filepath)
+    {
+        if (!file_exists($filepath)) {
+            throw new Exception("File not found: $filepath");
+        }
+        $json = file_get_contents($filepath);
+        $data = json_decode($json, true);
+        return self::fromDict($data);
     }
 }

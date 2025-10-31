@@ -27,8 +27,8 @@ for event in events:
     time = dt.datetime.strptime(event['time'], "%H:%M").time()
     event['date'] = dt.datetime.combine(date.date(), time).isoformat()
     year, month, day = event["date"][:10].split("-")
-    fname = day + "_" + event['title'].lower().replace(" ", "_") + ".json"
-    pth = os.path.join(BASE_PATH, "data", "events", year, month, fname)
+    fname = os.path.join(year, month, day + "_" + event['title'].lower().replace(" ", "_") + ".json")
+    pth = os.path.join(BASE_PATH, "data", "events", fname)
     event['originalFilePath'] = fname
     # save each event as a json file
 
