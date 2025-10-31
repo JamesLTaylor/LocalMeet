@@ -253,17 +253,14 @@ function requireLogin(req, res, next) {
 }
 
 // Serve event form only to logged in users from private directory
-app.get('/event-form', requireLogin, (req, res) => {
+app.get('/api/event-form', requireLogin, (req, res) => {
   res.sendFile(path.join(__dirname, 'private', 'event-form.html'));
 });
 
 // Serve user profile form only to logged in users from private directory
-app.get(
-  '/user-profile-form',
-  /*requireLogin,*/ (req, res) => {
-    res.sendFile(path.join(__dirname, 'private', 'user-profile-form.html'));
-  }
-);
+app.get('/api/user-profile-form', requireLogin, (req, res) => {
+  res.sendFile(path.join(__dirname, 'private', 'user-profile-form.html'));
+});
 
 // Fallback to index.html for all other routes (SPA support)
 app.get('*', (req, res) => {
