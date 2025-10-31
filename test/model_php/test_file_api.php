@@ -49,4 +49,7 @@ $u2 = getUserDetailsByFilename($missing);
 assertTrue($u2 === null, "Expected null for missing file");
 
 fwrite(STDOUT, "All tests passed.\n");
+//delete file that was written
+unlink(getDataDirectory() . '/users/username.json');
+fwrite(STDOUT, "Test file deleted.\n");
 exit(0);

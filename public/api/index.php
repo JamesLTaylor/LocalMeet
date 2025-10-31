@@ -195,9 +195,13 @@ if ($path === '/create-user') {
         ]);
         exit;
     }
-
+    // get lowercase username
+    $username = strtolower($data['username']);
     try {
-        $userId = appendUserToLookup($data['username'], $data['password']);
+        $userId = appendUserToLookup($username, $data['password']);
+        $dateJoined = date('Y-m-d H:i:s');
+        $userObj = new User($userId, $username, $username, $data["email"], $dateJoined);
+        $userObj->writeToJsonFile(getDataDirectory() . '/users/' . $username . '.json');
         http_response_code(201); // Created
         echo json_encode([
             'success' => true,
@@ -273,6 +277,58 @@ if ($path === '/login') {
             http_response_code(500);
             echo json_encode(['success' => false, 'message' => $msg]);
         }
+    }
+    exit;
+}
+
+if ($path === '/logout') {
+    header('Content-Type: application/json; charset=utf-8');
+    
+    // Destroy session data
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        // Clear user data
+        unset($_SESSION['user']);
+        // Destroy the session
+        session_destroy();
+    }
+    
+    echo json_encode(['success' => true, 'message' => 'Logged out successfully']);
+    exit;
+}
+
+if ($path === '/current-username') {
+    header('Content-Type: application/json; charset=utf-8');
+    
+    if (!empty($_SESSION['user']) && !empty($_SESSION['user']['name'])) {
+        echo json_encode([
+            'success' => true,
+            'name' => $_SESSION['user']['name']
+        ]);
+    } else {
+        http_response_code(401);
+        echo json_encode([
+            'success' => false,
+            'name' => null,
+            'message' => 'Not logged in'
+        ]);
+    }
+    exit;
+}
+
+if ($path === '/current-user-type') {
+    header('Content-Type: application/json; charset=utf-8');
+    
+    if (!empty($_SESSION['user']) && !empty($_SESSION['user']['userType'])) {
+        echo json_encode([
+            'success' => true,
+            'userType' => $_SESSION['user']['userType']
+        ]);
+    } else {
+        http_response_code(401);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Not logged in'
+        ]);
     }
     exit;
 }
