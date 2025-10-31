@@ -240,12 +240,12 @@ if ($path === '/login') {
 
     try {
         // tryLogin will throw on invalid credentials
-        $creds = tryLogin($data['username'], $data['password']);
+        $user = tryLogin($data['username'], $data['password']);
 
         // Load full user details if possible
         $userObj = null;
-        if (!empty($creds['filename'])) {
-            $userObj = getUserDetailsByFilename($creds['filename']);
+        if (!empty($user['filename'])) {
+            $userObj = getUserDetailsByFilename($user['filename']);
         }
 
         if ($userObj !== null) {

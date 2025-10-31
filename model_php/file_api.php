@@ -1,4 +1,7 @@
 <?php
+/** File&php API for LocalMeet logic. At some point this should probably be changed 
+ * to rather use a MySQL database or similar for data storage.
+  */
 
 require_once(__DIR__ . '/Event.php');
 require_once(__DIR__ . '/utils.php');
@@ -238,9 +241,7 @@ function tryLogin($username, $password) {
     }
 
     $user = getUserCredentialsByName($username);
-    echo "User fetched: " . json_encode($user) . "\n"; // Debug line
     if (!$user) {
-        echo "User not found\n"; // Debug line
         throw new Exception('User not found');
     }
 
@@ -248,7 +249,7 @@ function tryLogin($username, $password) {
         throw new Exception('Invalid user record');
     }
 
-    // Verify password using PHP's password_verify (supports Argon2)
+    // Verify password using PHP's password_verify
     if (!password_verify($password, $user['passwordHash'])) {
         throw new Exception('Invalid password');
     }
@@ -283,14 +284,10 @@ function getUserCredentialsByName($username) {
 
     while (($row = fgetcsv($handle)) !== false) {
         $assoc = [];
-        echo "Row: " . implode(", ", $row) . "\n"; // Debug line
         foreach ($row as $i => $val) {
             $key = isset($headerMap[$i]) ? $headerMap[$i] : $i;
             $assoc[$key] = $val;
         }
-        echo "Checking username: " . $assoc['username'] . "\n"; // Debug line
-        echo "Against: " . $username . "\n"; // Debug line
-        echo "Result: " . (strtolower($assoc['username']) === $username) . "\n"; // Debug line
         if (isset($assoc['username']) && strtolower($assoc['username']) === $username) {
             fclose($handle);            
             $result =  [
@@ -299,7 +296,6 @@ function getUserCredentialsByName($username) {
                 'passwordHash' => $assoc['passwordhash'] ?? ($assoc['passwordHash'] ?? null),
                 'filename' => $assoc['filename'] ?? null,
             ];
-            echo "returning user: " . json_encode($result) . "\n"; // Debug line
             return $result;
         }        
     }
