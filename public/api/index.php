@@ -12,8 +12,8 @@ if (!empty($_SERVER['PATH_INFO'])) {
     if (strpos($request, $script) === 0) {
         $path = substr($request, strlen($script));
     } else {
-    $base = rtrim(dirname($script), "\\/"); // e.g. /test2/api
-    if (strpos($request, $base) === 0) {
+        $base = rtrim(dirname($script), "\\/"); // e.g. /test2/api
+        if (strpos($request, $base) === 0) {
             $path = substr($request, strlen($base));
         }
     }
@@ -33,7 +33,8 @@ if (session_status() === PHP_SESSION_NONE) {
 /**
  * Require a logged-in user, otherwise redirect to site root.
  */
-function requireLogin() {
+function requireLogin()
+{
     if (empty($_SESSION['user'])) {
         // Redirect to the SPA root (frontend will show login)
         header('Location: /');
@@ -57,7 +58,7 @@ if ($path === '/event-form') {
     exit;
 }
 
-if ($path === '/user-profile-form') {    
+if ($path === '/user-profile-form') {
     requireLogin();
 
     $file = __DIR__ . '/../../private/user-profile-form.html';
@@ -78,12 +79,12 @@ if ($path === '/user-profile-form') {
 /api/events?latitude=51.8&longitude=-0.03&distance=10 # Get events within 10km of location
 */
 if ($path === '/events') {
-    
-    
+
+
     header('Content-Type: application/json; charset=utf-8');
-    
+
     $options = [];
-    
+
     // Handle date filters
     if (!empty($_GET['startDate'])) {
         $options['startDate'] = $_GET['startDate'];
@@ -91,26 +92,26 @@ if ($path === '/events') {
     if (!empty($_GET['endDate'])) {
         $options['endDate'] = $_GET['endDate'];
     }
-    
+
     // Handle location filters
     if (!empty($_GET['latitude']) && !empty($_GET['longitude'])) {
         $options['location'] = [
             'latitude' => floatval($_GET['latitude']),
             'longitude' => floatval($_GET['longitude'])
         ];
-        
+
         if (!empty($_GET['distance'])) {
             $options['distance'] = floatval($_GET['distance']);
         }
     }
-    
+
     try {
         $events = getEvents($options);
         // Convert events to array for JSON serialization
-        $eventsArray = array_map(function($event) {
+        $eventsArray = array_map(function ($event) {
             return (array)$event;
         }, $events);
-        
+
         echo json_encode($eventsArray, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     } catch (Exception $e) {
         http_response_code(500);
@@ -124,17 +125,17 @@ if ($path === '/events') {
 
 if ($path === '/get-category-tags') {
     header('Content-Type: application/json; charset=utf-8');
-    
+
     try {
         $tags = getCategoryTags();
         // Convert CategoryTag objects to arrays for JSON serialization
-        $tagsArray = array_map(function($tag) {
+        $tagsArray = array_map(function ($tag) {
             return [
                 'name' => $tag->name,
                 'description' => $tag->description
             ];
         }, $tags);
-        
+
         echo json_encode($tagsArray, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     } catch (Exception $e) {
         http_response_code(500);
@@ -148,17 +149,17 @@ if ($path === '/get-category-tags') {
 
 if ($path === '/get-group-tags') {
     header('Content-Type: application/json; charset=utf-8');
-    
+
     try {
         $tags = getGroupTags();
         // Convert CategoryTag objects to arrays for JSON serialization
-        $tagsArray = array_map(function($tag) {
+        $tagsArray = array_map(function ($tag) {
             return [
                 'name' => $tag->name,
                 'description' => $tag->description
             ];
         }, $tags);
-        
+
         echo json_encode($tagsArray, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     } catch (Exception $e) {
         http_response_code(500);
@@ -172,7 +173,7 @@ if ($path === '/get-group-tags') {
 
 if ($path === '/create-user') {
     header('Content-Type: application/json; charset=utf-8');
-    
+
     // Only allow POST requests
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         http_response_code(405);
@@ -258,7 +259,6 @@ if ($path === '/login') {
         } else {
             // raise exception if no user found
             throw new Exception('User details not found');
-
         }
 
         // Persist session
@@ -283,7 +283,7 @@ if ($path === '/login') {
 
 if ($path === '/logout') {
     header('Content-Type: application/json; charset=utf-8');
-    
+
     // Destroy session data
     if (session_status() === PHP_SESSION_ACTIVE) {
         // Clear user data
@@ -291,14 +291,14 @@ if ($path === '/logout') {
         // Destroy the session
         session_destroy();
     }
-    
+
     echo json_encode(['success' => true, 'message' => 'Logged out successfully']);
     exit;
 }
 
 if ($path === '/current-username') {
     header('Content-Type: application/json; charset=utf-8');
-    
+
     if (!empty($_SESSION['user']) && !empty($_SESSION['user']['name'])) {
         echo json_encode([
             'success' => true,
@@ -317,7 +317,7 @@ if ($path === '/current-username') {
 
 if ($path === '/current-user-type') {
     header('Content-Type: application/json; charset=utf-8');
-    
+
     if (!empty($_SESSION['user']) && !empty($_SESSION['user']['userType'])) {
         echo json_encode([
             'success' => true,
@@ -334,7 +334,95 @@ if ($path === '/current-user-type') {
     exit;
 }
 
+if ($path === '/create-event') {
+    header('Content-Type: application/json; charset=utf-8');
+    requireLogin();
+
+    // Verify admin access
+    if (empty($_SESSION['user']) || strtoupper($_SESSION['user']['userType']) !== 'ADMIN') {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'message' => 'Forbidden: Admins only']);
+        exit;
+    }
+
+    // Only allow POST requests
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405);
+        echo json_encode(['error' => 'Method Not Allowed', 'message' => 'Only POST allowed']);
+        exit;
+    }
+
+    try {
+        $json = file_get_contents('php://input');
+        $data = json_decode($json, true);
+        $event = new Event($data);
+        // If there's an event in the session, preserve its original path
+        if (!empty($_SESSION['event']) && !empty($_SESSION['event']['originalFilePath'])) {
+            $event->originalFilePath = $_SESSION['event']['originalFilePath'];
+        }
+
+        // Write event to file and update user's event list
+        $user = User::fromArray($_SESSION['user']);
+        $event->writeToJsonFile(getDataDirectory(), $user);
+        $_SESSION['user'] = $user->toArray();
+        $_SESSION['event'] = $event->toArray();
+        session_write_close();
+
+        echo json_encode(['success' => true]);
+    } catch (Exception $e) {
+        error_log('Error creating event: ' . $e->getMessage());
+        http_response_code(500);
+        echo json_encode([
+            'success' => false,
+            'message' => $e->getMessage() ?: 'Error creating event'
+        ]);
+    }
+    exit;
+}
+
+if ($path === '/remove-current-event') {
+    header('Content-Type: application/json; charset=utf-8');
+    requireLogin();
+
+    // Only allow POST requests
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405);
+        echo json_encode(['error' => 'Method Not Allowed', 'message' => 'Only POST allowed']);
+        exit;
+    }
+
+    // Log and remove the event from session
+    if (!empty($_SESSION['event'])) {
+        error_log("Removing event from session: {$_SESSION['event']['title']} on {$_SESSION['event']['date']}");
+        unset($_SESSION['event']);
+        session_write_close();
+    }
+
+    echo json_encode(['success' => true]);
+    exit;
+}
+
+if ($path === '/my-most-recent-event') {
+    header('Content-Type: application/json; charset=utf-8');
+    requireLogin();
+
+    try {
+        $user = User::fromArray($_SESSION['user']);
+        $event = getMostRecentEventByUser($user);
+        // Convert Event to array for JSON serialization
+        $eventArray = $event->toArray();
+        echo json_encode(['success' => true, 'event' => $eventArray]);
+    } catch (Exception $e) {
+        error_log('Error fetching most recent event: ' . $e->getMessage());
+        http_response_code(500);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Error fetching most recent event'
+        ]);
+    }
+    exit;
+}
+
 http_response_code(404);
 header('Content-Type: text/plain; charset=utf-8');
 echo 'Not Found';
-

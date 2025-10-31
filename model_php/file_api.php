@@ -362,7 +362,7 @@ function getUserDetailsByFilename($filename)
  * @return Event
  * @throws Exception
  */
-function getMostRecentEventByUser($user)
+function getMostRecentEventByUser(User $user)
 {
     if (!$user || empty($user->username)) {
         throw new Exception('User instance with username required');
@@ -379,79 +379,11 @@ function getMostRecentEventByUser($user)
     }
 
     $filePath = getDataDirectory() . '/events/' . $lastEventFile;
-    if (!is_readable($filePath)) {
-        // Remove missing entry from user's eventFilesCreated
-        $index = array_search($lastEventFile, $user->eventFilesCreated, true);
-        if ($index !== false) {
-            array_splice($user->eventFilesCreated, $index, 1);
-        }
-        // Persist updated user file
-        $userFile = getDataDirectory() . '/users/' . strtolower($user->username) . '.json';
-        try {
-            $user->writeToJsonFile($userFile);
-        } catch (Exception $e) {
-            // Log but continue to try returning an example
-            error_log("Failed to write updated user file for {$user->username}: " . $e->getMessage());
-        }
-
-        error_log("Error fetching most recent event ({$lastEventFile}), removed from user and trying again");
-        // Retry recursively
-        return getMostRecentEventByUser($user);
+    $event = Event::fromJsonFile($filePath);
+    if ($event === null) {
+        return Event::example();
     }
-
-    // Try to read and parse the event file
-    $json = file_get_contents($filePath);
-    if ($json === false) {
-        // Treat as missing/unreadable and remove from user list
-        $index = array_search($lastEventFile, $user->eventFilesCreated, true);
-        if ($index !== false) {
-            array_splice($user->eventFilesCreated, $index, 1);
-        }
-        $userFile = getDataDirectory() . '/users/' . strtolower($user->username) . '.json';
-        try {
-            $user->writeToJsonFile($userFile);
-        } catch (Exception $e) {
-            error_log("Failed to write updated user file for {$user->username}: " . $e->getMessage());
-        }
-        error_log("Error reading most recent event ({$lastEventFile}), removed from user and trying again");
-        return getMostRecentEventByUser($user);
-    }
-
-    $data = json_decode($json, true);
-    if ($data === null) {
-        // Invalid JSON - remove and retry
-        $index = array_search($lastEventFile, $user->eventFilesCreated, true);
-        if ($index !== false) {
-            array_splice($user->eventFilesCreated, $index, 1);
-        }
-        $userFile = getDataDirectory() . '/users/' . strtolower($user->username) . '.json';
-        try {
-            $user->writeToJsonFile($userFile);
-        } catch (Exception $e) {
-            error_log("Failed to write updated user file for {$user->username}: " . $e->getMessage());
-        }
-        error_log("Invalid JSON for most recent event ({$lastEventFile}), removed from user and trying again");
-        return getMostRecentEventByUser($user);
-    }
-
-    // Construct Event instance (use fromDict helper to normalise types)
-    try {
-        return new Event($data);
-    } catch (Exception $e) {
-        // On any parse/construct error, remove the entry and retry
-        $index = array_search($lastEventFile, $user->eventFilesCreated, true);
-        if ($index !== false) {
-            array_splice($user->eventFilesCreated, $index, 1);
-        }
-        $userFile = getDataDirectory() . '/users/' . strtolower($user->username) . '.json';
-        try {
-            $user->writeToJsonFile($userFile);
-        } catch (Exception $w) {
-            error_log("Failed to write updated user file for {$user->username}: " . $w->getMessage());
-        }
-        error_log("Error constructing Event from file ({$lastEventFile}), removed from user and trying again: " . $e->getMessage());
-        return getMostRecentEventByUser($user);
-    }
+    return $event;
 }
 
 
