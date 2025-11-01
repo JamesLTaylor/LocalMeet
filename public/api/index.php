@@ -202,7 +202,7 @@ if ($path === '/create-user') {
         $userId = appendUserToLookup($username, $data['password']);
         $dateJoined = date('Y-m-d H:i:s');
         $userObj = new User($userId, $username, $username, $data["email"], $dateJoined);
-        $userObj->writeToJsonFile(getDataDirectory() . '/users/' . $username . '.json');
+        $userObj->writeToJsonFile(getDataDirectory());
         http_response_code(201); // Created
         echo json_encode([
             'success' => true,

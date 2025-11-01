@@ -7,7 +7,8 @@
 
 require_once(__DIR__ . '/UserType.php');
 
-class User {
+class User
+{
 
 
     public $userID;
@@ -16,6 +17,7 @@ class User {
     public $email;
     /** @var \DateTime|null */
     public $dateJoined;
+    public $locationPostcode;
     /** @var Location|null */
     public $location;
     public $searchGroupTags = [];
@@ -25,7 +27,7 @@ class User {
     public $eventsRegisteredInterest = [];
     public $eventsSignedUpFor = [];
     public $eventsAttended = [];
-        
+
     public $userType;
     public $eventFilesCreated = [];
     public $eventFilesEdited = [];
@@ -44,6 +46,7 @@ class User {
      * @param string|null $name
      * @param string|null $email
      * @param string|\DateTime|null $dateJoined
+     * @param string|null $locationPostcode
      * @param array|Location|null $location
      * @param array|null $searchGroupTags
      * @param array|null $searchCategoryTags
@@ -56,7 +59,8 @@ class User {
      * @param array|null $eventFilesCreated
      * @param array|null $eventFilesEdited
      */
-    public function __construct($userID = null, $username = null, $name = null, $email = null, $dateJoined = null, $location = null, $searchGroupTags = null, $searchCategoryTags = null, $daysTimesOfInterest = null, $eventsReviewed = null, $eventsRegisteredInterest = null, $eventsSignedUpFor = null, $eventsAttended = null, $userType = null, $eventFilesCreated = null, $eventFilesEdited = null) {
+    public function __construct($userID = null, $username = null, $name = null, $email = null, $dateJoined = null, $locationPostcode = null, $location = null, $searchGroupTags = null, $searchCategoryTags = null, $daysTimesOfInterest = null, $eventsReviewed = null, $eventsRegisteredInterest = null, $eventsSignedUpFor = null, $eventsAttended = null, $userType = null, $eventFilesCreated = null, $eventFilesEdited = null)
+    {
         $this->userID = $userID;
         $this->username = $username;
         $this->name = $name;
@@ -69,7 +73,7 @@ class User {
                 $this->dateJoined = null;
             }
         }
-
+        $this->locationPostcode = $locationPostcode;
         if (is_array($location)) {
             $this->location = Location::fromArray($location);
         } else {
@@ -84,7 +88,7 @@ class User {
         $this->eventsSignedUpFor = is_array($eventsSignedUpFor) ? $eventsSignedUpFor : [];
         $this->eventsAttended = is_array($eventsAttended) ? $eventsAttended : [];
 
-    $this->userType = $userType ?: UserType::MEMBER->value;
+        $this->userType = $userType ?: UserType::MEMBER->value;
         $this->eventFilesCreated = is_array($eventFilesCreated) ? $eventFilesCreated : [];
         $this->eventFilesEdited = is_array($eventFilesEdited) ? $eventFilesEdited : [];
     }
@@ -94,13 +98,15 @@ class User {
      * @param array $data
      * @return User
      */
-    public static function fromArray(array $data) {
+    public static function fromArray(array $data)
+    {
         $userID = isset($data['userID']) ? $data['userID'] : null;
         $username = isset($data['username']) ? $data['username'] : null;
         $name = isset($data['name']) ? $data['name'] : null;
         $email = isset($data['email']) ? $data['email'] : null;
         $dateJoined = isset($data['dateJoined']) ? $data['dateJoined'] : null;
         $location = isset($data['location']) ? Location::fromArray($data['location']) : null;
+        $locationPostcode = isset($data['locationPostcode']) ? $data['locationPostcode'] : null;
         $searchGroupTags = isset($data['searchGroupTags']) ? $data['searchGroupTags'] : [];
         $searchCategoryTags = isset($data['searchCategoryTags']) ? $data['searchCategoryTags'] : [];
         $daysTimesOfInterest = isset($data['daysTimesOfInterest']) ? $data['daysTimesOfInterest'] : [];
@@ -108,18 +114,37 @@ class User {
         $eventsRegisteredInterest = isset($data['eventsRegisteredInterest']) ? $data['eventsRegisteredInterest'] : [];
         $eventsSignedUpFor = isset($data['eventsSignedUpFor']) ? $data['eventsSignedUpFor'] : [];
         $eventsAttended = isset($data['eventsAttended']) ? $data['eventsAttended'] : [];
-    $userType = isset($data['userType']) ? $data['userType'] : UserType::MEMBER->value;
+        $userType = isset($data['userType']) ? $data['userType'] : UserType::MEMBER->value;
         $eventFilesCreated = isset($data['eventFilesCreated']) ? $data['eventFilesCreated'] : [];
         $eventFilesEdited = isset($data['eventFilesEdited']) ? $data['eventFilesEdited'] : [];
 
-        return new User($userID, $username, $name, $email, $dateJoined, $location, $searchGroupTags, $searchCategoryTags, $daysTimesOfInterest, $eventsReviewed, $eventsRegisteredInterest, $eventsSignedUpFor, $eventsAttended, $userType, $eventFilesCreated, $eventFilesEdited);
+        return new User(
+            $userID,
+            $username,
+            $name,
+            $email,
+            $dateJoined,
+            $locationPostcode,
+            $location,
+            $searchGroupTags,
+            $searchCategoryTags,
+            $daysTimesOfInterest,
+            $eventsReviewed,
+            $eventsRegisteredInterest,
+            $eventsSignedUpFor,
+            $eventsAttended,
+            $userType,
+            $eventFilesCreated,
+            $eventFilesEdited
+        );
     }
 
     /**
      * Add an edited event file to the user if it does not already exist
      * @param string $filename
      */
-    public function addEditedEventFile($filename) {
+    public function addEditedEventFile($filename)
+    {
         if (!in_array($filename, $this->eventFilesEdited, true)) {
             $this->eventFilesEdited[] = $filename;
         }
@@ -129,7 +154,8 @@ class User {
      * Return array representation (useful for JSON encoding)
      * @return array
      */
-    public function toArray() {
+    public function toArray()
+    {
         return [
             'userID' => $this->userID,
             'username' => $this->username,
@@ -150,20 +176,31 @@ class User {
         ];
     }
 
-    public function writeToJsonFile($filepath) {
+    /**
+     * Write the user data to a JSON file.
+     * @param string $baseDir the base directory where all data is stored. User files are in $baseDir/users/
+     */
+    public function writeToJsonFile($baseDir)
+    {
         $data = $this->toArray();
         $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
-        file_put_contents($filepath, $json);
+        $filename = $baseDir . '/users/' . $this->username . '.json';
+        file_put_contents($filename, $json);
     }
 
-    public function addCreatedEventFile(string $baseDir, string $filename, ?string $originalFilePath=null) {
+    /**
+     * Add a created event file to the user, removing any original file path if provided. Then saves the updated user data.
+     * @param string $baseDir
+     * @param string $filename
+     * @param string|null $originalFilePath
+     */
+    public function addCreatedEventFile(string $baseDir, string $filename, ?string $originalFilePath = null)
+    {
         if ($originalFilePath !== null) {
             $this->eventFilesCreated = array_filter($this->eventFilesCreated, fn($path) => $path !== $originalFilePath);
         }
         $this->eventFilesCreated = array_filter($this->eventFilesCreated, fn($path) => $path !== $filename);
         $this->eventFilesCreated[] = $filename;
+        $this->writeToJsonFile($baseDir);
     }
 }
-
-// Optionally expose a simple alias for backward compatibility
-class_alias('User', 'LocalMeetUser');
